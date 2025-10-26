@@ -29,19 +29,23 @@ HELPFUL_CHANNEL_LINK = "https://t.me/rejoinsnousetgagne"
 # --- LANGUAGE STRINGS ---
 STRINGS = {
     'en': {
-        'lang_prompt': "Please select your language:",
-        'welcome': (
-            "Welcome, you are now diving into the immersive adventure of video gaming. "
-            "This bot will help you set up an authentic account in order to join the game, "
-            "play, and win big 💰"
+        # --- NEW DISCLAIMER ---
+        'disclaimer': (
+            "**Disclaimer:** This bot is an unofficial guide and is not affiliated with "
+            "Epic Games or Fortnite. We will *never* ask for your password."
         ),
-        # --- BUTTONS UPDATED ---
+        'lang_prompt': "Please select your language:",
+        # --- WELCOME MESSAGE UPDATED (AD FRIENDLY) ---
+        'welcome': (
+            "Welcome! You're diving into an immersive gaming adventure. "
+            "This bot will help you set up your account, join the game, and start playing."
+        ),
+        # --- END OF UPDATE ---
         'new_player_btn': "New player",
         'existing_player_btn': "Existing player",
         'helpful_channel_btn': "Full guide in channel",
         'support_btn': "Support",
-        # --- END OF UPDATE ---
-        'lang_btn': "🌐 Change Language", # This is not on main menu, but kept for /start
+        'lang_btn': "🌐 Change Language",
         'helpful_channel_text': "Join our helpful Telegram channel for the full guide, news, and community chat!",
         'join_channel_btn': "Join Channel Now",
         'existing_player_text': (
@@ -52,16 +56,21 @@ STRINGS = {
             "and use this link again."
         ),
         'back_btn': "⬅️ Back to Main Menu",
-        # --- NEW SUPPORT STRINGS ---
         'support_q1': "Have you already read the 'New player' guide and the 'Full guide in channel'?",
         'yes_btn': "Yes, I still have a question",
         'no_btn': "No, I will check them now",
         'support_q1_no': "Please review those guides first. They answer most questions! 🙏\n\nReturning you to the main menu.",
-        'support_q2': "Okay, please type your Telegram @username (like @myusername) and I will make sure you get contacted soon.\n\nType /cancel to go back.",
+        # --- SUPPORT Q2 UPDATED (AD FRIENDLY) ---
+        'support_q2': (
+            "Okay. By providing your @username, you consent to our support team "
+            "contacting you directly on Telegram. We will *only* use this to help with your question.\n\n"
+            "Please type your @username (like @myusername) to proceed.\n\n"
+            "Type /cancel to go back."
+        ),
+        # --- END OF UPDATE ---
         'support_thanks': "Thank you! Your @username has been noted. We will get in touch with you as soon as possible.\n\nReturning you to the main menu.",
         'support_cancel': "Support request cancelled. Returning to main menu.",
         'invalid_username': "That doesn't look like a valid @username. Please start with '@' and try again, or type /cancel.",
-        # --- END NEW SUPPORT ---
         'guide1_text': (
             "**Step 1: Create Epic Games Account**\n\n"
             "This is required to play Fortnite. Go to the official site to create your account.\n\n"
@@ -90,18 +99,22 @@ STRINGS = {
         ),
     },
     'fr': {
-        'lang_prompt': "Veuillez sélectionner votre langue :",
-        'welcome': (
-            "Bienvenue , à présent tu plonges dans l’aventure immersive du jeu vidéo, "
-            "ce bot t’aidera à configurer un compte authentique afin de rejoindre la partie , "
-            "de jouer et gagner au max💰"
+        # --- NEW DISCLAIMER ---
+        'disclaimer': (
+            "**Avertissement :** Ce bot est un guide non officiel et n'est pas affilié à "
+            "Epic Games ou Fortnite. Nous ne vous demanderons *jamais* votre mot de passe."
         ),
-        # --- BUTTONS UPDATED ---
+        'lang_prompt': "Veuillez sélectionner votre langue :",
+        # --- WELCOME MESSAGE UPDATED (AD FRIENDLY) ---
+        'welcome': (
+            "Bienvenue ! Tu plonges dans une aventure de jeu immersive. "
+            "Ce bot t'aidera à configurer ton compte, à rejoindre la partie et à commencer à jouer."
+        ),
+        # --- END OF UPDATE ---
         'new_player_btn': "Nouveau joueur",
         'existing_player_btn': "Joueur existant",
         'helpful_channel_btn': "Guide complet sur le canal",
         'support_btn': "Support",
-        # --- END OF UPDATE ---
         'lang_btn': "🌐 Changer de Langue",
         'helpful_channel_text': "Rejoignez notre canal Telegram pour le guide complet, les actualités et pour discuter avec la communauté !",
         'join_channel_btn': "Rejoindre le Canal",
@@ -113,16 +126,21 @@ STRINGS = {
             "et utiliser à nouveau ce lien."
         ),
         'back_btn': "⬅️ Retour au Menu Principal",
-        # --- NEW SUPPORT STRINGS ---
         'support_q1': "Avez-vous déjà lu le guide 'Nouveau joueur' et le 'Guide complet sur le canal' ?",
         'yes_btn': "Oui, j'ai encore une question",
         'no_btn': "Non, je vais les voir maintenant",
         'support_q1_no': "Veuillez d'abord consulter ces guides. Ils répondent à la plupart des questions ! 🙏\n\nRetour au menu principal.",
-        'support_q2': "D'accord, veuillez taper votre @nomdutilisateur Telegram (comme @monpseudo) et je m'assurerai que vous soyez contacté bientôt.\n\nTapez /cancel pour revenir.",
+        # --- SUPPORT Q2 UPDATED (AD FRIENDLY) ---
+        'support_q2': (
+            "D'accord. En fournissant votre @nomdutilisateur, vous acceptez que notre équipe d'assistance "
+            "vous contacte directement sur Telegram. Nous l'utiliserons *uniquement* pour répondre à votre question.\n\n"
+            "Veuillez taper votre @nomdutilisateur (comme @monpseudo) pour continuer.\n\n"
+            "Tapez /cancel pour revenir."
+        ),
+        # --- END OF UPDATE ---
         'support_thanks': "Merci ! Votre @nomdutilisateur a été noté. Nous vous contacterons dès que possible.\n\nRetour au menu principal.",
         'support_cancel': "Demande d'aide annulée. Retour au menu principal.",
         'invalid_username': "Cela ne ressemble pas à un @nomdutilisateur valide. Veuillez commencer par '@' et réessayer, ou tapez /cancel.",
-        # --- END NEW SUPPORT ---
         'guide1_text': (
             "**Étape 1 : Créer un compte Epic Games**\n\n"
             "Ceci est requis pour jouer à Fortnite. Allez sur le site officiel pour créer votre compte.\n\n"
@@ -162,7 +180,6 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, mes
     lang = context.user_data.get('lang', 'en') # Default to English
     s = STRINGS[lang]
     
-    # --- UPDATED KEYBOARD ---
     keyboard = [
         [InlineKeyboardButton(s['new_player_btn'], callback_data="new_player_start")],
         [InlineKeyboardButton(s['existing_player_btn'], callback_data="existing_player_link")],
@@ -178,7 +195,8 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, mes
         try:
             await query.edit_message_text(
                 text=text_to_show,
-                reply_markup=InlineKeyboardMarkup(keyboard)
+                reply_markup=InlineKeyboardMarkup(keyboard),
+                parse_mode='Markdown'
             )
         except Exception as e:
             logger.warning(f"Failed to edit message, might be same as old: {e}")
@@ -186,14 +204,26 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, mes
         # This happens for /start or after text input
         await update.message.reply_text(
             text=text_to_show,
-            reply_markup=InlineKeyboardMarkup(keyboard)
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode='Markdown'
         )
     return MAIN_MENU
 
 # --- Conversation Handlers ---
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Entry point: Asks for language."""
+    """Entry point: Shows disclaimer and asks for language."""
+    
+    # --- DISCLAIMER ADDED TO START ---
+    text = (
+        f"{STRINGS['en']['disclaimer']}\n\n"
+        f"{STRINGS['fr']['disclaimer']}\n\n"
+        "------\n\n"
+        f"{STRINGS['en']['lang_prompt']}\n\n"
+        f"{STRINGS['fr']['lang_prompt']}"
+    )
+    # --- END OF UPDATE ---
+
     keyboard = [
         [
             InlineKeyboardButton("English 🇬🇧", callback_data="en"),
@@ -201,14 +231,22 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         ]
     ]
     
-    text = STRINGS['en']['lang_prompt'] + "\n\n" + STRINGS['fr']['lang_prompt']
-    
     query = update.callback_query
     if query:
         await query.answer()
-        await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), disable_web_page_preview=True)
+        await query.edit_message_text(
+            text=text, 
+            reply_markup=InlineKeyboardMarkup(keyboard), 
+            disable_web_page_preview=True,
+            parse_mode='Markdown'
+        )
     else:
-        await update.message.reply_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), disable_web_page_preview=True)
+        await update.message.reply_text(
+            text=text, 
+            reply_markup=InlineKeyboardMarkup(keyboard), 
+            disable_web_page_preview=True,
+            parse_mode='Markdown'
+        )
         
     return SELECT_LANG
 
@@ -236,7 +274,7 @@ async def show_existing_link(update: Update, context: ContextTypes.DEFAULT_TYPE)
         parse_mode='Markdown'
     )
     
-    return MAIN_MENU # Stay in main menu state, but with different buttons
+    return MAIN_MENU 
 
 async def show_helpful_channel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Shows the helpful channel link."""
@@ -256,9 +294,9 @@ async def show_helpful_channel(update: Update, context: ContextTypes.DEFAULT_TYP
         disable_web_page_preview=True
     )
     
-    return MAIN_MENU # Stay in main menu state
+    return MAIN_MENU 
 
-# --- NEW SUPPORT FLOW FUNCTIONS ---
+# --- SUPPORT FLOW FUNCTIONS ---
 
 async def support_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Support Step 1: Ask the FAQ question."""
@@ -281,7 +319,6 @@ async def support_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    # We pass the "please read" message to the show_main_menu function
     return await show_main_menu(update, context, message=s['support_q1_no'])
 
 async def support_ask_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -292,10 +329,9 @@ async def support_ask_username(update: Update, context: ContextTypes.DEFAULT_TYP
     query = update.callback_query
     await query.answer()
     
-    # We must edit the message to ask for text input
-    await query.edit_message_text(text=s['support_q2'])
+    await query.edit_message_text(text=s['support_q2'], parse_mode='Markdown')
     
-    return SUPPORT_Q2 # Move to the state that waits for text input
+    return SUPPORT_Q2 
 
 async def support_get_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """User sent their @username as a text message."""
@@ -305,17 +341,13 @@ async def support_get_username(update: Update, context: ContextTypes.DEFAULT_TYP
     username = update.message.text
     
     if username.startswith('@') and len(username) > 2:
-        # --- THIS IS WHERE YOU SEE THE REQUEST ---
         logger.info(f"*** SUPPORT REQUEST from user {update.message.from_user.id}: {username} ***")
-        # --- Check your Render.com logs for this line! ---
         
-        # Send thanks and return to main menu
         await update.message.reply_text(text=s['support_thanks'], reply_markup=ReplyKeyboardRemove())
-        return await show_main_menu(update, context) # Pass update to show menu as a new message
+        return await show_main_menu(update, context) 
     else:
-        # Invalid username, ask again
         await update.message.reply_text(text=s['invalid_username'])
-        return SUPPORT_Q2 # Stay in this state
+        return SUPPORT_Q2 
 
 async def cancel_support(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """User types /cancel during the support flow."""
@@ -343,7 +375,7 @@ async def guide_step_1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")],
     ]
     
-    await query.edit_message_text(text=s['guide1_text'], reply_markup=InlineKeyboardMarkup(keyboard), disable_web_page_preview=True)
+    await query.edit_message_text(text=s['guide1_text'], reply_markup=InlineKeyboardMarkup(keyboard), disable_web_page_preview=True, parse_mode='Markdown')
     return GUIDE_STEPS
 
 async def guide_step_2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -412,8 +444,8 @@ def main() -> None:
                 CallbackQueryHandler(guide_step_1, pattern="^new_player_start$"),
                 CallbackQueryHandler(show_existing_link, pattern="^existing_player_link$"),
                 CallbackQueryHandler(show_helpful_channel, pattern="^helpful_channel$"),
-                CallbackQueryHandler(support_start, pattern="^contact_support$"), # <-- UPDATED
-                CallbackQueryHandler(start, pattern="^change_language$"), # Kept for /start
+                CallbackQueryHandler(support_start, pattern="^contact_support$"), 
+                CallbackQueryHandler(start, pattern="^change_language$"), 
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
             GUIDE_STEPS: [
@@ -422,21 +454,19 @@ def main() -> None:
                 CallbackQueryHandler(guide_step_4, pattern="^guide_step_4$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
-            # --- NEW STATES FOR SUPPORT ---
             SUPPORT_Q1: [
                 CallbackQueryHandler(support_ask_username, pattern="^support_yes$"),
                 CallbackQueryHandler(support_q1_no, pattern="^support_no$"),
-                CommandHandler("cancel", cancel_support), # Allow cancel here
+                CommandHandler("cancel", cancel_support), 
             ],
             SUPPORT_Q2: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, support_get_username),
-                CommandHandler("cancel", cancel_support), # Allow cancel here
+                CommandHandler("cancel", cancel_support), 
             ],
-            # --- END NEW STATES ---
         },
         fallbacks=[
             CommandHandler("start", start),
-            CommandHandler("cancel", cancel_support) # Global cancel
+            CommandHandler("cancel", cancel_support) 
         ],
     )
 
