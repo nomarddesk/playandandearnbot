@@ -419,7 +419,9 @@ def main():
     if SUPPORT_CHAT_ID:
         print(f"📋 Support Chat ID Value: {SUPPORT_CHAT_ID}")
     print("🚀 Bot is running...")
-    application.run_polling(allowed_updates=Update.ALL_UPDATES)
+    
+    # FIXED: Remove the problematic parameter for python-telegram-bot v20+
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
