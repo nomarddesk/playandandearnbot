@@ -1,480 +1,417 @@
-import logging
 import os
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
+import logging
+import random
+import asyncio
+from datetime import datetime, timedelta
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
-    Application,
-    CommandHandler,
-    CallbackQueryHandler,
-    ConversationHandler,
-    ContextTypes,
-    MessageHandler,
-    filters,
+    Application, 
+    CommandHandler, 
+    MessageHandler, 
+    CallbackQueryHandler, 
+    ContextTypes, 
+    filters
 )
 
 # Enable logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
-# --- CONFIGURATION ---
-# !!! IMPORTANT: Fill these in with your information !!!
-YOUR_PLAYGROUND_NAME = "My Awesome Playground"  # The *exact name* to search for in Fortnite
-YOUR_PLAYGROUND_LINK = "https://your-fortnite-playground-link.com"  # The direct link for existing players
-# SUPPORT_USERNAME is no longer needed
-HELPFUL_CHANNEL_LINK = "https://t.me/rejoinsnousetgagne"
-# !!!!!!!!!!!!!!!!!!!!!
+# Bot configuration - Get from Render environment variables
+BOT_TOKEN = os.environ.get('BOT_TOKEN')
+SUPPORT_CHAT_ID = os.environ.get('SUPPORT_CHAT_ID')
 
+# Validate required environment variables
+if not BOT_TOKEN:
+    raise ValueError("❌ BOT_TOKEN environment variable is required! Please set it in Render.")
+if not SUPPORT_CHAT_ID:
+    print("⚠️  SUPPORT_CHAT_ID environment variable not set. Support feature will not work.")
 
-# --- LANGUAGE STRINGS ---
-STRINGS = {
-    'en': {
-        # --- NEW DISCLAIMER ---
-        'disclaimer': (
-            "**Disclaimer:** This bot is an unofficial guide and is not affiliated with "
-            "Epic Games or Fortnite. We will *never* ask for your password."
-        ),
-        'lang_prompt': "Please select your language:",
-        # --- WELCOME MESSAGE UPDATED (AD FRIENDLY) ---
-        'welcome': (
-            "Welcome! You're diving into an immersive gaming adventure. "
-            "This bot will help you set up your account, join the game, and start playing."
-        ),
-        # --- END OF UPDATE ---
-        'new_player_btn': "New player",
-        'existing_player_btn': "Existing player",
-        'helpful_channel_btn': "Full guide in channel",
-        'support_btn': "Support",
-        'lang_btn': "🌐 Change Language",
-        'helpful_channel_text': "Join our helpful Telegram channel for the full guide, news, and community chat!",
-        'join_channel_btn': "Join Channel Now",
-        'existing_player_text': (
-            "✅ Great! Here is the direct link to the playground:\n\n"
-            f"{YOUR_PLAYGROUND_LINK}\n\n"
-            "**Cloud Gaming Reminder:**\n"
-            "Your session lasts for 1 hour. After that, you will need to relaunch the game "
-            "and use this link again."
-        ),
-        'back_btn': "⬅️ Back to Main Menu",
-        'support_q1': "Have you already read the 'New player' guide and the 'Full guide in channel'?",
-        'yes_btn': "Yes, I still have a question",
-        'no_btn': "No, I will check them now",
-        'support_q1_no': "Please review those guides first. They answer most questions! 🙏\n\nReturning you to the main menu.",
-        # --- SUPPORT Q2 UPDATED (AD FRIENDLY) ---
-        'support_q2': (
-            "Okay. By providing your @username, you consent to our support team "
-            "contacting you directly on Telegram. We will *only* use this to help with your question.\n\n"
-            "Please type your @username (like @myusername) to proceed.\n\n"
-            "Type /cancel to go back."
-        ),
-        # --- END OF UPDATE ---
-        'support_thanks': "Thank you! Your @username has been noted. We will get in touch with you as soon as possible.\n\nReturning you to the main menu.",
-        'support_cancel': "Support request cancelled. Returning to main menu.",
-        'invalid_username': "That doesn't look like a valid @username. Please start with '@' and try again, or type /cancel.",
-        'guide1_text': (
-            "**Step 1: Create Epic Games Account**\n\n"
-            "This is required to play Fortnite. Go to the official site to create your account.\n\n"
-            "When you're done, click 'Next Step'."
-        ),
-        'guide1_btn': "Go to Epic Games Site",
-        'guide_next_btn': "Next Step ➡️",
-        'guide2_text': (
-            "**Step 2: Set Up Fortnite**\n\n"
-            "After creating your Epic account, make sure Fortnite is added to your library and set up. "
-            "For cloud gaming, you'll usually do this through your cloud service "
-            "(like GeForce NOW, Xbox Cloud Gaming, etc.)."
-        ),
-        'guide3_text': (
-            "**Step 3: Find My Playground**\n\n"
-            "Once you are in Fortnite, go to the game search bar (Island Code) and "
-            "type in this exact name:\n\n"
-            f"`{YOUR_PLAYGROUND_NAME}`\n\n"
-            "This will take you to my playground. Add it to your favorites!"
-        ),
-        'guide4_text': (
-            "**Final Info: Cloud Gaming Limit**\n\n"
-            "Because you are playing on the cloud, your session will last for **1 hour**. "
-            "The game will close, and you will have to launch it again to keep playing.\n\n"
-            "Next time, you can use the 'Existing Player' button on this bot to get the link faster!"
-        ),
-    },
-    'fr': {
-        # --- NEW DISCLAIMER ---
-        'disclaimer': (
-            "**Avertissement :** Ce bot est un guide non officiel et n'est pas affilié à "
-            "Epic Games ou Fortnite. Nous ne vous demanderons *jamais* votre mot de passe."
-        ),
-        'lang_prompt': "Veuillez sélectionner votre langue :",
-        # --- WELCOME MESSAGE UPDATED (AD FRIENDLY) ---
-        'welcome': (
-            "Bienvenue ! Tu plonges dans une aventure de jeu immersive. "
-            "Ce bot t'aidera à configurer ton compte, à rejoindre la partie et à commencer à jouer."
-        ),
-        # --- END OF UPDATE ---
-        'new_player_btn': "Nouveau joueur",
-        'existing_player_btn': "Joueur existant",
-        'helpful_channel_btn': "Guide complet sur le canal",
-        'support_btn': "Support",
-        'lang_btn': "🌐 Changer de Langue",
-        'helpful_channel_text': "Rejoignez notre canal Telegram pour le guide complet, les actualités et pour discuter avec la communauté !",
-        'join_channel_btn': "Rejoindre le Canal",
-        'existing_player_text': (
-            "✅ Parfait ! Voici le lien direct vers le terrain de jeu :\n\n"
-            f"{YOUR_PLAYGROUND_LINK}\n\n"
-            "**Rappel Cloud Gaming :**\n"
-            "Votre session dure 1 heure. Après cela, vous devrez relancer le jeu "
-            "et utiliser à nouveau ce lien."
-        ),
-        'back_btn': "⬅️ Retour au Menu Principal",
-        'support_q1': "Avez-vous déjà lu le guide 'Nouveau joueur' et le 'Guide complet sur le canal' ?",
-        'yes_btn': "Oui, j'ai encore une question",
-        'no_btn': "Non, je vais les voir maintenant",
-        'support_q1_no': "Veuillez d'abord consulter ces guides. Ils répondent à la plupart des questions ! 🙏\n\nRetour au menu principal.",
-        # --- SUPPORT Q2 UPDATED (AD FRIENDLY) ---
-        'support_q2': (
-            "D'accord. En fournissant votre @nomdutilisateur, vous acceptez que notre équipe d'assistance "
-            "vous contacte directement sur Telegram. Nous l'utiliserons *uniquement* pour répondre à votre question.\n\n"
-            "Veuillez taper votre @nomdutilisateur (comme @monpseudo) pour continuer.\n\n"
-            "Tapez /cancel pour revenir."
-        ),
-        # --- END OF UPDATE ---
-        'support_thanks': "Merci ! Votre @nomdutilisateur a été noté. Nous vous contacterons dès que possible.\n\nRetour au menu principal.",
-        'support_cancel': "Demande d'aide annulée. Retour au menu principal.",
-        'invalid_username': "Cela ne ressemble pas à un @nomdutilisateur valide. Veuillez commencer par '@' et réessayer, ou tapez /cancel.",
-        'guide1_text': (
-            "**Étape 1 : Créer un compte Epic Games**\n\n"
-            "Ceci est requis pour jouer à Fortnite. Allez sur le site officiel pour créer votre compte.\n\n"
-            "Lorsque vous avez terminé, cliquez sur 'Étape suivante'."
-        ),
-        'guide1_btn': "Aller sur le site d'Epic Games",
-        'guide_next_btn': "Étape Suivante ➡️",
-        'guide2_text': (
-            "**Étape 2 : Configurer Fortnite**\n\n"
-            "Après avoir créé votre compte Epic, assurez-vous que Fortnite est ajouté à votre bibliothèque et configuré. "
-            "Pour le cloud gaming, vous ferez généralement cela via votre service cloud "
-            "(comme GeForce NOW, Xbox Cloud Gaming, etc.)."
-        ),
-        'guide3_text': (
-            "**Étape 3 : Trouver mon terrain de jeu**\n\n"
-            "Une fois dans Fortnite, allez dans la barre de recherche de jeu (Code d'île) et "
-            "tapez ce nom exact :\n\n"
-            f"`{YOUR_PLAYGROUND_NAME}`\n\n"
-            "Cela vous amènera à mon terrain de jeu. Ajoutez-le à vos favoris !"
-        ),
-        'guide4_text': (
-            "**Info Finale : Limite du Cloud Gaming**\n\n"
-            "Parce que vous jouez sur le cloud, votre session durera **1 heure**. "
-            "Le jeu se fermera, et vous devrez le relancer pour continuer à jouer.\n\n"
-            "La prochaine fois, vous pourrez utiliser le bouton 'Joueur Existant' de ce bot pour obtenir le lien plus rapidement !"
-        ),
-    }
-}
+# Game configuration
+INITIAL_BALANCE = 1000
+MIN_BET = 50
+MAX_BET = 5000
 
+# User data storage (in production, use a database)
+user_data = {}
 
-# Define states
-SELECT_LANG, MAIN_MENU, GUIDE_STEPS, SUPPORT_Q1, SUPPORT_Q2 = range(5)
+class User:
+    def __init__(self, user_id):
+        self.user_id = user_id
+        self.balance = INITIAL_BALANCE
+        self.last_claim = None
+        self.games_played = 0
+        self.total_winnings = 0
 
-# --- Helper Functions ---
-async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, message: str = None):
-    """Helper function to show the main menu in the user's language."""
-    lang = context.user_data.get('lang', 'en') # Default to English
-    s = STRINGS[lang]
+def get_user(user_id):
+    if user_id not in user_data:
+        user_data[user_id] = User(user_id)
+    return user_data[user_id]
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Send welcome message when the command /start is issued."""
+    user = get_user(update.effective_user.id)
+    
+    welcome_text = (
+        "🎮 Welcome to Play & Earn Bot! 🎮\n\n"
+        "💰 Your balance: ${:,}\n"
+        "🎲 Play games and earn money!\n\n"
+        "Available commands:\n"
+        "/play - Start a new game\n"
+        "/balance - Check your balance\n"
+        "/daily - Claim daily bonus\n"
+        "/support - Contact support\n"
+        "/leaderboard - Top players"
+    ).format(user.balance)
+    
+    await update.message.reply_text(welcome_text)
+
+async def balance(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Check user balance."""
+    user = get_user(update.effective_user.id)
+    
+    balance_text = (
+        "💰 Your Balance:\n"
+        "Cash: ${:,}\n"
+        "Games Played: {}\n"
+        "Total Winnings: ${:,}"
+    ).format(user.balance, user.games_played, user.total_winnings)
+    
+    await update.message.reply_text(balance_text)
+
+async def daily_bonus(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Claim daily bonus."""
+    user = get_user(update.effective_user.id)
+    now = datetime.now()
+    
+    if user.last_claim and (now - user.last_claim).days < 1:
+        next_claim = user.last_claim + timedelta(days=1)
+        time_left = next_claim - now
+        hours = int(time_left.seconds // 3600)
+        minutes = int((time_left.seconds % 3600) // 60)
+        
+        await update.message.reply_text(
+            f"⏰ You've already claimed your daily bonus today!\n"
+            f"Next bonus in: {hours}h {minutes}m"
+        )
+        return
+    
+    # Daily bonus amount (random between 100-500)
+    bonus = random.randint(100, 500)
+    user.balance += bonus
+    user.last_claim = now
+    
+    await update.message.reply_text(
+        f"🎉 Daily Bonus Claimed!\n"
+        f"💰 You received: ${bonus:,}\n"
+        f"💵 New balance: ${user.balance:,}\n\n"
+        f"Come back tomorrow for more!"
+    )
+
+async def play_game(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Start a new game."""
+    user = get_user(update.effective_user.id)
+    
+    if user.balance < MIN_BET:
+        await update.message.reply_text(
+            f"❌ Insufficient balance! You need at least ${MIN_BET} to play.\n"
+            f"💰 Your balance: ${user.balance:,}\n\n"
+            f"Use /daily to claim your daily bonus!"
+        )
+        return
     
     keyboard = [
-        [InlineKeyboardButton(s['new_player_btn'], callback_data="new_player_start")],
-        [InlineKeyboardButton(s['existing_player_btn'], callback_data="existing_player_link")],
-        [InlineKeyboardButton(s['helpful_channel_btn'], callback_data="helpful_channel")],
-        [InlineKeyboardButton(s['support_btn'], callback_data="contact_support")],
+        [InlineKeyboardButton("🎯 Number Guess ($50)", callback_data="game_number_50")],
+        [InlineKeyboardButton("🎯 Number Guess ($100)", callback_data="game_number_100")],
+        [InlineKeyboardButton("🎯 Number Guess ($200)", callback_data="game_number_200")],
+        [InlineKeyboardButton("🎰 Slot Machine ($300)", callback_data="game_slot_300")],
+        [InlineKeyboardButton("🎰 Slot Machine ($500)", callback_data="game_slot_500")],
     ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
     
+    await update.message.reply_text(
+        "🎮 Choose a game to play:\n\n"
+        "🎯 Number Guess - Guess the correct number (2x payout)\n"
+        "🎰 Slot Machine - Match symbols to win big (up to 10x payout)\n\n"
+        f"💰 Your balance: ${user.balance:,}",
+        reply_markup=reply_markup
+    )
+
+async def handle_game_selection(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle game selection from inline keyboard."""
     query = update.callback_query
-    text_to_show = message or s['welcome'] # Show a custom message or the default welcome
+    await query.answer()
     
-    if query:
-        await query.answer()
+    user = get_user(query.from_user.id)
+    game_data = query.data.split('_')
+    game_type = game_data[1]
+    bet_amount = int(game_data[2])
+    
+    if user.balance < bet_amount:
+        await query.edit_message_text(
+            f"❌ Insufficient balance! You need ${bet_amount} to play this game.\n"
+            f"💰 Your balance: ${user.balance:,}"
+        )
+        return
+    
+    # Deduct bet amount
+    user.balance -= bet_amount
+    user.games_played += 1
+    
+    if game_type == "number":
+        await play_number_guess(query, bet_amount, user)
+    elif game_type == "slot":
+        await play_slot_machine(query, bet_amount, user)
+
+async def play_number_guess(query, bet_amount, user):
+    """Play number guessing game."""
+    # Generate random number between 1-10
+    winning_number = random.randint(1, 10)
+    
+    # Simulate some "thinking" time
+    await query.edit_message_text("🎯 Rolling the dice...")
+    await asyncio.sleep(1.5)
+    
+    # Player's guess (random for this simulation)
+    player_guess = random.randint(1, 10)
+    
+    if player_guess == winning_number:
+        win_amount = bet_amount * 2
+        user.balance += win_amount
+        user.total_winnings += win_amount
+        
+        await query.edit_message_text(
+            f"🎉 YOU WON! 🎉\n\n"
+            f"🎯 Your guess: {player_guess}\n"
+            f"🎯 Winning number: {winning_number}\n"
+            f"💰 Bet: ${bet_amount:,}\n"
+            f"💰 Won: ${win_amount:,}\n"
+            f"💵 New balance: ${user.balance:,}"
+        )
+    else:
+        await query.edit_message_text(
+            f"😔 Better luck next time!\n\n"
+            f"🎯 Your guess: {player_guess}\n"
+            f"🎯 Winning number: {winning_number}\n"
+            f"💰 Bet lost: ${bet_amount:,}\n"
+            f"💵 New balance: ${user.balance:,}"
+        )
+
+async def play_slot_machine(query, bet_amount, user):
+    """Play slot machine game."""
+    symbols = ['🍒', '🍋', '🍊', '🍇', '🔔', '💎', '7️⃣']
+    
+    await query.edit_message_text("🎰 Spinning the slots...")
+    await asyncio.sleep(2)
+    
+    # Generate random slots
+    slots = [random.choice(symbols) for _ in range(3)]
+    slot_display = " | ".join(slots)
+    
+    # Check for wins
+    if slots[0] == slots[1] == slots[2]:
+        if slots[0] == '💎':
+            multiplier = 10
+        elif slots[0] == '7️⃣':
+            multiplier = 5
+        else:
+            multiplier = 3
+    elif slots[0] == slots[1] or slots[1] == slots[2]:
+        multiplier = 2
+    else:
+        multiplier = 0
+    
+    if multiplier > 0:
+        win_amount = bet_amount * multiplier
+        user.balance += win_amount
+        user.total_winnings += win_amount
+        
+        result_text = (
+            f"🎰 SLOTS: {slot_display} 🎰\n\n"
+            f"🎉 JACKPOT! {multiplier}x WIN! 🎉\n"
+            f"💰 Bet: ${bet_amount:,}\n"
+            f"💰 Won: ${win_amount:,}\n"
+            f"💵 New balance: ${user.balance:,}"
+        )
+    else:
+        result_text = (
+            f"🎰 SLOTS: {slot_display} 🎰\n\n"
+            f"😔 No winning combination\n"
+            f"💰 Bet lost: ${bet_amount:,}\n"
+            f"💵 New balance: ${user.balance:,}"
+        )
+    
+    await query.edit_message_text(result_text)
+
+async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show top players by balance."""
+    if not user_data:
+        await update.message.reply_text("No players yet! Be the first to play!")
+        return
+    
+    top_players = sorted(user_data.values(), key=lambda x: x.balance, reverse=True)[:10]
+    
+    leaderboard_text = "🏆 TOP 10 PLAYERS 🏆\n\n"
+    for i, player in enumerate(top_players, 1):
         try:
-            await query.edit_message_text(
-                text=text_to_show,
-                reply_markup=InlineKeyboardMarkup(keyboard),
+            user_profile = await context.bot.get_chat(player.user_id)
+            username = user_profile.username if user_profile.username else f"User{player.user_id}"
+            leaderboard_text += f"{i}. @{username} - ${player.balance:,}\n"
+        except:
+            leaderboard_text += f"{i}. User{player.user_id} - ${player.balance:,}\n"
+    
+    await update.message.reply_text(leaderboard_text)
+
+async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle the support command - ask user for their username"""
+    user_id = update.effective_user.id
+    
+    # Check if SUPPORT_CHAT_ID is configured
+    if not SUPPORT_CHAT_ID:
+        await update.message.reply_text(
+            "❌ Support feature is currently unavailable. "
+            "Please contact the administrator directly."
+        )
+        return
+    
+    # Store that user is in support mode
+    context.user_data['awaiting_support'] = True
+    
+    await update.message.reply_text(
+        "🆘 **Support Request** 🆘\n\n"
+        "Please enter your username or any message for our support team. "
+        "Our admins will contact you shortly.\n\n"
+        "💡 **Tip:** Include your username if you haven't set one in Telegram yet."
+    )
+
+async def handle_support_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle the user's support message and forward it to the support group"""
+    user_id = update.effective_user.id
+    user_message = update.message.text
+    
+    # Check if user is in support mode
+    if context.user_data.get('awaiting_support'):
+        # Check if SUPPORT_CHAT_ID is configured
+        if not SUPPORT_CHAT_ID:
+            await update.message.reply_text(
+                "❌ Support feature is currently unavailable. "
+                "Please try again later or contact the administrator directly."
+            )
+            context.user_data['awaiting_support'] = False
+            return
+        
+        try:
+            # Get user information
+            user = update.effective_user
+            username = user.username if user.username else "No username"
+            first_name = user.first_name if user.first_name else "No first name"
+            last_name = user.last_name if user.last_name else "No last name"
+            
+            # Create support message
+            support_message = (
+                "🚨 **Support Request** 🚨\n"
+                f"👤 User: {first_name} {last_name}\n"
+                f"📛 Username: @{username}\n"
+                f"🆔 User ID: `{user_id}`\n"
+                f"💬 Message: {user_message}\n"
+                f"⏰ Time: {update.message.date.strftime('%Y-%m-%d %H:%M:%S')}"
+            )
+            
+            # Send to support group
+            await context.bot.send_message(
+                chat_id=SUPPORT_CHAT_ID,
+                text=support_message,
                 parse_mode='Markdown'
             )
+            
+            # Confirm to user
+            await update.message.reply_text(
+                "✅ **Message Sent Successfully!**\n\n"
+                "Your message has been forwarded to our support team. "
+                "We'll contact you shortly via Telegram.\n\n"
+                "Thank you for your patience! 🙏"
+            )
+            
+            # Reset support mode
+            context.user_data['awaiting_support'] = False
+            
         except Exception as e:
-            logger.warning(f"Failed to edit message, might be same as old: {e}")
+            logger.error(f"Error sending support message: {e}")
+            await update.message.reply_text(
+                "❌ **Error Sending Message**\n\n"
+                "Sorry, there was an error sending your message to support. "
+                "Please try again later or contact the administrator directly."
+            )
+            context.user_data['awaiting_support'] = False
     else:
-        # This happens for /start or after text input
-        await update.message.reply_text(
-            text=text_to_show,
-            reply_markup=InlineKeyboardMarkup(keyboard),
-            parse_mode='Markdown'
-        )
-    return MAIN_MENU
+        # If not in support mode, process as normal message
+        await handle_message(update, context)
 
-# --- Conversation Handlers ---
-
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Entry point: Shows disclaimer and asks for language."""
-    
-    # --- DISCLAIMER ADDED TO START ---
-    text = (
-        f"{STRINGS['en']['disclaimer']}\n\n"
-        f"{STRINGS['fr']['disclaimer']}\n\n"
-        "------\n\n"
-        f"{STRINGS['en']['lang_prompt']}\n\n"
-        f"{STRINGS['fr']['lang_prompt']}"
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle regular messages that are not commands."""
+    await update.message.reply_text(
+        "🎮 I'm a gaming bot! Here's what you can do:\n\n"
+        "🎮 /play - Start playing games\n"
+        "💰 /balance - Check your balance\n"
+        "🎁 /daily - Claim daily bonus\n"
+        "🏆 /leaderboard - See top players\n"
+        "🆘 /support - Contact support\n"
+        "ℹ️ /start - Show welcome message"
     )
-    # --- END OF UPDATE ---
 
-    keyboard = [
-        [
-            InlineKeyboardButton("English 🇬🇧", callback_data="en"),
-            InlineKeyboardButton("Français 🇫🇷", callback_data="fr"),
-        ]
-    ]
+async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Log errors and handle them gracefully."""
+    logger.error(f"Exception while handling an update: {context.error}")
     
-    query = update.callback_query
-    if query:
-        await query.answer()
-        await query.edit_message_text(
-            text=text, 
-            reply_markup=InlineKeyboardMarkup(keyboard), 
-            disable_web_page_preview=True,
-            parse_mode='Markdown'
+    if update and update.effective_message:
+        await update.effective_message.reply_text(
+            "❌ An error occurred. Please try again later."
         )
-    else:
-        await update.message.reply_text(
-            text=text, 
-            reply_markup=InlineKeyboardMarkup(keyboard), 
-            disable_web_page_preview=True,
-            parse_mode='Markdown'
-        )
-        
-    return SELECT_LANG
 
-async def set_language(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Stores the chosen language and shows the main menu."""
-    query = update.callback_query
-    lang = query.data
-    context.user_data['lang'] = lang
-    
-    return await show_main_menu(update, context)
-
-async def show_existing_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Shows the direct playground link and cloud gaming info."""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    query = update.callback_query
-    await query.answer()
-
-    keyboard = [[InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]]
-    await query.edit_message_text(
-        text=s['existing_player_text'],
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        disable_web_page_preview=True,
-        parse_mode='Markdown'
-    )
-    
-    return MAIN_MENU 
-
-async def show_helpful_channel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Shows the helpful channel link."""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    query = update.callback_query
-    await query.answer()
-
-    keyboard = [
-        [InlineKeyboardButton(s['join_channel_btn'], url=HELPFUL_CHANNEL_LINK)],
-        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
-    ]
-    await query.edit_message_text(
-        text=s['helpful_channel_text'],
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        disable_web_page_preview=True
-    )
-    
-    return MAIN_MENU 
-
-# --- SUPPORT FLOW FUNCTIONS ---
-
-async def support_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Step 1: Ask the FAQ question."""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    query = update.callback_query
-    await query.answer()
-    
-    keyboard = [
-        [InlineKeyboardButton(s['yes_btn'], callback_data="support_yes")],
-        [InlineKeyboardButton(s['no_btn'], callback_data="support_no")],
-    ]
-    
-    await query.edit_message_text(text=s['support_q1'], reply_markup=InlineKeyboardMarkup(keyboard))
-    return SUPPORT_Q1
-
-async def support_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """User clicked 'No', send them back to main menu."""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    return await show_main_menu(update, context, message=s['support_q1_no'])
-
-async def support_ask_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """User clicked 'Yes', ask for their @username."""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    query = update.callback_query
-    await query.answer()
-    
-    await query.edit_message_text(text=s['support_q2'], parse_mode='Markdown')
-    
-    return SUPPORT_Q2 
-
-async def support_get_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """User sent their @username as a text message."""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    username = update.message.text
-    
-    if username.startswith('@') and len(username) > 2:
-        logger.info(f"*** SUPPORT REQUEST from user {update.message.from_user.id}: {username} ***")
-        
-        await update.message.reply_text(text=s['support_thanks'], reply_markup=ReplyKeyboardRemove())
-        return await show_main_menu(update, context) 
-    else:
-        await update.message.reply_text(text=s['invalid_username'])
-        return SUPPORT_Q2 
-
-async def cancel_support(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """User types /cancel during the support flow."""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    await update.message.reply_text(text=s['support_cancel'], reply_markup=ReplyKeyboardRemove())
-    return await show_main_menu(update, context)
-
-# --- END SUPPORT FLOW ---
-
-# --- New Player Guide Steps (Unchanged) ---
-
-async def guide_step_1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Guide Step 1: Create Epic Games Account."""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    query = update.callback_query
-    await query.answer()
-    
-    keyboard = [
-        [InlineKeyboardButton(s['guide1_btn'], url="https://www.epicgames.com/id/register")],
-        [InlineKeyboardButton(s['guide_next_btn'], callback_data="guide_step_2")],
-        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")],
-    ]
-    
-    await query.edit_message_text(text=s['guide1_text'], reply_markup=InlineKeyboardMarkup(keyboard), disable_web_page_preview=True, parse_mode='Markdown')
-    return GUIDE_STEPS
-
-async def guide_step_2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Guide Step 2: Set up Fortnite."""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    query = update.callback_query
-    await query.answer()
-    
-    keyboard = [
-        [InlineKeyboardButton(s['guide_next_btn'], callback_data="guide_step_3")],
-        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")],
-    ]
-    
-    await query.edit_message_text(text=s['guide2_text'], reply_markup=InlineKeyboardMarkup(keyboard))
-    return GUIDE_STEPS
-
-async def guide_step_3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Guide Step 3: Find the Playground."""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    query = update.callback_query
-    await query.answer()
-    
-    keyboard = [
-        [InlineKeyboardButton(s['guide_next_btn'], callback_data="guide_step_4")],
-        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")],
-    ]
-    
-    await query.edit_message_text(text=s['guide3_text'], reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-    return GUIDE_STEPS
-
-async def guide_step_4(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Guide Step 4: Cloud Gaming Info."""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    query = update.callback_query
-    await query.answer()
-    
-    keyboard = [
-        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
-    ]
-    
-    await query.edit_message_text(text=s['guide4_text'], reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
-    return GUIDE_STEPS
-
-def main() -> None:
-    """Run the bot."""
-    token = os.environ.get("TELEGRAM_TOKEN")
-    if not token:
-        logger.error("TELEGRAM_TOKEN environment variable not set!")
+def main():
+    """Start the bot."""
+    # Check for required environment variables
+    if not BOT_TOKEN:
+        print("❌ ERROR: BOT_TOKEN environment variable is required!")
+        print("💡 Please set BOT_TOKEN in your Render environment variables")
         return
+    
+    if not SUPPORT_CHAT_ID:
+        print("⚠️  WARNING: SUPPORT_CHAT_ID environment variable not set.")
+        print("💡 Support feature will not work until you set SUPPORT_CHAT_ID in Render")
+    
+    # Create Application
+    application = Application.builder().token(BOT_TOKEN).build()
+    
+    # Add command handlers
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("play", play_game))
+    application.add_handler(CommandHandler("balance", balance))
+    application.add_handler(CommandHandler("daily", daily_bonus))
+    application.add_handler(CommandHandler("leaderboard", leaderboard))
+    application.add_handler(CommandHandler("support", support))
+    
+    # Add callback query handler for game selection
+    application.add_handler(CallbackQueryHandler(handle_game_selection))
+    
+    # Add message handlers - support messages first
+    application.add_handler(MessageHandler(
+        filters.TEXT & ~filters.COMMAND, 
+        handle_support_message
+    ))
+    
+    # Add error handler
+    application.add_error_handler(error_handler)
+    
+    # Start the Bot
+    print("🤖 Bot is starting...")
+    print(f"✅ Bot Token: {'Set' if BOT_TOKEN else 'Not Set'}")
+    print(f"✅ Support Chat ID: {'Set' if SUPPORT_CHAT_ID else 'Not Set'}")
+    print("🚀 Bot is running...")
+    application.run_polling(allowed_updates=Update.ALL_UPDATES)
 
-    application = Application.builder().token(token).build()
-
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start)],
-        states={
-            SELECT_LANG: [
-                CallbackQueryHandler(set_language, pattern="^(en|fr)$")
-            ],
-            MAIN_MENU: [
-                CallbackQueryHandler(guide_step_1, pattern="^new_player_start$"),
-                CallbackQueryHandler(show_existing_link, pattern="^existing_player_link$"),
-                CallbackQueryHandler(show_helpful_channel, pattern="^helpful_channel$"),
-                CallbackQueryHandler(support_start, pattern="^contact_support$"), 
-                CallbackQueryHandler(start, pattern="^change_language$"), 
-                CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
-            ],
-            GUIDE_STEPS: [
-                CallbackQueryHandler(guide_step_2, pattern="^guide_step_2$"),
-                CallbackQueryHandler(guide_step_3, pattern="^guide_step_3$"),
-                CallbackQueryHandler(guide_step_4, pattern="^guide_step_4$"),
-                CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
-            ],
-            SUPPORT_Q1: [
-                CallbackQueryHandler(support_ask_username, pattern="^support_yes$"),
-                CallbackQueryHandler(support_q1_no, pattern="^support_no$"),
-                CommandHandler("cancel", cancel_support), 
-            ],
-            SUPPORT_Q2: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, support_get_username),
-                CommandHandler("cancel", cancel_support), 
-            ],
-        },
-        fallbacks=[
-            CommandHandler("start", start),
-            CommandHandler("cancel", cancel_support) 
-        ],
-    )
-
-    application.add_handler(conv_handler)
-
-    logger.info("Bot is running...")
-    application.run_polling()
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
-
