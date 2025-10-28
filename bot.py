@@ -21,14 +21,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Bot configuration - Get from Render environment variables
-BOT_TOKEN = os.environ.get('BOT_TOKEN')
-SUPPORT_CHAT_ID = os.environ.get('SUPPORT_CHAT_ID')
+BOT_TOKEN = os.getenv('BOT_TOKEN')
+SUPPORT_CHAT_ID = os.getenv('SUPPORT_CHAT_ID')
 
-# Validate required environment variables
-if not BOT_TOKEN:
-    raise ValueError("❌ BOT_TOKEN environment variable is required! Please set it in Render.")
-if not SUPPORT_CHAT_ID:
-    print("⚠️  SUPPORT_CHAT_ID environment variable not set. Support feature will not work.")
+# Debug: Print environment variables to verify they're being read
+print("=" * 50)
+print("ENVIRONMENT VARIABLES CHECK:")
+print(f"BOT_TOKEN: {'✅ SET' if BOT_TOKEN else '❌ NOT SET'}")
+print(f"SUPPORT_CHAT_ID: {'✅ SET' if SUPPORT_CHAT_ID else '❌ NOT SET'}")
+if SUPPORT_CHAT_ID:
+    print(f"SUPPORT_CHAT_ID value: {SUPPORT_CHAT_ID}")
+print("=" * 50)
 
 # Game configuration
 INITIAL_BALANCE = 1000
@@ -271,6 +274,7 @@ async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # Check if SUPPORT_CHAT_ID is configured
     if not SUPPORT_CHAT_ID:
+        logger.error("SUPPORT_CHAT_ID is not set in environment variables")
         await update.message.reply_text(
             "❌ Support feature is currently unavailable. "
             "Please contact the administrator directly."
@@ -377,11 +381,13 @@ def main():
     if not BOT_TOKEN:
         print("❌ ERROR: BOT_TOKEN environment variable is required!")
         print("💡 Please set BOT_TOKEN in your Render environment variables")
+        print("📝 Go to your Render dashboard -> Environment -> Add BOT_TOKEN")
         return
     
     if not SUPPORT_CHAT_ID:
         print("⚠️  WARNING: SUPPORT_CHAT_ID environment variable not set.")
         print("💡 Support feature will not work until you set SUPPORT_CHAT_ID in Render")
+        print("📝 Go to your Render dashboard -> Environment -> Add SUPPORT_CHAT_ID")
     
     # Create Application
     application = Application.builder().token(BOT_TOKEN).build()
@@ -410,6 +416,8 @@ def main():
     print("🤖 Bot is starting...")
     print(f"✅ Bot Token: {'Set' if BOT_TOKEN else 'Not Set'}")
     print(f"✅ Support Chat ID: {'Set' if SUPPORT_CHAT_ID else 'Not Set'}")
+    if SUPPORT_CHAT_ID:
+        print(f"📋 Support Chat ID Value: {SUPPORT_CHAT_ID}")
     print("🚀 Bot is running...")
     application.run_polling(allowed_updates=Update.ALL_UPDATES)
 
