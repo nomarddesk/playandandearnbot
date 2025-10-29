@@ -105,70 +105,7 @@ STRINGS = {
         'q3_guidance_no': "No, I don't need help",
         'q3_activation_link': "Please use this link to activate: http://epicgames.com/activate",
         
-        # Question 4
-        'q4_epic_profile': "4. Did you create your Epic Games profile?",
-        'q4_no_profile': "Please create your Epic Games profile. Do you need our guidance?",
-        'q4_guidance_yes': "Yes, I need guidance",
-        'q4_guidance_no': "No, I already have one",
-        'q4_epic_link': "Please create your profile at: epicgames.com",
-        
-        # Question 5
-        'q5_shortcut': "5. Did you create a shortcut of the cloud gaming to play it like an installed app directly from your Homescreen?",
-        'q5_no_shortcut': "You have to create a shortcut to play Fortnite from your homescreen. Do you want our guidance with that?",
-        'q5_guidance_yes': "Yes, I want to see it in the channel",
-        'q5_guidance_no': "No, I finally created a shortcut",
-        
-        # Question 6
-        'q6_launch_game': "6. Have you launched the game?",
-        'q6_no_launch': "You have to launch the game. Do you need our guidance?",
-        'q6_guidance_yes': "Yes, I need guidance",
-        'q6_guidance_no': "No, I already launched it",
-        'q6_launch_link': "Please use this link to launch the game: https://www.xbox.com/fr-FR/play/games/fortnite/BT5P2X999VH2",
-        
-        # Question 7
-        'q7_reward_island': "7. Have you searched and found the reward Island?",
-        'q7_no_island': "You have to search the reward Island in the search bar and just choose it. Do you want our guidance for that?",
-        'q7_codes_yes': "Yes, I want the best codes to play",
-        'q7_codes_no': "No, I already chose one code",
-        'q7_codes_list': "Here are the best reward Island codes:\n{}\n\nJust copy one of them and enter it on the search bar.",
-        
-        # Question 8
-        'q8_full_setup': "8. Did you follow the full setup to be able to play with friends and earn a lot together without any worries?",
-        'q8_no_setup': "You have to follow the exact setup. Do you need our guidance?",
-        'q8_guidance_yes': "Yes, I need guidance",
-        'q8_guidance_no': "No, I finally fixed everything",
-        
-        # Question 9
-        'q9_play_hours': "9. Did you start the game and play 130 hours for free this week?",
-        'q9_no_play': "You have to start the game and play every single day for free before aiming for the reward. Are you able to play at least 130 hours a week?",
-        'q9_able_yes': "Yes, I can play 130 hours",
-        'q9_able_no': "No, I cannot play that much",
-        
-        # Question 10
-        'q10_like_button': "10. Did you click on the like button every single time before your 1 hour play session ended during your 130 hours of play this week?",
-        'q10_no_like': "You have to click on the like button every single time before your 1 hour play session ended during your 130 hours a week. Do you want our guidance on that?",
-        'q10_guidance_yes': "Yes, I need guidance",
-        'q10_guidance_no': "No, I have proof I played and liked",
-        
-        # Question 11
-        'q11_save_favorites': "11. Have you saved the reward Island to your favorites?",
-        'q11_no_save': "You have to save the reward Island to your favorites and play. Do you want our guidance on that?",
-        'q11_guidance_yes': "Yes, I need guidance",
-        'q11_guidance_no': "No, I have proof I saved it",
-        
-        # Question 12
-        'q12_influencer': "12. Were you introduced to this game by an influencer?",
-        'q12_influencer_yes': "Yes",
-        'q12_influencer_no': "No",
-        'q12_provide_name': "Please provide the influencer's name:",
-        
-        # Question 13
-        'q13_final_check': "13. Make sure you completed every single step before sending us your @. Did you complete every single step and play at least 130 hours this week?",
-        'q13_complete_yes': "Yes, I did it and will send screenshots",
-        'q13_complete_no': "No, I haven't completed everything",
-        'q13_ask_username': "Perfect! Please provide your @username to proceed with support:",
-        
-        # Guide steps (unchanged)
+        # Guide steps
         'guide1_text': "**Step 1: Create Epic Games Account**\n\nThis is required to play Fortnite. Go to the official site to create your account.\n\nWhen you're done, click 'Next Step'.",
         'guide1_btn': "Go to Epic Games Site",
         'guide_next_btn': "Next Step ➡️",
@@ -177,21 +114,43 @@ STRINGS = {
         'guide4_text': "**Final Info: Cloud Gaming Limit**\n\nBecause you are playing on the cloud, your session will last for **1 hour**. The game will close, and you will have to launch it again to keep playing.\n\nNext time, you can use the 'Existing Player' button on this bot to get the link faster!",
     },
     'fr': {
-        # French translations would go here (similar structure)
         'disclaimer': "**Avertissement :** Ce bot est un guide non officiel et n'est pas affilié à Epic Games ou Fortnite. Nous ne vous demanderons *jamais* votre mot de passe.",
         'lang_prompt': "Veuillez sélectionner votre langue :",
         'welcome': "Bienvenue ! Tu plonges dans une aventure de jeu immersive. Ce bot t'aidera à configurer ton compte, à rejoindre la partie et à commencer à jouer.",
-        # ... other French translations
+        'new_player_btn': "Nouveau joueur",
+        'existing_player_btn': "Joueur existant",
+        'helpful_channel_btn': "Guide complet sur le canal",
+        'support_btn': "Support",
+        'lang_btn': "🌐 Changer de Langue",
+        'helpful_channel_text': "Rejoignez notre canal Telegram pour le guide complet, les actualités et pour discuter avec la communauté !",
+        'join_channel_btn': "Rejoindre le Canal",
+        'existing_player_text': (
+            "✅ Parfait ! Voici le lien direct vers le terrain de jeu :\n\n"
+            f"{YOUR_PLAYGROUND_LINK}\n\n"
+            "**Rappel Cloud Gaming :**\n"
+            "Votre session dure 1 heure. Après cela, vous devrez relancer le jeu et utiliser à nouveau ce lien."
+        ),
         'back_btn': "⬅️ Retour au Menu Principal",
-        'yes_btn': "Oui",
-        'no_btn': "Non",
+        'support_q1': "Avez-vous déjà lu le guide 'Nouveau joueur' et le 'Guide complet sur le canal' ?",
+        'yes_btn': "Oui, j'ai encore une question",
+        'no_btn': "Non, je vais les voir maintenant",
+        'support_q1_no': "Veuillez d'abord consulter ces guides. Ils répondent à la plupart des questions ! 🙏\n\nRetour au menu principal.",
+        'support_q2': (
+            "D'accord. En fournissant votre @nomdutilisateur, vous acceptez que notre équipe d'assistance "
+            "vous contacte directement sur Telegram. Nous l'utiliserons *uniquement* pour répondre à votre question.\n\n"
+            "Veuillez taper votre @nomdutilisateur (comme @monpseudo) pour continuer.\n\n"
+            "Tapez /cancel pour revenir."
+        ),
+        'support_thanks': "Merci ! Votre @nomdutilisateur a été noté. Nous vous contacterons dès que possible.\n\nRetour au menu principal.",
+        'support_cancel': "Demande d'aide annulée. Retour au menu principal.",
+        'invalid_username': "Cela ne ressemble pas à un @nomdutilisateur valide. Veuillez commencer par '@' et réessayer, ou tapez /cancel.",
     }
 }
 
 # Define states
 SELECT_LANG, MAIN_MENU, GUIDE_STEPS = range(3)
 # Support flow states
-SUPPORT_Q1, SUPPORT_Q2, SUPPORT_Q3, SUPPORT_Q4, SUPPORT_Q5, SUPPORT_Q6, SUPPORT_Q7, SUPPORT_Q8, SUPPORT_Q9, SUPPORT_Q10, SUPPORT_Q11, SUPPORT_Q12, SUPPORT_Q13, SUPPORT_USERNAME = range(14)
+SUPPORT_Q1, SUPPORT_Q2, SUPPORT_Q3, SUPPORT_USERNAME = range(4)
 
 # --- Helper Functions ---
 async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, message: str = None):
@@ -227,7 +186,95 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, mes
         )
     return MAIN_MENU
 
-# --- Support Flow Functions ---
+# --- Conversation Handlers ---
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Entry point: Shows disclaimer and asks for language."""
+    
+    # --- DISCLAIMER ADDED TO START ---
+    text = (
+        f"{STRINGS['en']['disclaimer']}\n\n"
+        f"{STRINGS['fr']['disclaimer']}\n\n"
+        "------\n\n"
+        f"{STRINGS['en']['lang_prompt']}\n\n"
+        f"{STRINGS['fr']['lang_prompt']}"
+    )
+    # --- END OF UPDATE ---
+
+    keyboard = [
+        [
+            InlineKeyboardButton("English 🇬🇧", callback_data="en"),
+            InlineKeyboardButton("Français 🇫🇷", callback_data="fr"),
+        ]
+    ]
+    
+    query = update.callback_query
+    if query:
+        await query.answer()
+        await query.edit_message_text(
+            text=text, 
+            reply_markup=InlineKeyboardMarkup(keyboard), 
+            disable_web_page_preview=True,
+            parse_mode='Markdown'
+        )
+    else:
+        await update.message.reply_text(
+            text=text, 
+            reply_markup=InlineKeyboardMarkup(keyboard), 
+            disable_web_page_preview=True,
+            parse_mode='Markdown'
+        )
+        
+    return SELECT_LANG
+
+async def set_language(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Stores the chosen language and shows the main menu."""
+    query = update.callback_query
+    lang = query.data
+    context.user_data['lang'] = lang
+    
+    return await show_main_menu(update, context)
+
+async def show_existing_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Shows the direct playground link and cloud gaming info."""
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    query = update.callback_query
+    await query.answer()
+
+    keyboard = [[InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]]
+    await query.edit_message_text(
+        text=s['existing_player_text'],
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        disable_web_page_preview=True,
+        parse_mode='Markdown'
+    )
+    
+    return MAIN_MENU 
+
+async def show_helpful_channel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Shows the helpful channel link."""
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    query = update.callback_query
+    await query.answer()
+
+    keyboard = [
+        [InlineKeyboardButton(s['join_channel_btn'], url=HELPFUL_CHANNEL_LINK)],
+        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
+    ]
+    await query.edit_message_text(
+        text=s['helpful_channel_text'],
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        disable_web_page_preview=True
+    )
+    
+    return MAIN_MENU 
+
+# --- SUPPORT FLOW FUNCTIONS ---
+
 async def support_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the comprehensive support flow."""
     lang = context.user_data.get('lang', 'en')
@@ -377,9 +424,9 @@ async def ask_question_3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_Q3
 
 async def support_q3_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """User received code -> go to question 4"""
+    """User received code -> ask for username"""
     context.user_data['support_answers']['q3_epic_code'] = 'yes'
-    return await ask_question_4(update, context)
+    return await ask_for_username(update, context)
 
 async def support_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """User didn't receive code -> offer guidance"""
@@ -411,7 +458,7 @@ async def support_q3_no_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     await query.edit_message_text(
         text=s['q3_activation_link']
     )
-    return await ask_question_4(update, context)
+    return await ask_for_username(update, context)
 
 async def support_q3_no_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """User doesn't want help -> forward to channel"""
@@ -426,56 +473,19 @@ async def support_q3_no_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     )
     return await show_main_menu(update, context)
 
-# Continue this pattern for questions 4-12...
-
-# Question 13: Final check and ask for username
-async def ask_question_13(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Ask the final question"""
+async def ask_for_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Ask for username after completing questions"""
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
     query = update.callback_query
     await query.answer()
-    
-    keyboard = [
-        [InlineKeyboardButton(s['q13_complete_yes'], callback_data="support_q13_yes")],
-        [InlineKeyboardButton(s['q13_complete_no'], callback_data="support_q13_no")],
-    ]
-    
-    await query.edit_message_text(
-        text=s['q13_final_check'],
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
-    return SUPPORT_Q13
-
-async def support_q13_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """User completed everything -> ask for username"""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    query = update.callback_query
-    await query.answer()
-    
-    context.user_data['support_answers']['q13_final'] = 'yes'
     
     await query.edit_message_text(
         text=s['q13_ask_username'],
         parse_mode='Markdown'
     )
     return SUPPORT_USERNAME
-
-async def support_q13_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """User didn't complete everything -> forward to channel"""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    query = update.callback_query
-    await query.answer()
-    
-    await query.edit_message_text(
-        text=s['forward_to_channel'].format(link=HELPFUL_CHANNEL_LINK)
-    )
-    return await show_main_menu(update, context)
 
 # Final username collection
 async def support_get_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -546,11 +556,71 @@ async def cancel_support(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     await update.message.reply_text(text=s['support_cancel'], reply_markup=ReplyKeyboardRemove())
     return await show_main_menu(update, context)
 
-# Note: Due to character limits, I've shown the pattern for the first few questions.
-# The remaining questions (4-12) would follow the same pattern.
-# You would need to implement similar functions for each question.
+# --- New Player Guide Steps ---
 
-# ... (rest of the code remains the same for guide steps and main menu)
+async def guide_step_1(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Guide Step 1: Create Epic Games Account."""
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    query = update.callback_query
+    await query.answer()
+    
+    keyboard = [
+        [InlineKeyboardButton(s['guide1_btn'], url="https://www.epicgames.com/id/register")],
+        [InlineKeyboardButton(s['guide_next_btn'], callback_data="guide_step_2")],
+        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")],
+    ]
+    
+    await query.edit_message_text(text=s['guide1_text'], reply_markup=InlineKeyboardMarkup(keyboard), disable_web_page_preview=True, parse_mode='Markdown')
+    return GUIDE_STEPS
+
+async def guide_step_2(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Guide Step 2: Set up Fortnite."""
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    query = update.callback_query
+    await query.answer()
+    
+    keyboard = [
+        [InlineKeyboardButton(s['guide_next_btn'], callback_data="guide_step_3")],
+        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")],
+    ]
+    
+    await query.edit_message_text(text=s['guide2_text'], reply_markup=InlineKeyboardMarkup(keyboard))
+    return GUIDE_STEPS
+
+async def guide_step_3(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Guide Step 3: Find the Playground."""
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    query = update.callback_query
+    await query.answer()
+    
+    keyboard = [
+        [InlineKeyboardButton(s['guide_next_btn'], callback_data="guide_step_4")],
+        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")],
+    ]
+    
+    await query.edit_message_text(text=s['guide3_text'], reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return GUIDE_STEPS
+
+async def guide_step_4(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Guide Step 4: Cloud Gaming Info."""
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    query = update.callback_query
+    await query.answer()
+    
+    keyboard = [
+        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
+    ]
+    
+    await query.edit_message_text(text=s['guide4_text'], reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return GUIDE_STEPS
 
 def main() -> None:
     """Run the bot."""
@@ -587,7 +657,7 @@ def main() -> None:
                 CallbackQueryHandler(guide_step_4, pattern="^guide_step_4$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
-            # Support flow states would be added here for all questions
+            # Support flow states
             SUPPORT_Q1: [
                 CallbackQueryHandler(support_q1_yes, pattern="^support_q1_yes$"),
                 CallbackQueryHandler(support_q1_no, pattern="^support_q1_no$"),
@@ -602,7 +672,13 @@ def main() -> None:
                 CallbackQueryHandler(support_q2_no_no, pattern="^support_q2_no_no$"),
                 CommandHandler("cancel", cancel_support),
             ],
-            # ... add states for all other questions
+            SUPPORT_Q3: [
+                CallbackQueryHandler(support_q3_yes, pattern="^support_q3_yes$"),
+                CallbackQueryHandler(support_q3_no, pattern="^support_q3_no$"),
+                CallbackQueryHandler(support_q3_no_yes, pattern="^support_q3_no_yes$"),
+                CallbackQueryHandler(support_q3_no_no, pattern="^support_q3_no_no$"),
+                CommandHandler("cancel", cancel_support),
+            ],
             SUPPORT_USERNAME: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, support_get_username),
                 CommandHandler("cancel", cancel_support),
