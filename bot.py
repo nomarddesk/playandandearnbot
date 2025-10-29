@@ -150,7 +150,7 @@ STRINGS = {
 # Define states
 SELECT_LANG, MAIN_MENU, GUIDE_STEPS = range(3)
 # Support flow states
-SUPPORT_Q1, SUPPORT_Q2, SUPPORT_Q3, SUPPORT_USERNAME = range(4)
+SUPPORT_Q1, SUPPORT_Q2, SUPPORT_Q3, SUPPORT_USERNAME = range(4, 8)
 
 # --- Helper Functions ---
 async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, message: str = None):
@@ -230,9 +230,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 async def set_language(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Stores the chosen language and shows the main menu."""
     query = update.callback_query
+    await query.answer()
+    
     lang = query.data
     context.user_data['lang'] = lang
     
+    # Use the helper function to show main menu
     return await show_main_menu(update, context)
 
 async def show_existing_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -482,7 +485,7 @@ async def ask_for_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     await query.answer()
     
     await query.edit_message_text(
-        text=s['q13_ask_username'],
+        text="Perfect! Please provide your @username to proceed with support:",
         parse_mode='Markdown'
     )
     return SUPPORT_USERNAME
