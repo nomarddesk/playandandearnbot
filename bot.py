@@ -71,6 +71,12 @@ STRINGS = {
         'support_thanks': "Thank you! Your @username has been noted. We will get in touch with you as soon as possible.\n\nReturning you to the main menu.",
         'support_cancel': "Support request cancelled. Returning to main menu.",
         'invalid_username': "That doesn't look like a valid @username. Please start with '@' and try again, or type /cancel.",
+        'username_prompt': (
+            "Okay. By providing your @username, you consent to our support team "
+            "contacting you directly on Telegram. We will *only* use this to help with your question.\n\n"
+            "Please type your @username (like @myusername) to proceed.\n\n"
+            "Type /cancel to go back."
+        ),
     },
     'fr': {
         'disclaimer': (
@@ -103,11 +109,17 @@ STRINGS = {
         'support_thanks': "Merci ! Votre @nomdutilisateur a été noté. Nous vous contacterons dès que possible.\n\nRetour au menu principal.",
         'support_cancel': "Demande d'aide annulée. Retour au menu principal.",
         'invalid_username': "Cela ne ressemble pas à un @nomdutilisateur valide. Veuillez commencer par '@' et réessayer, ou tapez /cancel.",
+        'username_prompt': (
+            "D'accord. En fournissant votre @nomdutilisateur, vous acceptez que notre équipe d'assistance "
+            "vous contacte directement sur Telegram. Nous l'utiliserons *uniquement* pour répondre à votre question.\n\n"
+            "Veuillez taper votre @nomdutilisateur (comme @monpseudo) pour continuer.\n\n"
+            "Tapez /cancel pour revenir."
+        ),
     }
 }
 
 # Define states
-SELECT_LANG, MAIN_MENU, EXISTING_PLAYER_FLOW, NEW_PLAYER_FLOW, SUPPORT_FLOW, SUPPORT_Q2 = range(6)
+SELECT_LANG, MAIN_MENU, EXISTING_PLAYER_FLOW, NEW_PLAYER_FLOW, SUPPORT_FLOW, USERNAME_COLLECTION = range(6)
 
 # --- Helper Functions ---
 async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, message: str = None):
@@ -213,6 +225,9 @@ async def show_helpful_channel(update: Update, context: ContextTypes.DEFAULT_TYP
 
 async def existing_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Existing Player Flow - Question 1"""
+    # Initialize user data for existing player flow
+    context.user_data['existing_player_qa'] = []
+    
     query = update.callback_query
     await query.answer()
     
@@ -233,6 +248,9 @@ async def existing_player_start(update: Update, context: ContextTypes.DEFAULT_TY
 
 async def existing_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Existing Player Q1 - Yes -> Q2"""
+    # Store the question and answer
+    context.user_data['existing_player_qa'].append(("1. Have you searched and found the reward Island?", "A Yes"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -249,6 +267,9 @@ async def existing_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def existing_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Existing Player Q1 - No"""
+    # Store the question and answer
+    context.user_data['existing_player_qa'].append(("1. Have you searched and found the reward Island?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -280,6 +301,9 @@ async def existing_q1_codes(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def existing_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Existing Player Q2 - Yes -> Q3"""
+    # Store the question and answer
+    context.user_data['existing_player_qa'].append(("2. Did you follow the full setup to be able to play with friends and earn a lot together without any worries?", "A Yes, I'm ready for the next step"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -296,6 +320,9 @@ async def existing_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def existing_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Existing Player Q2 - No"""
+    # Store the question and answer
+    context.user_data['existing_player_qa'].append(("2. Did you follow the full setup to be able to play with friends and earn a lot together without any worries?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -312,6 +339,9 @@ async def existing_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 async def existing_q3_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Existing Player Q3 - Yes -> Q4"""
+    # Store the question and answer
+    context.user_data['existing_player_qa'].append(("3. Did you start the game and play 130 hours for free this week?", "A Yes"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -328,6 +358,9 @@ async def existing_q3_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def existing_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Existing Player Q3 - No"""
+    # Store the question and answer
+    context.user_data['existing_player_qa'].append(("3. Did you start the game and play 130 hours for free this week?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -344,6 +377,9 @@ async def existing_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 async def existing_q4_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Existing Player Q4 - Yes -> Q5"""
+    # Store the question and answer
+    context.user_data['existing_player_qa'].append(("4. With your existing account, will you click on the like button every single time before your 1 hour play session ended during your 130 hours of play this week?", "A Yes"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -360,6 +396,9 @@ async def existing_q4_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def existing_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Existing Player Q4 - No"""
+    # Store the question and answer
+    context.user_data['existing_player_qa'].append(("4. With your existing account, will you click on the like button every single time before your 1 hour play session ended during your 130 hours of play this week?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -376,6 +415,9 @@ async def existing_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 async def existing_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Existing Player Q5 - Yes -> Q6"""
+    # Store the question and answer
+    context.user_data['existing_player_qa'].append(("5. Did you save the reward Island to your favorites?", "A Yes"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -392,6 +434,9 @@ async def existing_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def existing_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Existing Player Q5 - No"""
+    # Store the question and answer
+    context.user_data['existing_player_qa'].append(("5. Did you save the reward Island to your favorites?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -408,28 +453,35 @@ async def existing_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 async def existing_influencer_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Existing Player - Influencer Yes"""
+    # Store the question and answer
+    context.user_data['existing_player_qa'].append(("6. Were you introduced to this game by an influencer?", "A Yes"))
+    
     query = update.callback_query
     await query.answer()
     
     text = "Provide the name please: [USER WOULD TYPE THE NAME]"
     
     keyboard = [
-        [InlineKeyboardButton("Completed", callback_data="existing_completed")],
+        [InlineKeyboardButton("Completed", callback_data="existing_ask_username")],
         [InlineKeyboardButton("⬅️ Back", callback_data="existing_q5_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
     return EXISTING_PLAYER_FLOW
 
-async def existing_completed(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player - Flow Completed"""
+async def existing_ask_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player - Ask for username after completing questions"""
     query = update.callback_query
     await query.answer()
     
-    text = "Thank you for completing the existing player questionnaire! Returning to main menu."
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
     
-    await query.edit_message_text(text=text)
-    return await show_main_menu(update, context)
+    # Store that this is from existing player flow
+    context.user_data['flow_type'] = 'existing_player'
+    
+    await query.edit_message_text(text=s['username_prompt'], parse_mode='Markdown')
+    return USERNAME_COLLECTION
 
 async def existing_channel_forward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Forward to channel from existing player flow"""
@@ -450,6 +502,9 @@ async def existing_channel_forward(update: Update, context: ContextTypes.DEFAULT
 
 async def new_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Flow - Start"""
+    # Initialize user data for new player flow
+    context.user_data['new_player_qa'] = []
+    
     query = update.callback_query
     await query.answer()
     
@@ -471,6 +526,9 @@ async def new_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 async def new_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q1 - Yes -> Q2"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("1. Did you use a VPN?", "A If yes"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -487,6 +545,9 @@ async def new_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q1 - No"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("1. Did you use a VPN?", "B If no"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -503,6 +564,9 @@ async def new_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q2 - Yes -> Q3"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("2. Did you already create a cloud gaming profile?", "A if yes"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -519,6 +583,9 @@ async def new_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q2 - No"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("2. Did you already create a cloud gaming profile?", "B if no"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -550,6 +617,9 @@ async def new_cloud_gaming_link(update: Update, context: ContextTypes.DEFAULT_TY
 
 async def new_q3_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q3 - Yes -> Q4"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("3. Did you receive the code from epic games to activate your cloud gaming account?", "A Yes I received the code"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -566,6 +636,9 @@ async def new_q3_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q3 - No"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("3. Did you receive the code from epic games to activate your cloud gaming account?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -597,6 +670,9 @@ async def new_epic_activate(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def new_q4_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q4 - Yes -> Q5"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("4. Did you create your epic games profile?", "A Yes"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -613,6 +689,9 @@ async def new_q4_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q4 - No"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("4. Did you create your epic games profile?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -644,6 +723,9 @@ async def new_epic_create(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def new_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q5 - Yes -> Q6"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("5. Did you create a shortcut of the cloud gaming to play it like an installed app directly from your Homescreen?", "A Yes"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -660,6 +742,9 @@ async def new_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q5 - No"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("5. Did you create a shortcut of the cloud gaming to play it like an installed app directly from your Homescreen?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -676,6 +761,9 @@ async def new_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q6_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q6 - Yes -> Q7"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("6. Have you launched the game?", "A Yes"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -692,6 +780,9 @@ async def new_q6_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q6_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q6 - No"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("6. Have you launched the game?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -723,6 +814,9 @@ async def new_launch_game(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def new_q7_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q7 - Yes -> Q8"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("7. Have you searched and found the reward Island?", "A Yes"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -739,6 +833,9 @@ async def new_q7_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q7_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q7 - No"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("7. Have you searched and found the reward Island?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -770,6 +867,9 @@ async def new_q1_codes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
 async def new_q8_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q8 - Yes -> Q9"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("8. Did you follow the full setup to be able to play with friends and earn a lot together without any worries?", "A Yes, I'm ready for the next step"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -786,6 +886,9 @@ async def new_q8_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q8_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q8 - No"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("8. Did you follow the full setup to be able to play with friends and earn a lot together without any worries?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -802,6 +905,9 @@ async def new_q8_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q9_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q9 - Yes -> Q10"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("9. Will you start the game and play 130 hours for free this week?", "A Yes"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -818,6 +924,9 @@ async def new_q9_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q9_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q9 - No"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("9. Will you start the game and play 130 hours for free this week?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -834,6 +943,9 @@ async def new_q9_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q10_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q10 - Yes -> Q11"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("10. With your new account, will you click on the like button every single time before your 1 hour play session ended during your 130 hours of play this week?", "A Yes"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -850,6 +962,9 @@ async def new_q10_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
 
 async def new_q10_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q10 - No"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("10. With your new account, will you click on the like button every single time before your 1 hour play session ended during your 130 hours of play this week?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -866,6 +981,9 @@ async def new_q10_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_q11_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q11 - Yes -> Q12"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("11. Will you save the reward Island to your favorites?", "A Yes"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -882,6 +1000,9 @@ async def new_q11_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
 
 async def new_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player Q11 - No"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("11. Will you save the reward Island to your favorites?", "B No"))
+    
     query = update.callback_query
     await query.answer()
     
@@ -898,28 +1019,35 @@ async def new_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 async def new_influencer_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """New Player - Influencer Yes"""
+    # Store the question and answer
+    context.user_data['new_player_qa'].append(("12. Were you introduced to this game by an influencer?", "A Yes"))
+    
     query = update.callback_query
     await query.answer()
     
     text = "Provide the name please: [USER WOULD TYPE THE NAME]"
     
     keyboard = [
-        [InlineKeyboardButton("Completed", callback_data="new_completed")],
+        [InlineKeyboardButton("Completed", callback_data="new_ask_username")],
         [InlineKeyboardButton("⬅️ Back", callback_data="new_q11_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
     return NEW_PLAYER_FLOW
 
-async def new_completed(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player - Flow Completed"""
+async def new_ask_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """New Player - Ask for username after completing questions"""
     query = update.callback_query
     await query.answer()
     
-    text = "Thank you for completing the new player questionnaire! Returning to main menu."
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
     
-    await query.edit_message_text(text=text)
-    return await show_main_menu(update, context)
+    # Store that this is from new player flow
+    context.user_data['flow_type'] = 'new_player'
+    
+    await query.edit_message_text(text=s['username_prompt'], parse_mode='Markdown')
+    return USERNAME_COLLECTION
 
 async def new_channel_forward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Forward to channel from new player flow"""
@@ -1442,8 +1570,11 @@ async def support_get_username_start(update: Update, context: ContextTypes.DEFAU
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
+    # Store that this is from support flow
+    context.user_data['flow_type'] = 'support'
+    
     await query.edit_message_text(text=s['support_q2'], parse_mode='Markdown')
-    return SUPPORT_Q2
+    return USERNAME_COLLECTION
 
 async def support_channel_forward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Forward to channel from support flow"""
@@ -1460,17 +1591,17 @@ async def support_channel_forward(update: Update, context: ContextTypes.DEFAULT_
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
     return SUPPORT_FLOW
 
-# --- SUPPORT USERNAME HANDLING ---
+# --- USERNAME COLLECTION AND SUPPORT MESSAGE SENDING ---
 
-async def support_get_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """User sent their @username as a text message - forward to support group."""
+async def collect_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Collect username and send Q&A to support team"""
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
     username = update.message.text
     
     if username.startswith('@') and len(username) > 2:
-        logger.info(f"*** SUPPORT REQUEST from user {update.message.from_user.id}: {username} ***")
+        logger.info(f"*** USERNAME COLLECTION from user {update.message.from_user.id}: {username} ***")
         
         # Check if SUPPORT_CHAT_ID is configured
         if not SUPPORT_CHAT_ID:
@@ -1487,16 +1618,43 @@ async def support_get_username(update: Update, context: ContextTypes.DEFAULT_TYP
             first_name = user.first_name if user.first_name else "No first name"
             last_name = user.last_name if user.last_name else "No last name"
             
-            # Create support message
+            # Get flow type and Q&A data
+            flow_type = context.user_data.get('flow_type', 'unknown')
+            qa_data = []
+            
+            if flow_type == 'existing_player':
+                qa_data = context.user_data.get('existing_player_qa', [])
+                flow_title = "🏆 EXISTING PLAYER QUESTIONNAIRE"
+            elif flow_type == 'new_player':
+                qa_data = context.user_data.get('new_player_qa', [])
+                flow_title = "🎮 NEW PLAYER QUESTIONNAIRE"
+            elif flow_type == 'support':
+                qa_data = []  # Support flow doesn't store Q&A in the same way
+                flow_title = "🆘 SUPPORT REQUEST"
+            else:
+                qa_data = []
+                flow_title = "❓ UNKNOWN FLOW"
+            
+            # Create support message with Q&A
             support_message = (
-                "🚨 **Support Request** 🚨\n"
+                f"🚨 **{flow_title}** 🚨\n"
                 f"👤 User: {first_name} {last_name}\n"
-                f"📛 User's Username: @{user_username}\n"
-                f"💬 Support Username Provided: {username}\n"
+                f"📛 User's Telegram: @{user_username}\n"
+                f"💬 Provided Username: {username}\n"
                 f"🆔 User ID: `{user.id}`\n"
                 f"⏰ Time: {update.message.date.strftime('%Y-%m-%d %H:%M:%S')}\n"
-                f"🌐 Language: {lang.upper()}"
+                f"🌐 Language: {lang.upper()}\n\n"
             )
+            
+            # Add Q&A if available
+            if qa_data:
+                support_message += "**Questions & Answers:**\n"
+                for i, (question, answer) in enumerate(qa_data, 1):
+                    support_message += f"{i}. {question}\n   ➤ {answer}\n\n"
+            else:
+                support_message += "**No Q&A data collected.**\n\n"
+            
+            support_message += f"**Flow Type:** {flow_type.replace('_', ' ').title()}"
             
             # Send to support group
             await context.bot.send_message(
@@ -1512,12 +1670,12 @@ async def support_get_username(update: Update, context: ContextTypes.DEFAULT_TYP
         except Exception as e:
             logger.error(f"Error sending support message to group: {e}")
             await update.message.reply_text(
-                "❌ There was an error sending your support request. Please try again later."
+                "❌ There was an error sending your information. Please try again later."
             )
             return await show_main_menu(update, context)
     else:
         await update.message.reply_text(text=s['invalid_username'])
-        return SUPPORT_Q2
+        return USERNAME_COLLECTION
 
 async def cancel_support(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """User types /cancel during the support flow."""
@@ -1569,7 +1727,7 @@ def main() -> None:
                 CallbackQueryHandler(existing_q5_yes, pattern="^existing_q5_yes$"),
                 CallbackQueryHandler(existing_q5_no, pattern="^existing_q5_no$"),
                 CallbackQueryHandler(existing_influencer_yes, pattern="^existing_influencer_yes$"),
-                CallbackQueryHandler(existing_completed, pattern="^existing_completed$"),
+                CallbackQueryHandler(existing_ask_username, pattern="^existing_ask_username$"),
                 CallbackQueryHandler(existing_channel_forward, pattern="^existing_channel_forward$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
@@ -1602,7 +1760,7 @@ def main() -> None:
                 CallbackQueryHandler(new_q11_yes, pattern="^new_q11_yes$"),
                 CallbackQueryHandler(new_q11_no, pattern="^new_q11_no$"),
                 CallbackQueryHandler(new_influencer_yes, pattern="^new_influencer_yes$"),
-                CallbackQueryHandler(new_completed, pattern="^new_completed$"),
+                CallbackQueryHandler(new_ask_username, pattern="^new_ask_username$"),
                 CallbackQueryHandler(new_channel_forward, pattern="^new_channel_forward$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
@@ -1641,8 +1799,8 @@ def main() -> None:
                 CallbackQueryHandler(support_channel_forward, pattern="^support_channel_forward$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
-            SUPPORT_Q2: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, support_get_username),
+            USERNAME_COLLECTION: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, collect_username),
                 CommandHandler("cancel", cancel_support), 
             ],
         },
