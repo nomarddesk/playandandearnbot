@@ -1064,7 +1064,7 @@ async def new_channel_forward(update: Update, context: ContextTypes.DEFAULT_TYPE
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
     return NEW_PLAYER_FLOW
 
-# --- SUPPORT FLOW ---
+# --- SUPPORT FLOW (UPDATED) ---
 
 async def support_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Support Flow - Start"""
@@ -1104,7 +1104,7 @@ async def support_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q1 - No"""
+    """Support Q1 - No -> Ask if they finally used VPN"""
     query = update.callback_query
     await query.answer()
     
@@ -1112,7 +1112,7 @@ async def support_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     
     keyboard = [
         [InlineKeyboardButton("If yes", callback_data="support_q2_yes")],
-        [InlineKeyboardButton("if no", callback_data="support_channel_forward")],
+        [InlineKeyboardButton("if no", callback_data="support_channel_only")],
         [InlineKeyboardButton("⬅️ Back", callback_data="support_start")]
     ]
     
@@ -1136,7 +1136,7 @@ async def support_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q2 - No"""
+    """Support Q2 - No -> Ask if they want assistance"""
     query = update.callback_query
     await query.answer()
     
@@ -1152,7 +1152,7 @@ async def support_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     return SUPPORT_FLOW
 
 async def support_cloud_gaming_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support - Cloud Gaming Link"""
+    """Support - Cloud Gaming Link -> Q3"""
     query = update.callback_query
     await query.answer()
     
@@ -1183,7 +1183,7 @@ async def support_q3_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q3 - No"""
+    """Support Q3 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -1191,7 +1191,7 @@ async def support_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     
     keyboard = [
         [InlineKeyboardButton("Yes", callback_data="support_epic_activate")],
-        [InlineKeyboardButton("No", callback_data="support_channel_forward")],
+        [InlineKeyboardButton("No", callback_data="support_channel_only")],
         [InlineKeyboardButton("⬅️ Back", callback_data="support_q2_yes")]
     ]
     
@@ -1199,7 +1199,7 @@ async def support_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     return SUPPORT_FLOW
 
 async def support_epic_activate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support - Epic Games Activate"""
+    """Support - Epic Games Activate -> Q4"""
     query = update.callback_query
     await query.answer()
     
@@ -1230,7 +1230,7 @@ async def support_q4_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q4 - No"""
+    """Support Q4 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -1238,7 +1238,7 @@ async def support_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     
     keyboard = [
         [InlineKeyboardButton("Yes", callback_data="support_epic_create")],
-        [InlineKeyboardButton("No", callback_data="support_channel_forward")],
+        [InlineKeyboardButton("No", callback_data="support_channel_only")],
         [InlineKeyboardButton("⬅️ Back", callback_data="support_q3_yes")]
     ]
     
@@ -1246,7 +1246,7 @@ async def support_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     return SUPPORT_FLOW
 
 async def support_epic_create(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support - Epic Games Create"""
+    """Support - Epic Games Create -> Q5"""
     query = update.callback_query
     await query.answer()
     
@@ -1277,14 +1277,14 @@ async def support_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q5 - No"""
+    """Support Q5 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
     text = "No. You have to create a shortcut to play fortnite from your homescreen, do you want our guidance with that?"
     
     keyboard = [
-        [InlineKeyboardButton("yes I want to see it in the channel", callback_data="support_channel_forward")],
+        [InlineKeyboardButton("yes I want to see it in the channel", callback_data="support_channel_only")],
         [InlineKeyboardButton("No I finally create a shortcut", callback_data="support_q6_yes")],
         [InlineKeyboardButton("⬅️ Back", callback_data="support_q4_yes")]
     ]
@@ -1309,7 +1309,7 @@ async def support_q6_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q6_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q6 - No"""
+    """Support Q6 - No -> Ask if they need guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -1317,7 +1317,7 @@ async def support_q6_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     
     keyboard = [
         [InlineKeyboardButton("Yes", callback_data="support_launch_game")],
-        [InlineKeyboardButton("No", callback_data="support_channel_forward")],
+        [InlineKeyboardButton("No", callback_data="support_channel_only")],
         [InlineKeyboardButton("⬅️ Back", callback_data="support_q5_yes")]
     ]
     
@@ -1325,7 +1325,7 @@ async def support_q6_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     return SUPPORT_FLOW
 
 async def support_launch_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support - Launch Game"""
+    """Support - Launch Game -> Q7"""
     query = update.callback_query
     await query.answer()
     
@@ -1356,14 +1356,14 @@ async def support_q7_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q7_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q7 - No"""
+    """Support Q7 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
     text = "No, you have to search the reward Island in the search bar and just choose it, do you want our guidance for that?"
     
     keyboard = [
-        [InlineKeyboardButton("Yes I want the best codes to play", callback_data="support_q1_codes")],
+        [InlineKeyboardButton("Yes I want the best codes to play", callback_data="support_show_codes")],
         [InlineKeyboardButton("No, I already choosed one code", callback_data="support_q8_yes")],
         [InlineKeyboardButton("⬅️ Back", callback_data="support_q6_yes")]
     ]
@@ -1371,8 +1371,8 @@ async def support_q7_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
     return SUPPORT_FLOW
 
-async def support_q1_codes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support - Show codes"""
+async def support_show_codes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support - Show codes -> Q8"""
     query = update.callback_query
     await query.answer()
     
@@ -1403,14 +1403,14 @@ async def support_q8_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q8_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q8 - No"""
+    """Support Q8 - No -> Ask if they need guidance"""
     query = update.callback_query
     await query.answer()
     
     text = "No, you have to follow the exact setup, do you need our guidance?"
     
     keyboard = [
-        [InlineKeyboardButton("Yes", callback_data="support_channel_forward")],
+        [InlineKeyboardButton("Yes", callback_data="support_channel_only")],
         [InlineKeyboardButton("No I finally fix everything", callback_data="support_q9_yes")],
         [InlineKeyboardButton("⬅️ Back", callback_data="support_q7_yes")]
     ]
@@ -1435,7 +1435,7 @@ async def support_q9_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q9_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q9 - No"""
+    """Support Q9 - No -> Ask if they can play 130 hours"""
     query = update.callback_query
     await query.answer()
     
@@ -1443,7 +1443,7 @@ async def support_q9_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     
     keyboard = [
         [InlineKeyboardButton("Yes", callback_data="support_q10_yes")],
-        [InlineKeyboardButton("No", callback_data="support_channel_forward")],
+        [InlineKeyboardButton("No", callback_data="support_channel_only")],
         [InlineKeyboardButton("⬅️ Back", callback_data="support_q8_yes")]
     ]
     
@@ -1467,14 +1467,14 @@ async def support_q10_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     return SUPPORT_FLOW
 
 async def support_q10_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q10 - No"""
+    """Support Q10 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
     text = "No, You have to click on the like button every single time before your 1 hour play session ended during your 130 hours a week, do you want our guidance on that?"
     
     keyboard = [
-        [InlineKeyboardButton("Yes", callback_data="support_channel_forward")],
+        [InlineKeyboardButton("Yes", callback_data="support_channel_only")],
         [InlineKeyboardButton("No, I have proof that I played 130 hours this week and I liked every single time", callback_data="support_q11_yes")],
         [InlineKeyboardButton("⬅️ Back", callback_data="support_q9_yes")]
     ]
@@ -1499,14 +1499,14 @@ async def support_q11_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     return SUPPORT_FLOW
 
 async def support_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q11 - No"""
+    """Support Q11 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
     text = "No, you have to save the reward Island to your favorites and play, do you want our guidance on that?"
     
     keyboard = [
-        [InlineKeyboardButton("Yes", callback_data="support_channel_forward")],
+        [InlineKeyboardButton("Yes", callback_data="support_channel_only")],
         [InlineKeyboardButton("No, I have proof I saved it", callback_data="support_q11_yes")],
         [InlineKeyboardButton("⬅️ Back", callback_data="support_q10_yes")]
     ]
@@ -1515,7 +1515,7 @@ async def support_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_influencer_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support - Influencer Yes"""
+    """Support - Influencer Yes -> Q13"""
     query = update.callback_query
     await query.answer()
     
@@ -1530,11 +1530,11 @@ async def support_influencer_yes(update: Update, context: ContextTypes.DEFAULT_T
     return SUPPORT_FLOW
 
 async def support_expert_review(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support - Expert Review"""
+    """Support - Expert Review -> Q13"""
     query = update.callback_query
     await query.answer()
     
-    text = "Please ask one of the expert to review all the screenshot of the game and earn"
+    text = "One of the expert will review all the screenshots of the game and you will earn"
     
     keyboard = [
         [InlineKeyboardButton("Next Question", callback_data="support_q13")],
@@ -1555,7 +1555,7 @@ async def support_q13(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     
     keyboard = [
         [InlineKeyboardButton("A Yes, I did it and I will send you all the necessary screenshots", callback_data="support_get_username_start")],
-        [InlineKeyboardButton("B No", callback_data="support_channel_forward")],
+        [InlineKeyboardButton("B No", callback_data="support_channel_only")],
         [InlineKeyboardButton("⬅️ Back", callback_data="support_influencer_yes")]
     ]
     
@@ -1575,6 +1575,20 @@ async def support_get_username_start(update: Update, context: ContextTypes.DEFAU
     
     await query.edit_message_text(text=s['support_q2'], parse_mode='Markdown')
     return USERNAME_COLLECTION
+
+async def support_channel_only(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Forward to channel only (no back to support or main menu)"""
+    query = update.callback_query
+    await query.answer()
+    
+    text = f"Please check our channel for guidance: {HELPFUL_CHANNEL_LINK}"
+    
+    keyboard = [
+        [InlineKeyboardButton("Join Channel", url=HELPFUL_CHANNEL_LINK)]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
+    return SUPPORT_FLOW
 
 async def support_channel_forward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Forward to channel from support flow"""
@@ -1783,7 +1797,7 @@ def main() -> None:
                 CallbackQueryHandler(support_launch_game, pattern="^support_launch_game$"),
                 CallbackQueryHandler(support_q7_yes, pattern="^support_q7_yes$"),
                 CallbackQueryHandler(support_q7_no, pattern="^support_q7_no$"),
-                CallbackQueryHandler(support_q1_codes, pattern="^support_q1_codes$"),
+                CallbackQueryHandler(support_show_codes, pattern="^support_show_codes$"),
                 CallbackQueryHandler(support_q8_yes, pattern="^support_q8_yes$"),
                 CallbackQueryHandler(support_q8_no, pattern="^support_q8_no$"),
                 CallbackQueryHandler(support_q9_yes, pattern="^support_q9_yes$"),
@@ -1796,6 +1810,7 @@ def main() -> None:
                 CallbackQueryHandler(support_expert_review, pattern="^support_expert_review$"),
                 CallbackQueryHandler(support_q13, pattern="^support_q13$"),
                 CallbackQueryHandler(support_get_username_start, pattern="^support_get_username_start$"),
+                CallbackQueryHandler(support_channel_only, pattern="^support_channel_only$"),
                 CallbackQueryHandler(support_channel_forward, pattern="^support_channel_forward$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
