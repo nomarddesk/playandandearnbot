@@ -18,11 +18,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # --- CONFIGURATION ---
-# Get environment variables from Render
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 SUPPORT_CHAT_ID = os.environ.get("SUPPORT_CHAT_ID")
 
-# Debug: Print environment variables
 print("=" * 50)
 print("ENVIRONMENT VARIABLES CHECK:")
 print(f"TELEGRAM_TOKEN: {'✅ SET' if TELEGRAM_TOKEN else '❌ NOT SET'}")
@@ -31,25 +29,14 @@ if SUPPORT_CHAT_ID:
     print(f"SUPPORT_CHAT_ID value: {SUPPORT_CHAT_ID}")
 print("=" * 50)
 
-# !!! IMPORTANT: Fill these in with your information !!!
-YOUR_PLAYGROUND_NAME = "My Awesome Playground"
-YOUR_PLAYGROUND_LINK = "https://your-fortnite-playground-link.com"
 HELPFUL_CHANNEL_LINK = "https://t.me/rejoinsnousetgagne"
-# !!!!!!!!!!!!!!!!!!!!!
-
 
 # --- LANGUAGE STRINGS ---
 STRINGS = {
     'en': {
-        'disclaimer': (
-            "**Disclaimer:** This bot is an unofficial guide and is not affiliated with "
-            "Epic Games or Fortnite. We will *never* ask for your password."
-        ),
+        'disclaimer': "**Disclaimer:** This bot is an unofficial guide and is not affiliated with Epic Games or Fortnite. We will *never* ask for your password.",
         'lang_prompt': "Please select your language:",
-        'welcome': (
-            "Welcome! You're diving into an immersive gaming adventure. "
-            "This bot will help you set up your account, join the game, and start playing."
-        ),
+        'welcome': "Welcome! You're diving into an immersive gaming adventure. This bot will help you set up your account, join the game, and start playing.",
         'new_player_btn': "New player",
         'existing_player_btn': "Existing player",
         'helpful_channel_btn': "Full guide in channel",
@@ -62,22 +49,13 @@ STRINGS = {
         'yes_btn': "Yes, I still have a question",
         'no_btn': "No, I will check them now",
         'support_q1_no': "Please review those guides first. They answer most questions! 🙏\n\nReturning you to the main menu.",
-        'support_q2': (
-            "Okay. By providing your @username, you consent to our support team "
-            "contacting you directly on Telegram. We will *only* use this to help with your question.\n\n"
-            "Please type your @username (like @myusername) to proceed.\n\n"
-            "Type /cancel to go back."
-        ),
+        'support_q2': "Okay. By providing your @username, you consent to our support team contacting you directly on Telegram. We will *only* use this to help with your question.\n\nPlease type your @username (like @myusername) to proceed.\n\nType /cancel to go back.",
         'support_thanks': "Thank you! Your @username has been noted. We will get in touch with you as soon as possible.\n\nReturning you to the main menu.",
         'support_cancel': "Support request cancelled. Returning to main menu.",
         'invalid_username': "That doesn't look like a valid @username. Please start with '@' and try again, or type /cancel.",
-        'username_prompt': (
-            "Okay. By providing your @username, you consent to our support team "
-            "contacting you directly on Telegram. We will *only* use this to help with your question.\n\n"
-            "Please type your @username (like @myusername) to proceed.\n\n"
-            "Type /cancel to go back."
-        ),
-        # Support flow questions
+        'username_prompt': "Okay. By providing your @username, you consent to our support team contacting you directly on Telegram. We will *only* use this to help with your question.\n\nPlease type your @username (like @myusername) to proceed.\n\nType /cancel to go back.",
+        
+        # Support flow
         'support_flow_title': "Support",
         'support_flow_intro': "In order to get in touch with us, you need to answer these questions so we can determine which stage of the process you're at. If everything has been done correctly, you'll be able to claim your reward 💰💰",
         'support_q1_text': "1 Did you use a VPN?",
@@ -173,15 +151,9 @@ STRINGS = {
         'channel_guidance': "Please check our channel for guidance:",
     },
     'fr': {
-        'disclaimer': (
-            "**Avertissement :** Ce bot est un guide non officiel et n'est pas affilié à "
-            "Epic Games ou Fortnite. Nous ne vous demanderons *jamais* votre mot de passe."
-        ),
+        'disclaimer': "**Avertissement :** Ce bot est un guide non officiel et n'est pas affilié à Epic Games ou Fortnite. Nous ne vous demanderons *jamais* votre mot de passe.",
         'lang_prompt': "Veuillez sélectionner votre langue :",
-        'welcome': (
-            "Bienvenue ! Tu plonges dans une aventure de jeu immersive. "
-            "Ce bot t'aidera à configurer ton compte, à rejoindre la partie et à commencer à jouer."
-        ),
+        'welcome': "Bienvenue ! Tu plonges dans une aventure de jeu immersive. Ce bot t'aidera à configurer ton compte, à rejoindre la partie et à commencer à jouer.",
         'new_player_btn': "Nouveau joueur",
         'existing_player_btn': "Joueur existant",
         'helpful_channel_btn': "Guide complet sur le canal",
@@ -194,22 +166,13 @@ STRINGS = {
         'yes_btn': "Oui, j'ai encore une question",
         'no_btn': "Non, je vais les voir maintenant",
         'support_q1_no': "Veuillez d'abord consulter ces guides. Ils répondent à la plupart des questions ! 🙏\n\nRetour au menu principal.",
-        'support_q2': (
-            "D'accord. En fournissant votre @nomdutilisateur, vous acceptez que notre équipe d'assistance "
-            "vous contacte directement sur Telegram. Nous l'utiliserons *uniquement* pour répondre à votre question.\n\n"
-            "Veuillez taper votre @nomdutilisateur (comme @monpseudo) pour continuer.\n\n"
-            "Tapez /cancel pour revenir."
-        ),
+        'support_q2': "D'accord. En fournissant votre @nomdutilisateur, vous acceptez que notre équipe d'assistance vous contacte directement sur Telegram. Nous l'utiliserons *uniquement* pour répondre à votre question.\n\nVeuillez taper votre @nomdutilisateur (comme @monpseudo) pour continuer.\n\nTapez /cancel pour revenir.",
         'support_thanks': "Merci ! Votre @nomdutilisateur a été noté. Nous vous contacterons dès que possible.\n\nRetour au menu principal.",
         'support_cancel': "Demande d'aide annulée. Retour au menu principal.",
         'invalid_username': "Cela ne ressemble pas à un @nomdutilisateur valide. Veuillez commencer par '@' et réessayer, ou tapez /cancel.",
-        'username_prompt': (
-            "D'accord. En fournissant votre @nomdutilisateur, vous acceptez que notre équipe d'assistance "
-            "vous contacte directement sur Telegram. Nous l'utiliserons *uniquement* pour répondre à votre question.\n\n"
-            "Veuillez taper votre @nomdutilisateur (comme @monpseudo) pour continuer.\n\n"
-            "Tapez /cancel pour revenir."
-        ),
-        # Support flow questions - French
+        'username_prompt': "D'accord. En fournissant votre @nomdutilisateur, vous acceptez que notre équipe d'assistance vous contacte directement sur Telegram. Nous l'utiliserons *uniquement* pour répondre à votre question.\n\nVeuillez taper votre @nomdutilisateur (comme @monpseudo) pour continuer.\n\nTapez /cancel pour revenir.",
+        
+        # Support flow - French
         'support_flow_title': "Support",
         'support_flow_intro': "Afin de nous contacter, vous devez répondre à ces questions afin que nous puissions déterminer à quelle étape du processus vous vous trouvez. Si tout a été fait correctement, vous pourrez réclamer votre récompense 💰💰",
         'support_q1_text': "1 Avez-vous utilisé un VPN ?",
@@ -418,356 +381,52 @@ async def show_helpful_channel(update: Update, context: ContextTypes.DEFAULT_TYP
     
     return MAIN_MENU
 
-# --- EXISTING PLAYER FLOW (FIXED) ---
+# --- SUPPORT FLOW ---
 
-async def existing_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Flow - Question 1"""
-    context.user_data['existing_player_qa'] = []
-    
+async def support_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Flow - Start"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = s['existing_player_intro']
+    text = (
+        f"{s['support_flow_title']}:\n\n"
+        f"{s['support_flow_intro']}\n\n"
+        f"{s['support_q1_text']}"
+    )
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="existing_q1_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="existing_q1_no")],
+        [InlineKeyboardButton(s['a_if_yes'], callback_data="support_q1_yes")],
+        [InlineKeyboardButton(s['b_if_no'], callback_data="support_q1_no")],
         [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def existing_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q1 - Yes -> Q2"""
-    context.user_data['existing_player_qa'].append(("1. Have you searched and found the reward Island?", "A Yes"))
-    
+async def support_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q1 - Yes -> Q2"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = s['existing_q2_text']
+    text = s['support_q2_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['yes_im_ready'], callback_data="existing_q2_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="existing_q2_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_player_start")]
+        [InlineKeyboardButton(s['a_if_yes'], callback_data="support_q2_yes")],
+        [InlineKeyboardButton(s['b_if_no'], callback_data="support_q2_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_start")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def existing_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q1 - No"""
-    context.user_data['existing_player_qa'].append(("1. Have you searched and found the reward Island?", "B No"))
-    
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    text = s['reward_island_reminder']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['want_codes'], callback_data="existing_q1_codes")],
-        [InlineKeyboardButton(s['already_chose'], callback_data="existing_q2_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_player_start")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
-
-async def existing_q1_codes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player - Show codes"""
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    codes_text = s['codes_title'] + "\n".join(GAME_CODES)
-    
-    keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="existing_q2_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q1_no")]
-    ]
-    
-    await query.edit_message_text(text=codes_text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
-
-async def existing_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q2 - Yes -> Q3"""
-    context.user_data['existing_player_qa'].append(("2. Did you follow the full setup?", "A Yes"))
-    
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    text = s['existing_q3_text']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="existing_q3_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="existing_q3_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q1_yes")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
-
-async def existing_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q2 - No"""
-    context.user_data['existing_player_qa'].append(("2. Did you follow the full setup?", "B No"))
-    
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    text = s['full_setup_reminder']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="existing_channel_forward")],
-        [InlineKeyboardButton(s['finally_fixed'], callback_data="existing_q3_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q1_yes")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
-
-async def existing_q3_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q3 - Yes -> Q4"""
-    context.user_data['existing_player_qa'].append(("3. Did you start the game and play 130 hours?", "A Yes"))
-    
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    text = s['existing_q4_text']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="existing_q4_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="existing_q4_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q2_yes")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
-
-async def existing_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q3 - No"""
-    context.user_data['existing_player_qa'].append(("3. Did you start the game and play 130 hours?", "B No"))
-    
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    text = s['play_hours_reminder']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="existing_q4_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="existing_channel_forward")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q2_yes")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
-
-async def existing_q4_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q4 - Yes -> Q5"""
-    context.user_data['existing_player_qa'].append(("4. Will you click the like button?", "A Yes"))
-    
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    text = s['existing_q5_text']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="existing_q5_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="existing_q5_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q3_yes")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
-
-async def existing_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q4 - No"""
-    context.user_data['existing_player_qa'].append(("4. Will you click the like button?", "B No"))
-    
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    text = s['like_button_reminder']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="existing_channel_forward")],
-        [InlineKeyboardButton(s['will_play'], callback_data="existing_q5_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q3_yes")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
-
-async def existing_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q5 - Yes -> Q6"""
-    context.user_data['existing_player_qa'].append(("5. Did you save to favorites?", "A Yes"))
-    
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    text = s['existing_q6_text']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="existing_influencer_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="existing_channel_forward")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q4_yes")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
-
-async def existing_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q5 - No"""
-    context.user_data['existing_player_qa'].append(("5. Did you save to favorites?", "B No"))
-    
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    text = s['favorites_reminder']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="existing_channel_forward")],
-        [InlineKeyboardButton(s['have_proof'], callback_data="existing_q5_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q4_yes")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
-
-async def existing_influencer_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player - Influencer Yes"""
-    context.user_data['existing_player_qa'].append(("6. Were you introduced by an influencer?", "A Yes"))
-    
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    text = s['provide_name']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['completed'], callback_data="existing_ask_username")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q5_yes")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
-
-async def existing_ask_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player - Ask for username"""
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    context.user_data['flow_type'] = 'existing_player'
-    
-    await query.edit_message_text(text=s['username_prompt'], parse_mode='Markdown')
-    return USERNAME_COLLECTION
-
-async def existing_channel_forward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Forward to channel from existing player flow"""
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    text = f"{s['channel_guidance']} {HELPFUL_CHANNEL_LINK}"
-    
-    keyboard = [
-        [InlineKeyboardButton(s['back_to_existing'], callback_data="existing_player_start")],
-        [InlineKeyboardButton(s['main_menu'], callback_data="back_to_main")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
-
-# --- NEW PLAYER FLOW (FIXED) ---
-
-async def new_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Flow - Start"""
-    context.user_data['new_player_qa'] = []
-    
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    text = s['new_player_intro']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['a_if_yes'], callback_data="new_q1_yes")],
-        [InlineKeyboardButton(s['b_if_no'], callback_data="new_q1_no")],
-        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
-
-async def new_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q1 - Yes -> Q2"""
-    context.user_data['new_player_qa'].append(("1. Did you use a VPN?", "A Yes"))
-    
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    text = s['new_q2_text']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['a_if_yes'], callback_data="new_q2_yes")],
-        [InlineKeyboardButton(s['b_if_no'], callback_data="new_q2_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_player_start")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
-
-async def new_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q1 - No"""
-    context.user_data['new_player_qa'].append(("1. Did you use a VPN?", "B No"))
-    
+async def support_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q1 - No -> Ask if they finally used VPN -> Q2"""
     query = update.callback_query
     await query.answer()
     
@@ -777,39 +436,35 @@ async def new_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = s['vpn_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_if_yes'], callback_data="new_q2_yes")],
-        [InlineKeyboardButton(s['b_if_no'], callback_data="new_channel_forward")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_player_start")]
+        [InlineKeyboardButton(s['a_if_yes'], callback_data="support_q2_yes")],
+        [InlineKeyboardButton(s['b_if_no'], callback_data="support_channel_only")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_start")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q2 - Yes -> Q3"""
-    context.user_data['new_player_qa'].append(("2. Created cloud gaming profile?", "A Yes"))
-    
+async def support_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q2 - Yes -> Q3"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = s['new_q3_text']
+    text = s['support_q3_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['yes_i_received'], callback_data="new_q3_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_q3_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q1_yes")]
+        [InlineKeyboardButton(s['yes_i_received'], callback_data="support_q3_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_q3_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q1_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q2 - No"""
-    context.user_data['new_player_qa'].append(("2. Created cloud gaming profile?", "B No"))
-    
+async def support_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q2 - No -> Ask if they want assistance -> Q3"""
     query = update.callback_query
     await query.answer()
     
@@ -819,16 +474,16 @@ async def new_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = s['cloud_gaming_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="new_cloud_gaming_link")],
-        [InlineKeyboardButton(s['already_have'], callback_data="new_q3_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q1_yes")]
+        [InlineKeyboardButton(s['want_assistance'], callback_data="support_cloud_gaming_link")],
+        [InlineKeyboardButton(s['already_have'], callback_data="support_q3_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q1_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_cloud_gaming_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player - Cloud Gaming Link"""
+async def support_cloud_gaming_link(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support - Cloud Gaming Link -> Q3"""
     query = update.callback_query
     await query.answer()
     
@@ -838,38 +493,34 @@ async def new_cloud_gaming_link(update: Update, context: ContextTypes.DEFAULT_TY
     text = s['cloud_gaming_link']
     
     keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q3_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q2_no")]
+        [InlineKeyboardButton(s['next_question'], callback_data="support_q3_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q2_no")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q3_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q3 - Yes -> Q4"""
-    context.user_data['new_player_qa'].append(("3. Received Epic Games code?", "A Yes"))
-    
+async def support_q3_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q3 - Yes -> Q4"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = s['new_q4_text']
+    text = s['support_q4_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="new_q4_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_q4_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q2_yes")]
+        [InlineKeyboardButton(s['a_yes'], callback_data="support_q4_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_q4_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q2_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q3 - No"""
-    context.user_data['new_player_qa'].append(("3. Received Epic Games code?", "B No"))
-    
+async def support_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q3 - No -> Ask if they want guidance -> Q4"""
     query = update.callback_query
     await query.answer()
     
@@ -879,16 +530,16 @@ async def new_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = s['epic_code_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="new_epic_activate")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_channel_forward")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q2_yes")]
+        [InlineKeyboardButton(s['want_assistance'], callback_data="support_epic_activate")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_channel_only")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q2_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_epic_activate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player - Epic Games Activate"""
+async def support_epic_activate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support - Epic Games Activate -> Q4"""
     query = update.callback_query
     await query.answer()
     
@@ -898,38 +549,34 @@ async def new_epic_activate(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     text = s['epic_activate_link']
     
     keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q4_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q3_no")]
+        [InlineKeyboardButton(s['next_question'], callback_data="support_q4_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q3_no")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q4_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q4 - Yes -> Q5"""
-    context.user_data['new_player_qa'].append(("4. Created Epic Games profile?", "A Yes"))
-    
+async def support_q4_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q4 - Yes -> Q5"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = s['new_q5_text']
+    text = s['support_q5_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="new_q5_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_q5_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q3_yes")]
+        [InlineKeyboardButton(s['a_yes'], callback_data="support_q5_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_q5_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q3_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q4 - No"""
-    context.user_data['new_player_qa'].append(("4. Created Epic Games profile?", "B No"))
-    
+async def support_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q4 - No -> Ask if they want guidance -> Q5"""
     query = update.callback_query
     await query.answer()
     
@@ -939,16 +586,16 @@ async def new_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = s['epic_profile_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="new_epic_create")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_channel_forward")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q3_yes")]
+        [InlineKeyboardButton(s['want_assistance'], callback_data="support_epic_create")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_channel_only")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q3_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_epic_create(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player - Epic Games Create"""
+async def support_epic_create(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support - Epic Games Create -> Q5"""
     query = update.callback_query
     await query.answer()
     
@@ -958,38 +605,34 @@ async def new_epic_create(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     text = s['epic_create_link']
     
     keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q5_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q4_no")]
+        [InlineKeyboardButton(s['next_question'], callback_data="support_q5_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q4_no")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q5 - Yes -> Q6"""
-    context.user_data['new_player_qa'].append(("5. Created shortcut?", "A Yes"))
-    
+async def support_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q5 - Yes -> Q6"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = s['new_q6_text']
+    text = s['support_q6_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="new_q6_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_q6_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q4_yes")]
+        [InlineKeyboardButton(s['a_yes'], callback_data="support_q6_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_q6_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q4_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q5 - No"""
-    context.user_data['new_player_qa'].append(("5. Created shortcut?", "B No"))
-    
+async def support_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q5 - No -> Ask if they want guidance -> Q6"""
     query = update.callback_query
     await query.answer()
     
@@ -999,39 +642,35 @@ async def new_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = s['shortcut_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['see_channel'], callback_data="new_channel_forward")],
-        [InlineKeyboardButton(s['finally_fixed'], callback_data="new_q6_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q4_yes")]
+        [InlineKeyboardButton(s['see_channel'], callback_data="support_channel_only")],
+        [InlineKeyboardButton(s['finally_fixed'], callback_data="support_q6_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q4_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q6_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q6 - Yes -> Q7"""
-    context.user_data['new_player_qa'].append(("6. Launched the game?", "A Yes"))
-    
+async def support_q6_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q6 - Yes -> Q7"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = s['new_q7_text']
+    text = s['support_q7_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="new_q7_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_q7_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q5_yes")]
+        [InlineKeyboardButton(s['a_yes'], callback_data="support_q7_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_q7_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q5_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q6_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q6 - No"""
-    context.user_data['new_player_qa'].append(("6. Launched the game?", "B No"))
-    
+async def support_q6_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q6 - No -> Ask if they need guidance -> Q7"""
     query = update.callback_query
     await query.answer()
     
@@ -1041,16 +680,16 @@ async def new_q6_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = s['launch_game_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="new_launch_game")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_channel_forward")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q5_yes")]
+        [InlineKeyboardButton(s['want_assistance'], callback_data="support_launch_game")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_channel_only")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q5_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_launch_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player - Launch Game"""
+async def support_launch_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support - Launch Game -> Q7"""
     query = update.callback_query
     await query.answer()
     
@@ -1060,98 +699,71 @@ async def new_launch_game(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     text = s['launch_game_link']
     
     keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q7_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q6_no")]
+        [InlineKeyboardButton(s['next_question'], callback_data="support_q7_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q6_no")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q7_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q7 - Yes -> Q8"""
-    context.user_data['new_player_qa'].append(("7. Found reward Island?", "A Yes"))
-    
+async def support_q7_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q7 - Yes -> Q8"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = s['new_q8_text']
+    text = s['support_q8_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['yes_im_ready'], callback_data="new_q8_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_q8_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q6_yes")]
+        [InlineKeyboardButton(s['yes_im_ready'], callback_data="support_q8_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_q8_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q6_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q7_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q7 - No"""
-    context.user_data['new_player_qa'].append(("7. Found reward Island?", "B No"))
-    
+async def support_q7_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q7 - No -> Show codes -> Q8"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = s['reward_island_reminder']
+    codes_text = s['support_codes_title'] + "\n".join(GAME_CODES)
     
     keyboard = [
-        [InlineKeyboardButton(s['want_codes'], callback_data="new_q1_codes")],
-        [InlineKeyboardButton(s['already_chose'], callback_data="new_q8_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q6_yes")]
-    ]
-    
-    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
-
-async def new_q1_codes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player - Show codes"""
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    codes_text = s['codes_title'] + "\n".join(GAME_CODES)
-    
-    keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q8_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q7_no")]
+        [InlineKeyboardButton(s['next_question'], callback_data="support_q8_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q6_yes")]
     ]
     
     await query.edit_message_text(text=codes_text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q8_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q8 - Yes -> Q9"""
-    context.user_data['new_player_qa'].append(("8. Followed full setup?", "A Yes"))
-    
+async def support_q8_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q8 - Yes -> Q9"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = s['new_q9_text']
+    text = s['support_q9_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="new_q9_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_q9_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q7_yes")]
+        [InlineKeyboardButton(s['a_yes'], callback_data="support_q9_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_q9_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q7_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q8_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q8 - No"""
-    context.user_data['new_player_qa'].append(("8. Followed full setup?", "B No"))
-    
+async def support_q8_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q8 - No -> Ask if they need guidance -> Q9"""
     query = update.callback_query
     await query.answer()
     
@@ -1161,39 +773,35 @@ async def new_q8_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = s['full_setup_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="new_channel_forward")],
-        [InlineKeyboardButton(s['finally_fixed'], callback_data="new_q9_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q7_yes")]
+        [InlineKeyboardButton(s['want_assistance'], callback_data="support_channel_only")],
+        [InlineKeyboardButton(s['finally_fixed'], callback_data="support_q9_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q7_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q9_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q9 - Yes -> Q10"""
-    context.user_data['new_player_qa'].append(("9. Will play 130 hours?", "A Yes"))
-    
+async def support_q9_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q9 - Yes -> Q10"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = s['new_q10_text']
+    text = s['support_q10_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="new_q10_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_q10_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q8_yes")]
+        [InlineKeyboardButton(s['a_yes'], callback_data="support_q10_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_q10_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q8_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q9_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q9 - No"""
-    context.user_data['new_player_qa'].append(("9. Will play 130 hours?", "B No"))
-    
+async def support_q9_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q9 - No -> Ask if they can play 130 hours -> Q10"""
     query = update.callback_query
     await query.answer()
     
@@ -1203,39 +811,35 @@ async def new_q9_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = s['play_hours_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="new_q10_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_channel_forward")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q8_yes")]
+        [InlineKeyboardButton(s['want_assistance'], callback_data="support_q10_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_channel_only")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q8_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q10_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q10 - Yes -> Q11"""
-    context.user_data['new_player_qa'].append(("10. Will click like button?", "A Yes"))
-    
+async def support_q10_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q10 - Yes -> Q11"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = s['new_q11_text']
+    text = s['support_q11_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="new_q11_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_q11_no")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q9_yes")]
+        [InlineKeyboardButton(s['a_yes'], callback_data="support_q11_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_q11_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q9_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q10_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q10 - No"""
-    context.user_data['new_player_qa'].append(("10. Will click like button?", "B No"))
-    
+async def support_q10_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q10 - No -> Ask if they want guidance -> Q11"""
     query = update.callback_query
     await query.answer()
     
@@ -1245,39 +849,35 @@ async def new_q10_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = s['like_button_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="new_channel_forward")],
-        [InlineKeyboardButton(s['will_play'], callback_data="new_q11_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q9_yes")]
+        [InlineKeyboardButton(s['want_assistance'], callback_data="support_channel_only")],
+        [InlineKeyboardButton(s['have_proof_played'], callback_data="support_q11_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q9_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q11_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q11 - Yes -> Q12"""
-    context.user_data['new_player_qa'].append(("11. Will save to favorites?", "A Yes"))
-    
+async def support_q11_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q11 - Yes -> Q12"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = s['new_q12_text']
+    text = s['support_q12_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="new_influencer_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_channel_forward")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q10_yes")]
+        [InlineKeyboardButton(s['a_yes'], callback_data="support_influencer_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_expert_review")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q10_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q11 - No"""
-    context.user_data['new_player_qa'].append(("11. Will save to favorites?", "B No"))
-    
+async def support_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q11 - No -> Ask if they want guidance -> Channel Only"""
     query = update.callback_query
     await query.answer()
     
@@ -1287,18 +887,16 @@ async def new_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = s['favorites_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="new_channel_forward")],
-        [InlineKeyboardButton(s['have_proof'], callback_data="new_q11_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q10_yes")]
+        [InlineKeyboardButton(s['want_assistance'], callback_data="support_channel_only")],
+        [InlineKeyboardButton(s['have_proof'], callback_data="support_q11_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q10_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_influencer_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player - Influencer Yes"""
-    context.user_data['new_player_qa'].append(("12. Were you introduced by an influencer?", "A Yes"))
-    
+async def support_influencer_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support - Influencer Yes -> Q13"""
     query = update.callback_query
     await query.answer()
     
@@ -1308,28 +906,65 @@ async def new_influencer_yes(update: Update, context: ContextTypes.DEFAULT_TYPE)
     text = s['provide_name']
     
     keyboard = [
-        [InlineKeyboardButton(s['completed'], callback_data="new_ask_username")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q11_yes")]
+        [InlineKeyboardButton(s['next_question'], callback_data="support_q13")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q11_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-async def new_ask_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player - Ask for username"""
+async def support_expert_review(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support - Expert Review -> Q13"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    context.user_data['flow_type'] = 'new_player'
+    text = s['expert_review_text']
     
-    await query.edit_message_text(text=s['username_prompt'], parse_mode='Markdown')
+    keyboard = [
+        [InlineKeyboardButton(s['next_question'], callback_data="support_q13")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q11_yes")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
+    return SUPPORT_FLOW
+
+async def support_q13(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q13 - Final Question"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    text = s['support_q13_text']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['yes_i_did'], callback_data="support_get_username_start")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_channel_only")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_influencer_yes")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
+    return SUPPORT_FLOW
+
+async def support_get_username_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support - Ask for username"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    context.user_data['flow_type'] = 'support'
+    
+    await query.edit_message_text(text=s['support_q2'], parse_mode='Markdown')
     return USERNAME_COLLECTION
 
-async def new_channel_forward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Forward to channel from new player flow"""
+async def support_channel_only(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Forward to channel only (no back to support or main menu)"""
     query = update.callback_query
     await query.answer()
     
@@ -1339,19 +974,94 @@ async def new_channel_forward(update: Update, context: ContextTypes.DEFAULT_TYPE
     text = f"{s['channel_guidance']} {HELPFUL_CHANNEL_LINK}"
     
     keyboard = [
-        [InlineKeyboardButton(s['back_to_new'], callback_data="new_player_start")],
-        [InlineKeyboardButton(s['main_menu'], callback_data="back_to_main")]
+        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
+    return SUPPORT_FLOW
 
-# --- SUPPORT FLOW (FIXED) ---
-# [Support flow code remains the same as in the previous response]
-# ... (support flow functions would go here, but I'm omitting for brevity)
+# --- USERNAME COLLECTION ---
 
-# --- USERNAME COLLECTION AND SUPPORT MESSAGE SENDING ---
-# [Username collection code remains the same]
+async def collect_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Collect username and send Q&A to support team"""
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    username = update.message.text
+    
+    if username.startswith('@') and len(username) > 2:
+        logger.info(f"*** USERNAME COLLECTION from user {update.message.from_user.id}: {username} ***")
+        
+        if not SUPPORT_CHAT_ID:
+            logger.error("SUPPORT_CHAT_ID is not set in environment variables")
+            await update.message.reply_text("❌ Support feature is currently unavailable. Please try again later.")
+            return await show_main_menu(update, context)
+        
+        try:
+            user = update.effective_user
+            user_username = user.username if user.username else "No username"
+            first_name = user.first_name if user.first_name else "No first name"
+            last_name = user.last_name if user.last_name else "No last name"
+            
+            flow_type = context.user_data.get('flow_type', 'unknown')
+            qa_data = []
+            
+            if flow_type == 'existing_player':
+                qa_data = context.user_data.get('existing_player_qa', [])
+                flow_title = "🏆 EXISTING PLAYER QUESTIONNAIRE"
+            elif flow_type == 'new_player':
+                qa_data = context.user_data.get('new_player_qa', [])
+                flow_title = "🎮 NEW PLAYER QUESTIONNAIRE"
+            elif flow_type == 'support':
+                qa_data = []
+                flow_title = "🆘 SUPPORT REQUEST"
+            else:
+                qa_data = []
+                flow_title = "❓ UNKNOWN FLOW"
+            
+            support_message = (
+                f"🚨 **{flow_title}** 🚨\n"
+                f"👤 User: {first_name} {last_name}\n"
+                f"📛 User's Telegram: @{user_username}\n"
+                f"💬 Provided Username: {username}\n"
+                f"🆔 User ID: `{user.id}`\n"
+                f"⏰ Time: {update.message.date.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                f"🌐 Language: {lang.upper()}\n\n"
+            )
+            
+            if qa_data:
+                support_message += "**Questions & Answers:**\n"
+                for i, (question, answer) in enumerate(qa_data, 1):
+                    support_message += f"{i}. {question}\n   ➤ {answer}\n\n"
+            else:
+                support_message += "**No Q&A data collected.**\n\n"
+            
+            support_message += f"**Flow Type:** {flow_type.replace('_', ' ').title()}"
+            
+            await context.bot.send_message(
+                chat_id=SUPPORT_CHAT_ID,
+                text=support_message,
+                parse_mode='Markdown'
+            )
+            
+            await update.message.reply_text(text=s['support_thanks'], reply_markup=ReplyKeyboardRemove())
+            return await show_main_menu(update, context)
+            
+        except Exception as e:
+            logger.error(f"Error sending support message to group: {e}")
+            await update.message.reply_text("❌ There was an error sending your information. Please try again later.")
+            return await show_main_menu(update, context)
+    else:
+        await update.message.reply_text(text=s['invalid_username'])
+        return USERNAME_COLLECTION
+
+async def cancel_support(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """User types /cancel during the support flow."""
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    await update.message.reply_text(text=s['support_cancel'], reply_markup=ReplyKeyboardRemove())
+    return await show_main_menu(update, context)
 
 def main() -> None:
     """Run the bot."""
@@ -1372,7 +1082,7 @@ def main() -> None:
                 CallbackQueryHandler(new_player_start, pattern="^new_player_start$"),
                 CallbackQueryHandler(existing_player_start, pattern="^existing_player_link$"),
                 CallbackQueryHandler(show_helpful_channel, pattern="^helpful_channel$"),
-                CallbackQueryHandler(support_start, pattern="^contact_support$"), 
+                CallbackQueryHandler(support_start, pattern="^contact_support$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
             EXISTING_PLAYER_FLOW: [
@@ -1426,7 +1136,37 @@ def main() -> None:
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
             SUPPORT_FLOW: [
-                # [Support flow patterns would go here]
+                CallbackQueryHandler(support_q1_yes, pattern="^support_q1_yes$"),
+                CallbackQueryHandler(support_q1_no, pattern="^support_q1_no$"),
+                CallbackQueryHandler(support_q2_yes, pattern="^support_q2_yes$"),
+                CallbackQueryHandler(support_q2_no, pattern="^support_q2_no$"),
+                CallbackQueryHandler(support_cloud_gaming_link, pattern="^support_cloud_gaming_link$"),
+                CallbackQueryHandler(support_q3_yes, pattern="^support_q3_yes$"),
+                CallbackQueryHandler(support_q3_no, pattern="^support_q3_no$"),
+                CallbackQueryHandler(support_epic_activate, pattern="^support_epic_activate$"),
+                CallbackQueryHandler(support_q4_yes, pattern="^support_q4_yes$"),
+                CallbackQueryHandler(support_q4_no, pattern="^support_q4_no$"),
+                CallbackQueryHandler(support_epic_create, pattern="^support_epic_create$"),
+                CallbackQueryHandler(support_q5_yes, pattern="^support_q5_yes$"),
+                CallbackQueryHandler(support_q5_no, pattern="^support_q5_no$"),
+                CallbackQueryHandler(support_q6_yes, pattern="^support_q6_yes$"),
+                CallbackQueryHandler(support_q6_no, pattern="^support_q6_no$"),
+                CallbackQueryHandler(support_launch_game, pattern="^support_launch_game$"),
+                CallbackQueryHandler(support_q7_yes, pattern="^support_q7_yes$"),
+                CallbackQueryHandler(support_q7_no, pattern="^support_q7_no$"),
+                CallbackQueryHandler(support_q8_yes, pattern="^support_q8_yes$"),
+                CallbackQueryHandler(support_q8_no, pattern="^support_q8_no$"),
+                CallbackQueryHandler(support_q9_yes, pattern="^support_q9_yes$"),
+                CallbackQueryHandler(support_q9_no, pattern="^support_q9_no$"),
+                CallbackQueryHandler(support_q10_yes, pattern="^support_q10_yes$"),
+                CallbackQueryHandler(support_q10_no, pattern="^support_q10_no$"),
+                CallbackQueryHandler(support_q11_yes, pattern="^support_q11_yes$"),
+                CallbackQueryHandler(support_q11_no, pattern="^support_q11_no$"),
+                CallbackQueryHandler(support_influencer_yes, pattern="^support_influencer_yes$"),
+                CallbackQueryHandler(support_expert_review, pattern="^support_expert_review$"),
+                CallbackQueryHandler(support_q13, pattern="^support_q13$"),
+                CallbackQueryHandler(support_get_username_start, pattern="^support_get_username_start$"),
+                CallbackQueryHandler(support_channel_only, pattern="^support_channel_only$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
             USERNAME_COLLECTION: [
@@ -1441,6 +1181,15 @@ def main() -> None:
     )
 
     application.add_handler(conv_handler)
+
+    logger.info("Bot is running...")
+    print("🤖 Bot is starting...")
+    print(f"✅ TELEGRAM_TOKEN: {'Set' if TELEGRAM_TOKEN else 'Not Set'}")
+    print(f"✅ SUPPORT_CHAT_ID: {'Set' if SUPPORT_CHAT_ID else 'Not Set'}")
+    if SUPPORT_CHAT_ID:
+        print(f"📋 SUPPORT_CHAT_ID Value: {SUPPORT_CHAT_ID}")
+    print("🚀 Bot is running...")
+    
     application.run_polling()
 
 if __name__ == "__main__":
