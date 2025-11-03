@@ -91,29 +91,29 @@ STRINGS = {
         'epic_profile_reminder': "No please you have to create your epic games profile, do you want our guidance?",
         'shortcut_reminder': "No. You have to create a shortcut to play fortnite from your homescreen, do you want our guidance with that?",
         'launch_game_reminder': "No you have to launch the game, do you need our guidance?",
-        'reward_island_reminder': "No, you have to search the reward Island in the search bar and just choose it, do you want our guidance for that?",
-        'full_setup_reminder': "No, you have to follow the exact setup, do you need our guidance?",
+        'reward_island_reminder': "No, you have to search the reward Island in the search bar and just choose it , do you want our guidance for that?",
+        'full_setup_reminder': "No, you have to follow the exact setup , do you need our guidance?",
         'play_hours_reminder': "No, you have to start the game and play every single day for free before aiming for the reward, are you able to play at least 130 hours a week?",
-        'like_button_reminder': "No, You have to click on the like button every single time before your 1 hour play session ended during your 130 hours a week, do you want our guidance on that?",
-        'favorites_reminder': "No, you have to save the reward Island to your favorites and play, do you want our guidance on that?",
+        'like_button_reminder': "No, You have to click on the like button every single time before your 1 hour play session ended during your 130 hours a week , do you want our guidance on that?",
+        'favorites_reminder': "No , you have to save the reward Island to your favorites and play , do you want our guidance on that?",
         'expert_review_text': "One of the expert will review all the screenshots of the game and you will earn",
         
-        # Button texts
+        # Button texts - UPDATED TO MATCH CONTENT
         'a_yes': "A Yes",
         'b_no': "B No",
         'a_if_yes': "A If yes",
         'b_if_no': "B If no",
-        'yes_i_received': "A Yes I received the code",
+        'yes_i_received': "A Yes I received the code , I want the next step",
         'yes_im_ready': "A Yes, I'm ready for the next step",
-        'yes_i_did': "A Yes, I did it and I will send you all the necessary screenshots",
+        'yes_i_did': "A Yes , I did it and I will send you all the necessary screenshots",
         'want_codes': "Yes I want the best codes to play",
-        'already_chose': "No, I already choosed one code",
+        'already_chose': "No , I already choosed one code",
         'want_assistance': "Yes",
-        'already_have': "No I already have one",
-        'finally_fixed': "No I finally fix everything",
-        'will_play': "No, I will play and let you know",
-        'have_proof': "No, I have proof I saved it",
-        'have_proof_played': "No, I have proof that I played 130 hours this week and I liked every single time",
+        'already_have': "No I already have one, I want the next step",
+        'finally_fixed': "No I finally fix everything, I want to move to the next step",
+        'will_play': "No, I will play and let you know in the support session later on",
+        'have_proof': "No , I have proof I saved the reward Island to my favorites and I actually play on it",
+        'have_proof_played': "No, I have proof that I played 130 hours this week and I liked every single time , and I am wishing to share it with you guys",
         'see_channel': "yes I want to see it in the channel",
         'completed': "Completed",
         'next_question': "Next Question",
@@ -133,25 +133,25 @@ STRINGS = {
         # Influencer question
         'provide_name': "Provide the name please:",
         
-        # Existing player flow
+        # Existing player flow - UPDATED TEXT
         'existing_player_intro': "Because you are playing on the cloud, your session will last for 1 hour. The game will close, and you will have to launch it again to keep playing.\nYou probably know it cause you already follow all the instructions\n\n1 Have you searched and found the reward Island?",
         'existing_q2_text': "2 Did you follow the full setup to be able to play with friends and earn a lot together without any worries?",
         'existing_q3_text': "3 Did you start the game and play 130 hours for free this week?",
-        'existing_q4_text': "4 With your existing account, will you click on the like button every single time before your 1 hour play session ended during your 130 hours of play this week?",
+        'existing_q4_text': "4 With your existing account ,  will you click on the like button every single time before your 1 hour play session ended during your 130 hours of play this week?",
         'existing_q5_text': "5 Did you save the reward Island to your favorites?",
         'existing_q6_text': "6 Were you introduced to this game by an influencer?",
         
-        # New player flow
-        'new_player_intro': "New player:\n\nYou're diving into an immersive gaming adventure. This bot will help you set up your account, join the game, start playing and earning.\nBecause you are playing on the cloud, your session will last for 1 hour. The game will close, and you will have to launch it again to keep playing.\n\n1 Did you use a VPN?",
+        # New player flow - UPDATED TEXT
+        'new_player_intro': "New player:\n\nYou're diving into an immersive gaming adventure.This bot will help you set up your account, join the game, start playing and earning\nBecause you are playing on the cloud, your session will last for 1 hour. The game will close, and you will have to launch it again to keep playing.\n\n1 Did you use a VPN?",
         'new_q2_text': "2 - Did you already create a cloud gaming profile?",
-        'new_q3_text': "3 - Did you receive the code from epic games to activate your cloud gaming account?",
+        'new_q3_text': "3 -  Did you receive the code from epic games to activate your cloud gaming account?",
         'new_q4_text': "4 Did you create your epic games profile?",
         'new_q5_text': "5 Did you create a shortcut of the cloud gaming to play it like an installed app directly from your Homescreen?",
         'new_q6_text': "6 Have you launched the game?",
         'new_q7_text': "7 Have you searched and found the reward Island?",
         'new_q8_text': "8 Did you follow the full setup to be able to play with friends and earn a lot together without any worries?",
         'new_q9_text': "9 Will you start the game and play 130 hours for free this week?",
-        'new_q10_text': "10 With your new account, will you click on the like button every single time before your 1 hour play session ended during your 130 hours of play this week?",
+        'new_q10_text': "10 With your new account ,  will you click on the like button every single time before your 1 hour play session ended during your 130 hours of play this week?",
         'new_q11_text': "11 Will you save the reward Island to your favorites?",
         'new_q12_text': "12 Were you introduced to this game by an influencer?",
         
@@ -161,6 +161,11 @@ STRINGS = {
         'epic_create_link': "Create your Epic Games profile here:\nepicgames.com",
         'launch_game_link': "Launch the game here:\nhttps://www.xbox.com/fr-FR/play/games/fortnite/BT5P2X999VH2",
         'channel_guidance': "Please check our channel for guidance:",
+        'channel_instruction_9': "Please check our channel and look for instruction 9:",
+        'channel_instruction_10': "Please check our channel and look for instruction 10:",
+        'channel_instruction_11': "Please check our channel and look for instruction 11:",
+        'channel_instruction_12': "Please check our channel and look for instruction 12:",
+        'channel_instruction_13': "Please check our channel and look for instruction 13:",
     },
     'fr': {
         'disclaimer': "**Avertissement :** Ce bot est un guide non officiel et n'est pas affilié à Epic Games ou Fortnite. Nous ne vous demanderons *jamais* votre mot de passe.",
@@ -215,22 +220,22 @@ STRINGS = {
         'favorites_reminder': "Non, vous devez enregistrer l'île de récompense dans vos favoris et jouer, voulez-vous notre aide pour cela ?",
         'expert_review_text': "Un expert examinera toutes les captures d'écran du jeu et vous gagnerez",
         
-        # Button texts - French
+        # Button texts - French - UPDATED
         'a_yes': "A Oui",
         'b_no': "B Non",
         'a_if_yes': "A Si oui",
         'b_if_no': "B Si non",
-        'yes_i_received': "A Oui j'ai reçu le code",
+        'yes_i_received': "A Oui j'ai reçu le code, je veux l'étape suivante",
         'yes_im_ready': "A Oui, je suis prêt pour l'étape suivante",
         'yes_i_did': "A Oui, je l'ai fait et je vous enverrai toutes les captures d'écran nécessaires",
         'want_codes': "Oui je veux les meilleurs codes pour jouer",
         'already_chose': "Non, j'ai déjà choisi un code",
         'want_assistance': "Oui",
-        'already_have': "Non j'en ai déjà un",
-        'finally_fixed': "Non j'ai finalement tout réparé",
-        'will_play': "Non, je vais jouer et vous tiens au courant",
-        'have_proof': "Non, j'ai la preuve que je l'ai sauvegardé",
-        'have_proof_played': "Non, j'ai la preuve que j'ai joué 130 heures cette semaine et que j'ai aimé à chaque fois",
+        'already_have': "Non j'en ai déjà un, je veux l'étape suivante",
+        'finally_fixed': "Non j'ai finalement tout réparé, je veux passer à l'étape suivante",
+        'will_play': "Non, je vais jouer et vous tiens au courant lors de la session de support",
+        'have_proof': "Non, j'ai la preuve que je l'ai sauvegardé et que j'y joue réellement",
+        'have_proof_played': "Non, j'ai la preuve que j'ai joué 130 heures cette semaine et que j'ai aimé à chaque fois, et je souhaite le partager avec vous",
         'see_channel': "oui je veux le voir dans le canal",
         'completed': "Terminé",
         'next_question': "Question Suivante",
@@ -250,7 +255,7 @@ STRINGS = {
         # Influencer question - French
         'provide_name': "Fournissez le nom s'il vous plaît :",
         
-        # Existing player flow - French
+        # Existing player flow - French - UPDATED
         'existing_player_intro': "Parce que vous jouez sur le cloud, votre session durera 1 heure. Le jeu se fermera et vous devrez le relancer pour continuer à jouer.\nVous le savez probablement car vous suivez déjà toutes les instructions\n\n1 Avez-vous recherché et trouvé l'île de récompense ?",
         'existing_q2_text': "2 Avez-vous suivi la configuration complète pour pouvoir jouer avec des amis et gagner beaucoup ensemble sans aucun souci ?",
         'existing_q3_text': "3 Avez-vous commencé le jeu et joué 130 heures gratuitement cette semaine ?",
@@ -258,7 +263,7 @@ STRINGS = {
         'existing_q5_text': "5 Avez-vous enregistré l'île de récompense dans vos favoris ?",
         'existing_q6_text': "6 Avez-vous été présenté à ce jeu par un influenceur ?",
         
-        # New player flow - French
+        # New player flow - French - UPDATED
         'new_player_intro': "Nouveau joueur :\n\nVous plongez dans une aventure de jeu immersive. Ce bot vous aidera à configurer votre compte, à rejoindre le jeu, à commencer à jouer et à gagner.\nParce que vous jouez sur le cloud, votre session durera 1 heure. Le jeu se fermera et vous devrez le relancer pour continuer à jouer.\n\n1 Avez-vous utilisé un VPN ?",
         'new_q2_text': "2 - Avez-vous déjà créé un profil de cloud gaming ?",
         'new_q3_text': "3 - Avez-vous reçu le code d'Epic Games pour activer votre compte de cloud gaming ?",
@@ -278,6 +283,11 @@ STRINGS = {
         'epic_create_link': "Créez votre profil Epic Games ici :\nepicgames.com",
         'launch_game_link': "Lancez le jeu ici :\nhttps://www.xbox.com/fr-FR/play/games/fortnite/BT5P2X999VH2",
         'channel_guidance': "Veuillez consulter notre canal pour obtenir des conseils :",
+        'channel_instruction_9': "Veuillez consulter notre canal et chercher l'instruction 9 :",
+        'channel_instruction_10': "Veuillez consulter notre canal et chercher l'instruction 10 :",
+        'channel_instruction_11': "Veuillez consulter notre canal et chercher l'instruction 11 :",
+        'channel_instruction_12': "Veuillez consulter notre canal et chercher l'instruction 12 :",
+        'channel_instruction_13': "Veuillez consulter notre canal et chercher l'instruction 13 :",
     }
 }
 
@@ -419,7 +429,7 @@ async def new_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     
     keyboard = [
         [InlineKeyboardButton("B - 1 Yes", callback_data="new_cloud_gaming_link")],
-        [InlineKeyboardButton("B - 2 No I already have one", callback_data="new_q3_yes")],
+        [InlineKeyboardButton("B - 2 No I already have one, I want the next step", callback_data="new_q3_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q1_yes")]
     ]
     
@@ -754,7 +764,7 @@ async def new_q8_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     
     keyboard = [
         [InlineKeyboardButton("B - 1 Yes", callback_data="new_channel_forward")],
-        [InlineKeyboardButton("B - 2 No I finally fix everything", callback_data="new_q9_yes")],
+        [InlineKeyboardButton("B - 2 No I finally fix everything, I want to move to the next step", callback_data="new_q9_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q7_yes")]
     ]
     
@@ -842,7 +852,7 @@ async def new_q10_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     
     keyboard = [
         [InlineKeyboardButton("B - 1 Yes", callback_data="new_channel_forward")],
-        [InlineKeyboardButton("B - 2 No", callback_data="new_q11_yes")],
+        [InlineKeyboardButton("B - 2 No, I will play and let you know in the support session later on", callback_data="new_q11_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q9_yes")]
     ]
     
@@ -863,8 +873,8 @@ async def new_q11_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     text = s['new_q12_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="new_influencer_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_channel_forward")],
+        [InlineKeyboardButton(s['a_yes'], callback_data="new_q12_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="new_q12_no")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q10_yes")]
     ]
     
@@ -886,15 +896,16 @@ async def new_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     
     keyboard = [
         [InlineKeyboardButton("B - 1 Yes", callback_data="new_channel_forward")],
-        [InlineKeyboardButton("B - 2 No", callback_data="new_influencer_yes")],
+        [InlineKeyboardButton("B - 2 No , I have proof I saved the reward Island to my favorites and I actually play on it", callback_data="new_q12_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q10_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
     return NEW_PLAYER_FLOW
 
-async def new_influencer_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player - Influencer Yes -> Ask for username"""
+# NEW PLAYER HANDLERS - UPDATED
+async def new_q12_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """New Player Q12 - Yes -> Ask for influencer name"""
     query = update.callback_query
     await query.answer()
     
@@ -909,6 +920,26 @@ async def new_influencer_yes(update: Update, context: ContextTypes.DEFAULT_TYPE)
     keyboard = [
         [InlineKeyboardButton(s['next_question'], callback_data="new_ask_username")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q11_yes")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
+    return NEW_PLAYER_FLOW
+
+async def new_q12_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """New Player Q12 - No -> Forward to channel"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['new_player_qa'].append((s['new_q12_text'], "No"))
+    
+    text = f"{s['channel_instruction_13']} {HELPFUL_CHANNEL_LINK}"
+    
+    keyboard = [
+        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
@@ -1043,11 +1074,11 @@ async def existing_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # Store Q&A
     context.user_data['existing_player_qa'].append((s['existing_q2_text'], "No"))
     
-    text = f"{s['channel_guidance']} {HELPFUL_CHANNEL_LINK}"
+    text = f"{s['channel_instruction_9']} {HELPFUL_CHANNEL_LINK}"
     
     keyboard = [
         [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)],
-        [InlineKeyboardButton("B - 2 No I finally fix everything", callback_data="existing_q3_yes")]
+        [InlineKeyboardButton("B - 2 No I finally fix everything, I want to move to the next step", callback_data="existing_q3_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
@@ -1086,7 +1117,7 @@ async def existing_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # Store Q&A
     context.user_data['existing_player_qa'].append((s['existing_q3_text'], "No"))
     
-    text = f"{s['channel_guidance']} {HELPFUL_CHANNEL_LINK}"
+    text = f"{s['channel_instruction_10']} {HELPFUL_CHANNEL_LINK}"
     
     keyboard = [
         [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)],
@@ -1132,8 +1163,8 @@ async def existing_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     text = s['like_button_reminder']
     
     keyboard = [
-        [InlineKeyboardButton("B - 1 Yes", callback_data="existing_channel_forward")],
-        [InlineKeyboardButton("B - 2 No", callback_data="existing_q5_yes")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="existing_channel_instruction_11")],
+        [InlineKeyboardButton("B - 2 No, I will play and let you know in the support session later on", callback_data="existing_q5_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q3_yes")]
     ]
     
@@ -1141,7 +1172,7 @@ async def existing_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return EXISTING_PLAYER_FLOW
 
 async def existing_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q5 - Yes -> Q6"""
+    """Existing Player Q5 - Yes -> Q6 (INFLUENCER QUESTION) - FIXED"""
     query = update.callback_query
     await query.answer()
     
@@ -1154,8 +1185,8 @@ async def existing_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     text = s['existing_q6_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="existing_influencer_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="existing_channel_forward")],
+        [InlineKeyboardButton(s['a_yes'], callback_data="existing_q6_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="existing_q6_no")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q4_yes")]
     ]
     
@@ -1176,16 +1207,17 @@ async def existing_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     text = s['favorites_reminder']
     
     keyboard = [
-        [InlineKeyboardButton("B - 1 Yes", callback_data="existing_channel_forward")],
-        [InlineKeyboardButton("B - 2 No", callback_data="existing_influencer_yes")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="existing_channel_instruction_12")],
+        [InlineKeyboardButton("B - 2 No , I have proof I saved the reward Island to my favorites and I actually play on it", callback_data="existing_q6_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q4_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
     return EXISTING_PLAYER_FLOW
 
-async def existing_influencer_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player - Influencer Yes -> Ask for username"""
+# EXISTING PLAYER HANDLERS - UPDATED
+async def existing_q6_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Q6 - Yes -> Ask for influencer name - FIXED"""
     query = update.callback_query
     await query.answer()
     
@@ -1205,6 +1237,26 @@ async def existing_influencer_yes(update: Update, context: ContextTypes.DEFAULT_
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
     return EXISTING_PLAYER_FLOW
 
+async def existing_q6_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Q6 - No -> Forward to channel"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((s['existing_q6_text'], "No"))
+    
+    text = f"{s['channel_instruction_13']} {HELPFUL_CHANNEL_LINK}"
+    
+    keyboard = [
+        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
+    return EXISTING_PLAYER_FLOW
+
 async def existing_ask_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Existing Player - Ask for username"""
     query = update.callback_query
@@ -1218,15 +1270,32 @@ async def existing_ask_username(update: Update, context: ContextTypes.DEFAULT_TY
     await query.edit_message_text(text=s['support_q2'], parse_mode='Markdown')
     return USERNAME_COLLECTION
 
-async def existing_channel_forward(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player - Forward to channel only"""
+async def existing_channel_instruction_11(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player - Forward to channel instruction 11"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    text = f"{s['channel_guidance']} {HELPFUL_CHANNEL_LINK}"
+    text = f"{s['channel_instruction_11']} {HELPFUL_CHANNEL_LINK}"
+    
+    keyboard = [
+        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
+    return EXISTING_PLAYER_FLOW
+
+async def existing_channel_instruction_12(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player - Forward to channel instruction 12"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    text = f"{s['channel_instruction_12']} {HELPFUL_CHANNEL_LINK}"
     
     keyboard = [
         [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)]
@@ -1329,7 +1398,7 @@ async def support_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     
     keyboard = [
         [InlineKeyboardButton("B - 1 Yes", callback_data="support_cloud_gaming_link")],
-        [InlineKeyboardButton("B - 2 No I already have one", callback_data="support_q3_yes")],
+        [InlineKeyboardButton("B - 2 No I already have one, I want the next step", callback_data="support_q3_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q1_yes")]
     ]
     
@@ -1628,7 +1697,7 @@ async def support_q8_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     
     keyboard = [
         [InlineKeyboardButton("B - 1 Yes", callback_data="support_channel_only")],
-        [InlineKeyboardButton("B - 2 No I finally fix everything", callback_data="support_q9_yes")],
+        [InlineKeyboardButton("B - 2 No I finally fix everything, I want to move to the next step", callback_data="support_q9_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q7_yes")]
     ]
     
@@ -1704,7 +1773,7 @@ async def support_q10_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     keyboard = [
         [InlineKeyboardButton("B - 1 Yes", callback_data="support_channel_only")],
-        [InlineKeyboardButton("B - 2 No", callback_data="support_q11_yes")],
+        [InlineKeyboardButton("B - 2 No, I have proof that I played 130 hours this week and I liked every single time , and I am wishing to share it with you guys", callback_data="support_q11_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q9_yes")]
     ]
     
@@ -1722,8 +1791,8 @@ async def support_q11_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     text = s['support_q12_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="support_influencer_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="support_expert_review")],
+        [InlineKeyboardButton(s['a_yes'], callback_data="support_q12_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="support_q12_no")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q10_yes")]
     ]
     
@@ -1742,15 +1811,16 @@ async def support_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     keyboard = [
         [InlineKeyboardButton("B - 1 Yes", callback_data="support_channel_only")],
-        [InlineKeyboardButton("B - 2 No", callback_data="support_q11_yes")],
+        [InlineKeyboardButton("B - 2 No , I have proof I saved the reward Island to my favorites and I actually play on it", callback_data="support_q12_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q10_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
     return SUPPORT_FLOW
 
-async def support_influencer_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support - Influencer Yes -> Provide name"""
+# SUPPORT HANDLERS - UPDATED WITH INFLUENCER BRANCH
+async def support_q12_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q12 - Yes -> Ask for influencer name - FIXED"""
     query = update.callback_query
     await query.answer()
     
@@ -1767,8 +1837,8 @@ async def support_influencer_yes(update: Update, context: ContextTypes.DEFAULT_T
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
     return SUPPORT_FLOW
 
-async def support_expert_review(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support - Expert Review -> Q13"""
+async def support_q12_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Support Q12 - No -> Expert review - FIXED"""
     query = update.callback_query
     await query.answer()
     
@@ -1798,7 +1868,7 @@ async def support_q13(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     keyboard = [
         [InlineKeyboardButton(s['yes_i_did'], callback_data="support_get_username_start")],
         [InlineKeyboardButton(s['b_no'], callback_data="support_channel_only")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_influencer_yes")]
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q12_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
@@ -2016,9 +2086,12 @@ def main() -> None:
                 CallbackQueryHandler(existing_q4_no, pattern="^existing_q4_no$"),
                 CallbackQueryHandler(existing_q5_yes, pattern="^existing_q5_yes$"),
                 CallbackQueryHandler(existing_q5_no, pattern="^existing_q5_no$"),
-                CallbackQueryHandler(existing_influencer_yes, pattern="^existing_influencer_yes$"),
+                # UPDATED HANDLERS
+                CallbackQueryHandler(existing_q6_yes, pattern="^existing_q6_yes$"),
+                CallbackQueryHandler(existing_q6_no, pattern="^existing_q6_no$"),
                 CallbackQueryHandler(existing_ask_username, pattern="^existing_ask_username$"),
-                CallbackQueryHandler(existing_channel_forward, pattern="^existing_channel_forward$"),
+                CallbackQueryHandler(existing_channel_instruction_11, pattern="^existing_channel_instruction_11$"),
+                CallbackQueryHandler(existing_channel_instruction_12, pattern="^existing_channel_instruction_12$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
             NEW_PLAYER_FLOW: [
@@ -2048,7 +2121,9 @@ def main() -> None:
                 CallbackQueryHandler(new_q10_no, pattern="^new_q10_no$"),
                 CallbackQueryHandler(new_q11_yes, pattern="^new_q11_yes$"),
                 CallbackQueryHandler(new_q11_no, pattern="^new_q11_no$"),
-                CallbackQueryHandler(new_influencer_yes, pattern="^new_influencer_yes$"),
+                # UPDATED HANDLERS
+                CallbackQueryHandler(new_q12_yes, pattern="^new_q12_yes$"),
+                CallbackQueryHandler(new_q12_no, pattern="^new_q12_no$"),
                 CallbackQueryHandler(new_ask_username, pattern="^new_ask_username$"),
                 CallbackQueryHandler(new_channel_forward, pattern="^new_channel_forward$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
@@ -2080,8 +2155,9 @@ def main() -> None:
                 CallbackQueryHandler(support_q10_no, pattern="^support_q10_no$"),
                 CallbackQueryHandler(support_q11_yes, pattern="^support_q11_yes$"),
                 CallbackQueryHandler(support_q11_no, pattern="^support_q11_no$"),
-                CallbackQueryHandler(support_influencer_yes, pattern="^support_influencer_yes$"),
-                CallbackQueryHandler(support_expert_review, pattern="^support_expert_review$"),
+                # UPDATED HANDLERS
+                CallbackQueryHandler(support_q12_yes, pattern="^support_q12_yes$"),
+                CallbackQueryHandler(support_q12_no, pattern="^support_q12_no$"),
                 CallbackQueryHandler(support_q13, pattern="^support_q13$"),
                 CallbackQueryHandler(support_get_username_start, pattern="^support_get_username_start$"),
                 CallbackQueryHandler(support_channel_only, pattern="^support_channel_only$"),
