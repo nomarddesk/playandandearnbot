@@ -330,8 +330,8 @@ async def new_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     text = s['new_player_intro']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="new_q1_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_q1_no")],
+        [InlineKeyboardButton(s['a_if_yes'], callback_data="new_q1_yes")],
+        [InlineKeyboardButton(s['b_if_no'], callback_data="new_q1_no")],
         [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
     ]
     
@@ -352,8 +352,8 @@ async def new_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = s['new_q2_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="new_q2_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_q2_no")],
+        [InlineKeyboardButton(s['a_if_yes'], callback_data="new_q2_yes")],
+        [InlineKeyboardButton(s['b_if_no'], callback_data="new_q2_no")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_player_start")]
     ]
     
@@ -361,7 +361,7 @@ async def new_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return NEW_PLAYER_FLOW
 
 async def new_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q1 - No -> Show codes -> Q2"""
+    """New Player Q1 - No -> Ask if they finally used VPN"""
     query = update.callback_query
     await query.answer()
     
@@ -371,32 +371,15 @@ async def new_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # Store Q&A
     context.user_data['new_player_qa'].append((s['new_player_intro'].split('\n')[-1], "No"))
     
-    codes_text = s['codes_title'] + "\n".join(GAME_CODES)
+    text = s['vpn_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q2_yes")],
+        [InlineKeyboardButton("B - 1 If yes", callback_data="new_q2_yes")],
+        [InlineKeyboardButton("B - 2 if no", callback_data="new_channel_forward")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_player_start")]
     ]
     
-    await query.edit_message_text(text=codes_text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return NEW_PLAYER_FLOW
-
-async def new_q1_codes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player - Show codes"""
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    codes_text = s['codes_title'] + "\n".join(GAME_CODES)
-    
-    keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q2_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_player_start")]
-    ]
-    
-    await query.edit_message_text(text=codes_text, reply_markup=InlineKeyboardMarkup(keyboard))
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
     return NEW_PLAYER_FLOW
 
 async def new_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -413,8 +396,8 @@ async def new_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = s['new_q3_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="new_q3_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_q3_no")],
+        [InlineKeyboardButton(s['yes_i_received'], callback_data="new_q3_yes")],
+        [InlineKeyboardButton(s['b_if_no'], callback_data="new_q3_no")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q1_yes")]
     ]
     
@@ -422,7 +405,7 @@ async def new_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return NEW_PLAYER_FLOW
 
 async def new_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q2 - No -> Show cloud gaming link -> Q3"""
+    """New Player Q2 - No -> Ask if they want assistance"""
     query = update.callback_query
     await query.answer()
     
@@ -432,10 +415,11 @@ async def new_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # Store Q&A
     context.user_data['new_player_qa'].append((s['new_q2_text'], "No"))
     
-    text = s['cloud_gaming_link']
+    text = s['cloud_gaming_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q3_yes")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="new_cloud_gaming_link")],
+        [InlineKeyboardButton("B - 2 No I already have one", callback_data="new_q3_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q1_yes")]
     ]
     
@@ -483,7 +467,7 @@ async def new_q3_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return NEW_PLAYER_FLOW
 
 async def new_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q3 - No -> Show epic activate link -> Q4"""
+    """New Player Q3 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -493,10 +477,11 @@ async def new_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # Store Q&A
     context.user_data['new_player_qa'].append((s['new_q3_text'], "No"))
     
-    text = s['epic_activate_link']
+    text = s['epic_code_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q4_yes")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="new_epic_activate")],
+        [InlineKeyboardButton("B - 2 No", callback_data="new_channel_forward")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q2_yes")]
     ]
     
@@ -544,7 +529,7 @@ async def new_q4_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return NEW_PLAYER_FLOW
 
 async def new_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q4 - No -> Show epic create link -> Q5"""
+    """New Player Q4 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -554,10 +539,11 @@ async def new_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # Store Q&A
     context.user_data['new_player_qa'].append((s['new_q4_text'], "No"))
     
-    text = s['epic_create_link']
+    text = s['epic_profile_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q5_yes")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="new_epic_create")],
+        [InlineKeyboardButton("B - 2 No", callback_data="new_channel_forward")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q3_yes")]
     ]
     
@@ -605,7 +591,7 @@ async def new_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return NEW_PLAYER_FLOW
 
 async def new_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q5 - No -> Forward to channel -> Q6"""
+    """New Player Q5 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -615,11 +601,12 @@ async def new_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # Store Q&A
     context.user_data['new_player_qa'].append((s['new_q5_text'], "No"))
     
-    text = f"{s['channel_guidance']} {HELPFUL_CHANNEL_LINK}"
+    text = s['shortcut_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)],
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q6_yes")]
+        [InlineKeyboardButton("B - 1 yes I want to see it in the channel", callback_data="new_channel_forward")],
+        [InlineKeyboardButton("B - 2 No I finally create a shortcut", callback_data="new_q6_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q4_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
@@ -648,7 +635,7 @@ async def new_q6_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return NEW_PLAYER_FLOW
 
 async def new_q6_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q6 - No -> Show launch game link -> Q7"""
+    """New Player Q6 - No -> Ask if they need guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -658,10 +645,11 @@ async def new_q6_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # Store Q&A
     context.user_data['new_player_qa'].append((s['new_q6_text'], "No"))
     
-    text = s['launch_game_link']
+    text = s['launch_game_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q7_yes")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="new_launch_game")],
+        [InlineKeyboardButton("B - 2 No", callback_data="new_channel_forward")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q5_yes")]
     ]
     
@@ -700,7 +688,7 @@ async def new_q7_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     text = s['new_q8_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="new_q8_yes")],
+        [InlineKeyboardButton(s['yes_im_ready'], callback_data="new_q8_yes")],
         [InlineKeyboardButton(s['b_no'], callback_data="new_q8_no")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q6_yes")]
     ]
@@ -709,7 +697,7 @@ async def new_q7_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return NEW_PLAYER_FLOW
 
 async def new_q7_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q7 - No -> Show codes -> Q8"""
+    """New Player Q7 - No -> Show codes"""
     query = update.callback_query
     await query.answer()
     
@@ -722,7 +710,7 @@ async def new_q7_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     codes_text = s['codes_title'] + "\n".join(GAME_CODES)
     
     keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q8_yes")],
+        [InlineKeyboardButton("B - 2 No , I already choosed one code", callback_data="new_q8_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q6_yes")]
     ]
     
@@ -752,7 +740,7 @@ async def new_q8_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return NEW_PLAYER_FLOW
 
 async def new_q8_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q8 - No -> Forward to channel -> Q9"""
+    """New Player Q8 - No -> Ask if they need guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -762,11 +750,12 @@ async def new_q8_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # Store Q&A
     context.user_data['new_player_qa'].append((s['new_q8_text'], "No"))
     
-    text = f"{s['channel_guidance']} {HELPFUL_CHANNEL_LINK}"
+    text = s['full_setup_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)],
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q9_yes")]
+        [InlineKeyboardButton("B - 1 Yes", callback_data="new_channel_forward")],
+        [InlineKeyboardButton("B - 2 No I finally fix everything", callback_data="new_q9_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q7_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
@@ -795,7 +784,7 @@ async def new_q9_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return NEW_PLAYER_FLOW
 
 async def new_q9_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q9 - No -> Forward to channel -> Q10"""
+    """New Player Q9 - No -> Ask if they can play 130 hours"""
     query = update.callback_query
     await query.answer()
     
@@ -805,11 +794,12 @@ async def new_q9_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # Store Q&A
     context.user_data['new_player_qa'].append((s['new_q9_text'], "No"))
     
-    text = f"{s['channel_guidance']} {HELPFUL_CHANNEL_LINK}"
+    text = s['play_hours_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)],
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q10_yes")]
+        [InlineKeyboardButton("B - 1 Yes", callback_data="new_q10_yes")],
+        [InlineKeyboardButton("B - 2 No", callback_data="new_channel_forward")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q8_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
@@ -838,7 +828,7 @@ async def new_q10_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     return NEW_PLAYER_FLOW
 
 async def new_q10_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q10 - No -> Forward to channel -> Q11"""
+    """New Player Q10 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -848,11 +838,12 @@ async def new_q10_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # Store Q&A
     context.user_data['new_player_qa'].append((s['new_q10_text'], "No"))
     
-    text = f"{s['channel_guidance']} {HELPFUL_CHANNEL_LINK}"
+    text = s['like_button_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)],
-        [InlineKeyboardButton(s['next_question'], callback_data="new_q11_yes")]
+        [InlineKeyboardButton("B - 1 Yes", callback_data="new_channel_forward")],
+        [InlineKeyboardButton("B - 2 No", callback_data="new_q11_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q9_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
@@ -873,7 +864,7 @@ async def new_q11_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     
     keyboard = [
         [InlineKeyboardButton(s['a_yes'], callback_data="new_influencer_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="new_ask_username")],
+        [InlineKeyboardButton(s['b_no'], callback_data="new_channel_forward")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q10_yes")]
     ]
     
@@ -881,7 +872,7 @@ async def new_q11_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     return NEW_PLAYER_FLOW
 
 async def new_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """New Player Q11 - No -> Forward to channel -> Q12"""
+    """New Player Q11 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -891,11 +882,12 @@ async def new_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # Store Q&A
     context.user_data['new_player_qa'].append((s['new_q11_text'], "No"))
     
-    text = f"{s['channel_guidance']} {HELPFUL_CHANNEL_LINK}"
+    text = s['favorites_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)],
-        [InlineKeyboardButton(s['next_question'], callback_data="new_influencer_yes")]
+        [InlineKeyboardButton("B - 1 Yes", callback_data="new_channel_forward")],
+        [InlineKeyboardButton("B - 2 No", callback_data="new_influencer_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="new_q10_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
@@ -969,7 +961,6 @@ async def existing_player_start(update: Update, context: ContextTypes.DEFAULT_TY
     keyboard = [
         [InlineKeyboardButton(s['a_yes'], callback_data="existing_q1_yes")],
         [InlineKeyboardButton(s['b_no'], callback_data="existing_q1_no")],
-        [InlineKeyboardButton(s['want_codes'], callback_data="existing_q1_codes")],
         [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
     ]
     
@@ -990,7 +981,7 @@ async def existing_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     text = s['existing_q2_text']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_yes'], callback_data="existing_q2_yes")],
+        [InlineKeyboardButton(s['yes_im_ready'], callback_data="existing_q2_yes")],
         [InlineKeyboardButton(s['b_no'], callback_data="existing_q2_no")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_player_start")]
     ]
@@ -999,7 +990,7 @@ async def existing_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     return EXISTING_PLAYER_FLOW
 
 async def existing_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q1 - No -> Show codes -> Q2"""
+    """Existing Player Q1 - No -> Show codes"""
     query = update.callback_query
     await query.answer()
     
@@ -1012,25 +1003,7 @@ async def existing_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     codes_text = s['codes_title'] + "\n".join(GAME_CODES)
     
     keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="existing_q2_yes")],
-        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_player_start")]
-    ]
-    
-    await query.edit_message_text(text=codes_text, reply_markup=InlineKeyboardMarkup(keyboard))
-    return EXISTING_PLAYER_FLOW
-
-async def existing_q1_codes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player - Show codes"""
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    codes_text = s['codes_title'] + "\n".join(GAME_CODES)
-    
-    keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="existing_q2_yes")],
+        [InlineKeyboardButton("B - 2 No , I already choosed one code", callback_data="existing_q2_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_player_start")]
     ]
     
@@ -1060,7 +1033,7 @@ async def existing_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     return EXISTING_PLAYER_FLOW
 
 async def existing_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q2 - No -> Forward to channel -> Q3"""
+    """Existing Player Q2 - No -> Forward to channel"""
     query = update.callback_query
     await query.answer()
     
@@ -1074,7 +1047,7 @@ async def existing_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     keyboard = [
         [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)],
-        [InlineKeyboardButton(s['next_question'], callback_data="existing_q3_yes")]
+        [InlineKeyboardButton("B - 2 No I finally fix everything", callback_data="existing_q3_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
@@ -1103,7 +1076,7 @@ async def existing_q3_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     return EXISTING_PLAYER_FLOW
 
 async def existing_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q3 - No -> Forward to channel -> Q4"""
+    """Existing Player Q3 - No -> Forward to channel"""
     query = update.callback_query
     await query.answer()
     
@@ -1117,7 +1090,7 @@ async def existing_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     keyboard = [
         [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)],
-        [InlineKeyboardButton(s['next_question'], callback_data="existing_q4_yes")]
+        [InlineKeyboardButton("B - 1 Yes", callback_data="existing_q4_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
@@ -1146,7 +1119,7 @@ async def existing_q4_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     return EXISTING_PLAYER_FLOW
 
 async def existing_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q4 - No -> Forward to channel -> Q5"""
+    """Existing Player Q4 - No -> Forward to channel"""
     query = update.callback_query
     await query.answer()
     
@@ -1156,11 +1129,12 @@ async def existing_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # Store Q&A
     context.user_data['existing_player_qa'].append((s['existing_q4_text'], "No"))
     
-    text = f"{s['channel_guidance']} {HELPFUL_CHANNEL_LINK}"
+    text = s['like_button_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)],
-        [InlineKeyboardButton(s['next_question'], callback_data="existing_q5_yes")]
+        [InlineKeyboardButton("B - 1 Yes", callback_data="existing_channel_forward")],
+        [InlineKeyboardButton("B - 2 No", callback_data="existing_q5_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q3_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
@@ -1181,7 +1155,7 @@ async def existing_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     
     keyboard = [
         [InlineKeyboardButton(s['a_yes'], callback_data="existing_influencer_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="existing_ask_username")],
+        [InlineKeyboardButton(s['b_no'], callback_data="existing_channel_forward")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q4_yes")]
     ]
     
@@ -1189,7 +1163,7 @@ async def existing_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     return EXISTING_PLAYER_FLOW
 
 async def existing_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Existing Player Q5 - No -> Forward to channel -> Q6"""
+    """Existing Player Q5 - No -> Forward to channel"""
     query = update.callback_query
     await query.answer()
     
@@ -1199,11 +1173,12 @@ async def existing_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # Store Q&A
     context.user_data['existing_player_qa'].append((s['existing_q5_text'], "No"))
     
-    text = f"{s['channel_guidance']} {HELPFUL_CHANNEL_LINK}"
+    text = s['favorites_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)],
-        [InlineKeyboardButton(s['next_question'], callback_data="existing_influencer_yes")]
+        [InlineKeyboardButton("B - 1 Yes", callback_data="existing_channel_forward")],
+        [InlineKeyboardButton("B - 2 No", callback_data="existing_influencer_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q4_yes")]
     ]
     
     await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard))
@@ -1305,7 +1280,7 @@ async def support_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q1 - No -> Ask if they finally used VPN -> Q2"""
+    """Support Q1 - No -> Ask if they finally used VPN"""
     query = update.callback_query
     await query.answer()
     
@@ -1315,8 +1290,8 @@ async def support_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     text = s['vpn_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['a_if_yes'], callback_data="support_q2_yes")],
-        [InlineKeyboardButton(s['b_if_no'], callback_data="support_channel_only")],
+        [InlineKeyboardButton("B - 1 If yes", callback_data="support_q2_yes")],
+        [InlineKeyboardButton("B - 2 if no", callback_data="support_channel_only")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_start")]
     ]
     
@@ -1335,7 +1310,7 @@ async def support_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     
     keyboard = [
         [InlineKeyboardButton(s['yes_i_received'], callback_data="support_q3_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="support_q3_no")],
+        [InlineKeyboardButton(s['b_if_no'], callback_data="support_q3_no")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q1_yes")]
     ]
     
@@ -1343,7 +1318,7 @@ async def support_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q2 - No -> Ask if they want assistance -> Q3"""
+    """Support Q2 - No -> Ask if they want assistance"""
     query = update.callback_query
     await query.answer()
     
@@ -1353,8 +1328,8 @@ async def support_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     text = s['cloud_gaming_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="support_cloud_gaming_link")],
-        [InlineKeyboardButton(s['already_have'], callback_data="support_q3_yes")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="support_cloud_gaming_link")],
+        [InlineKeyboardButton("B - 2 No I already have one", callback_data="support_q3_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q1_yes")]
     ]
     
@@ -1399,7 +1374,7 @@ async def support_q3_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q3 - No -> Ask if they want guidance -> Q4"""
+    """Support Q3 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -1409,8 +1384,8 @@ async def support_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     text = s['epic_code_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="support_epic_activate")],
-        [InlineKeyboardButton(s['b_no'], callback_data="support_channel_only")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="support_epic_activate")],
+        [InlineKeyboardButton("B - 2 No", callback_data="support_channel_only")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q2_yes")]
     ]
     
@@ -1455,7 +1430,7 @@ async def support_q4_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q4 - No -> Ask if they want guidance -> Q5"""
+    """Support Q4 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -1465,8 +1440,8 @@ async def support_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     text = s['epic_profile_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="support_epic_create")],
-        [InlineKeyboardButton(s['b_no'], callback_data="support_channel_only")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="support_epic_create")],
+        [InlineKeyboardButton("B - 2 No", callback_data="support_channel_only")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q3_yes")]
     ]
     
@@ -1511,7 +1486,7 @@ async def support_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q5 - No -> Ask if they want guidance -> Q6"""
+    """Support Q5 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -1521,8 +1496,8 @@ async def support_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     text = s['shortcut_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['see_channel'], callback_data="support_channel_only")],
-        [InlineKeyboardButton(s['finally_fixed'], callback_data="support_q6_yes")],
+        [InlineKeyboardButton("B - 1 yes I want to see it in the channel", callback_data="support_channel_only")],
+        [InlineKeyboardButton("B - 2 No I finally create a shortcut", callback_data="support_q6_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q4_yes")]
     ]
     
@@ -1549,7 +1524,7 @@ async def support_q6_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q6_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q6 - No -> Ask if they need guidance -> Q7"""
+    """Support Q6 - No -> Ask if they need guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -1559,8 +1534,8 @@ async def support_q6_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     text = s['launch_game_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="support_launch_game")],
-        [InlineKeyboardButton(s['b_no'], callback_data="support_channel_only")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="support_launch_game")],
+        [InlineKeyboardButton("B - 2 No", callback_data="support_channel_only")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q5_yes")]
     ]
     
@@ -1605,17 +1580,17 @@ async def support_q7_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q7_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q7 - No -> Show codes -> Q8"""
+    """Support Q7 - No -> Show codes"""
     query = update.callback_query
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
-    codes_text = s['support_codes_title'] + "\n".join(GAME_CODES)
+    codes_text = s['codes_title'] + "\n".join(GAME_CODES)
     
     keyboard = [
-        [InlineKeyboardButton(s['next_question'], callback_data="support_q8_yes")],
+        [InlineKeyboardButton("B - 2 No , I already choosed one code", callback_data="support_q8_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q6_yes")]
     ]
     
@@ -1642,7 +1617,7 @@ async def support_q8_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q8_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q8 - No -> Ask if they need guidance -> Q9"""
+    """Support Q8 - No -> Ask if they need guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -1652,8 +1627,8 @@ async def support_q8_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     text = s['full_setup_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="support_channel_only")],
-        [InlineKeyboardButton(s['finally_fixed'], callback_data="support_q9_yes")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="support_channel_only")],
+        [InlineKeyboardButton("B - 2 No I finally fix everything", callback_data="support_q9_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q7_yes")]
     ]
     
@@ -1680,7 +1655,7 @@ async def support_q9_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_q9_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q9 - No -> Ask if they can play 130 hours -> Q10"""
+    """Support Q9 - No -> Ask if they can play 130 hours"""
     query = update.callback_query
     await query.answer()
     
@@ -1690,8 +1665,8 @@ async def support_q9_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     text = s['play_hours_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="support_q10_yes")],
-        [InlineKeyboardButton(s['b_no'], callback_data="support_channel_only")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="support_q10_yes")],
+        [InlineKeyboardButton("B - 2 No", callback_data="support_channel_only")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q8_yes")]
     ]
     
@@ -1718,7 +1693,7 @@ async def support_q10_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     return SUPPORT_FLOW
 
 async def support_q10_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q10 - No -> Ask if they want guidance -> Q11"""
+    """Support Q10 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -1728,8 +1703,8 @@ async def support_q10_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     text = s['like_button_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="support_channel_only")],
-        [InlineKeyboardButton(s['have_proof_played'], callback_data="support_q11_yes")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="support_channel_only")],
+        [InlineKeyboardButton("B - 2 No", callback_data="support_q11_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q9_yes")]
     ]
     
@@ -1756,7 +1731,7 @@ async def support_q11_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     return SUPPORT_FLOW
 
 async def support_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support Q11 - No -> Ask if they want guidance -> Channel Only"""
+    """Support Q11 - No -> Ask if they want guidance"""
     query = update.callback_query
     await query.answer()
     
@@ -1766,8 +1741,8 @@ async def support_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     text = s['favorites_reminder']
     
     keyboard = [
-        [InlineKeyboardButton(s['want_assistance'], callback_data="support_channel_only")],
-        [InlineKeyboardButton(s['have_proof'], callback_data="support_q11_yes")],
+        [InlineKeyboardButton("B - 1 Yes", callback_data="support_channel_only")],
+        [InlineKeyboardButton("B - 2 No", callback_data="support_q11_yes")],
         [InlineKeyboardButton(s['back_to_previous'], callback_data="support_q10_yes")]
     ]
     
@@ -1775,7 +1750,7 @@ async def support_q11_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     return SUPPORT_FLOW
 
 async def support_influencer_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Support - Influencer Yes -> Q13"""
+    """Support - Influencer Yes -> Provide name"""
     query = update.callback_query
     await query.answer()
     
@@ -2033,7 +2008,6 @@ def main() -> None:
             EXISTING_PLAYER_FLOW: [
                 CallbackQueryHandler(existing_q1_yes, pattern="^existing_q1_yes$"),
                 CallbackQueryHandler(existing_q1_no, pattern="^existing_q1_no$"),
-                CallbackQueryHandler(existing_q1_codes, pattern="^existing_q1_codes$"),
                 CallbackQueryHandler(existing_q2_yes, pattern="^existing_q2_yes$"),
                 CallbackQueryHandler(existing_q2_no, pattern="^existing_q2_no$"),
                 CallbackQueryHandler(existing_q3_yes, pattern="^existing_q3_yes$"),
@@ -2050,7 +2024,6 @@ def main() -> None:
             NEW_PLAYER_FLOW: [
                 CallbackQueryHandler(new_q1_yes, pattern="^new_q1_yes$"),
                 CallbackQueryHandler(new_q1_no, pattern="^new_q1_no$"),
-                CallbackQueryHandler(new_q1_codes, pattern="^new_q1_codes$"),
                 CallbackQueryHandler(new_q2_yes, pattern="^new_q2_yes$"),
                 CallbackQueryHandler(new_q2_no, pattern="^new_q2_no$"),
                 CallbackQueryHandler(new_cloud_gaming_link, pattern="^new_cloud_gaming_link$"),
