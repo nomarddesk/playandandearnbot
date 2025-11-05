@@ -11,7 +11,7 @@ from telegram.ext import (
     MessageHandler,
     filters,)
 
-# Try to import OpenAI
+# Import OpenAI
 try:
     from openai import OpenAI
     OPENAI_AVAILABLE = True
@@ -54,7 +54,7 @@ else:
 HELPFUL_CHANNEL_LINK = "https://t.me/rejoinsnousetgagne"
 
 # Define states
-SELECT_LANG, MAIN_MENU, EXISTING_PLAYER_FLOW, NEW_PLAYER_FLOW, SUPPORT_FLOW, USERNAME_COLLECTION, AI_CHAT_FLOW = range(7)
+SELECT_LANG, MAIN_MENU, EXISTING_PLAYER_FLOW, NEW_PLAYER_FLOW, SUPPORT_FLOW, USERNAME_COLLECTION = range(6)
 
 # Codes for the game
 GAME_CODES = [
@@ -64,170 +64,197 @@ GAME_CODES = [
     "4563-6624-9460",
     "4828-9033-2281"]
 
-# --- LANGUAGE STRINGS ---
-STRINGS = {
-    'en': {
-        'disclaimer': "**Disclaimer:** This bot is an unofficial guide and is not affiliated with Epic Games or Fortnite. We will *never* ask for your password.",
-        'lang_prompt': "Please select your language:",
-        'welcome': "Welcome! You're diving into an immersive gaming adventure. This bot will help you set up your account, join the game, and start playing.",
-        'new_player_btn': "New player",
-        'existing_player_btn': "Existing player",
-        'helpful_channel_btn': "Full guide in channel",
-        'support_btn': "Support",
-        'lang_btn': "🌐 Change Language",
-        'helpful_channel_text': "Join our helpful Telegram channel for the full guide, news, and community chat!",
-        'join_channel_btn': "Join Channel Now",
-        'back_btn': "⬅️ Back to Main Menu",
-        
-        # AI Chat Flow
-        'ai_chat_btn': "🤖 AI Assistant",
-        'ai_chat_welcome': "🤖 **AI Assistant Activated**\n\nI'm your personal gaming assistant! I can help you with:\n\n• Setting up your account\n• Game setup and configuration\n• Troubleshooting issues\n• Answering any questions\n\nJust type your question and I'll help you! You can ask me anything about the game setup process.",
-        'ai_thinking': "🤔 Thinking...",
-        'ai_continue_chat': "💬 Continue chatting",
-        'ai_switch_to_buttons': "🔘 Switch to button mode",
-        'ai_go_to_menu': "🏠 Main Menu",
-        
-        # Common questions for context
-        'new_player_intro': "New player setup involves: VPN usage, cloud gaming profile creation, Epic Games activation, shortcut creation, game launching, reward island setup, and playing requirements.",
-        'existing_player_intro': "Existing player setup involves: reward island verification, full setup completion, play time tracking, like button usage, favorites setup, and influencer attribution.",
-        'support_flow_intro': "Support process involves troubleshooting VPN, cloud gaming profiles, Epic Games setup, game launching, reward island access, and play time verification.",
-    },
-    'fr': {
-        'disclaimer': "**Avertissement :** Ce bot est un guide non officiel et n'est pas affilié à Epic Games ou Fortnite. Nous ne vous demanderons *jamais* votre mot de passe.",
-        'lang_prompt': "Veuillez sélectionner votre langue :",
-        'welcome': "Bienvenue ! Tu plonges dans une aventure de jeu immersive. Ce bot t'aidera à configurer ton compte, à rejoindre la partie et à commencer à jouer.",
-        'new_player_btn': "Nouveau joueur",
-        'existing_player_btn': "Joueur existant",
-        'helpful_channel_btn': "Guide complet sur le canal",
-        'support_btn': "Support",
-        'lang_btn': "🌐 Changer de Langue",
-        'helpful_channel_text': "Rejoignez notre canal Telegram pour le guide complet, les actualités et pour discuter avec la communauté !",
-        'join_channel_btn': "Rejoindre le Canal",
-        'back_btn': "⬅️ Retour au Menu Principal",
-        
-        # AI Chat Flow - French
-        'ai_chat_btn': "🤖 Assistant IA",
-        'ai_chat_welcome': "🤖 **Assistant IA Activé**\n\nJe suis votre assistant de jeu personnel ! Je peux vous aider avec :\n\n• La configuration de votre compte\n• L'installation et la configuration du jeu\n• La résolution de problèmes\n• Répondre à toutes vos questions\n\nTapez simplement votre question et je vous aiderai ! Vous pouvez me demander n'importe quoi sur le processus de configuration du jeu.",
-        'ai_thinking': "🤔 Réflexion...",
-        'ai_continue_chat': "💬 Continuer à discuter",
-        'ai_switch_to_buttons': "🔘 Passer au mode boutons",
-        'ai_go_to_menu': "🏠 Menu Principal",
-        
-        # Common questions for context - French
-        'new_player_intro': "La configuration du nouveau joueur implique : l'utilisation du VPN, la création de profil de cloud gaming, l'activation Epic Games, la création de raccourcis, le lancement du jeu, la configuration de l'île de récompense et les exigences de jeu.",
-        'existing_player_intro': "La configuration du joueur existant implique : la vérification de l'île de récompense, l'achèvement de la configuration complète, le suivi du temps de jeu, l'utilisation du bouton like, la configuration des favoris et l'attribution de l'influenceur.",
-        'support_flow_intro': "Le processus de support implique le dépannage du VPN, des profils de cloud gaming, de la configuration Epic Games, du lancement du jeu, de l'accès à l'île de récompense et de la vérification du temps de jeu.",
-    }
-}
-
-# --- KNOWLEDGE BASE FOR AI ---
+# --- COMPLETE KNOWLEDGE BASE ---
 BOT_KNOWLEDGE_BASE = """
-GAME SETUP KNOWLEDGE BASE:
+FORTNITE CLOUD GAMING BOT - COMPLETE KNOWLEDGE BASE
 
-GAME CODES: {codes}
+BOT PURPOSE:
+This is a Telegram bot that helps users set up and play Fortnite through cloud gaming, specifically focusing on earning rewards through the reward island system.
 
-NEW PLAYER SETUP PROCESS:
-1. VPN Usage: Must use USA VPN for profile creation, but not for playing
-2. Cloud Gaming Profile: Create at Xbox Cloud Gaming
-3. Epic Games Activation: Receive and enter activation code
-4. Epic Games Profile: Create gaming profile
-5. Shortcut Creation: Create homescreen shortcut for easy access
-6. Game Launch: Launch Fortnite through cloud gaming
-7. Reward Island: Search and find using game codes
-8. Full Setup: Complete all configuration steps
-9. Play Time: 130 hours per week requirement
-10. Like Button: Click like button before each 1-hour session ends
-11. Favorites: Save reward island to favorites
-12. Influencer: Specify if introduced by influencer
+GAME CODES FOR REWARD ISLAND:
+{game_codes}
 
-EXISTING PLAYER PROCESS:
-1. Reward Island: Verify access to reward island
-2. Full Setup: Confirm complete setup
-3. Play Time: Track 130 hours per week
-4. Like Button: Regular usage during sessions
-5. Favorites: Reward island in favorites
-6. Influencer: Attribution if applicable
+MAIN USER FLOWS:
 
-SUPPORT PROCESS:
-- Troubleshoot VPN issues
-- Help with cloud gaming profile creation
-- Assist with Epic Games activation and setup
-- Guide through game launching
-- Help find reward island
-- Verify play time and like button usage
-- Collect username for support team contact
+1. NEW PLAYER FLOW:
+- Question 1: VPN Usage - Must use USA VPN for profile creation (but not for playing)
+- Question 2: Cloud Gaming Profile - Create at Xbox Cloud Gaming
+- Question 3: Epic Games Activation Code - Receive and enter activation code
+- Question 4: Epic Games Profile - Create gaming profile
+- Question 5: Shortcut Creation - Create homescreen shortcut
+- Question 6: Game Launch - Launch Fortnite through cloud gaming
+- Question 7: Reward Island - Search and find using game codes
+- Question 8: Full Setup - Complete all configuration steps
+- Question 9: Play Time - 130 hours per week requirement
+- Question 10: Like Button - Click like button before each 1-hour session ends
+- Question 11: Favorites - Save reward island to favorites
+- Question 12: Influencer - Specify if introduced by influencer
 
-COMMON LINKS:
-- Cloud Gaming: https://www.xbox.com/fr-FR/play/games/fortnite/BT5P2X999VH2
+2. EXISTING PLAYER FLOW:
+- Question 1: Reward Island Access - Have you found the reward island?
+- Question 2: Full Setup Completion - Did you complete the full setup?
+- Question 3: Play Time - 130 hours per week tracking
+- Question 4: Like Button Usage - Regular usage during sessions
+- Question 5: Favorites - Reward island in favorites
+- Question 6: Influencer Attribution - Were you introduced by influencer?
+
+3. SUPPORT FLOW:
+- Question 1: VPN Usage troubleshooting
+- Question 2: Cloud Gaming Profile issues
+- Question 3: Epic Games Activation problems
+- Question 4: Epic Games Profile creation
+- Question 5: Shortcut creation help
+- Question 6: Game launching issues
+- Question 7: Reward Island access problems
+- Question 8: Full setup completion
+- Question 9: Play time verification (130 hours/week)
+- Question 10: Like button usage confirmation
+- Question 11: Favorites setup
+- Question 12: Influencer information
+- Question 13: Final verification before support contact
+
+IMPORTANT LINKS:
+- Cloud Gaming Profile: https://www.xbox.com/fr-FR/play/games/fortnite/BT5P2X999VH2
 - Epic Games Activation: http://epicgames.com/activate
 - Epic Games Profile: epicgames.com
 - Game Launch: https://www.xbox.com/fr-FR/play/games/fortnite/BT5P2X999VH2
 - Help Channel: {channel_link}
 
-USER FLOW OPTIONS:
-- New Player: For first-time setup and configuration
-- Existing Player: For players who already have accounts
-- Support: For technical issues and troubleshooting
-- AI Assistant: For conversational help and guidance
+KEY REQUIREMENTS:
+- VPN: Required only for initial profile creation (USA VPN)
+- Play Time: 130 hours per week minimum
+- Sessions: 1-hour sessions, must click like button before session ends
+- Reward Island: Must be found using codes and saved to favorites
+- Setup: Complete all steps before earning rewards
+
+COMMON ISSUES AND SOLUTIONS:
+- VPN Issues: Use USA VPN only for profile creation, not for playing
+- Activation Problems: Check spam folder for Epic Games code
+- Game Not Launching: Ensure cloud gaming profile is properly set up
+- Reward Island Not Found: Use correct codes and search properly
+- Play Time Tracking: Must play 130 hours weekly and use like button
+
+SUPPORT PROCESS:
+- Users answer all questions to identify their exact issue
+- If all steps completed correctly, they can claim rewards
+- Final step: Provide @username for support team contact
+- Support team reviews screenshots and processes rewards
+
+BOT BEHAVIOR:
+- Always helpful and encouraging
+- Guides users through appropriate steps
+- Asks clarifying questions when needed
+- Provides specific instructions and links
+- Maintains conversation context
+- Supports both English and French
 
 RESPONSE GUIDELINES:
-- Be helpful, friendly, and encouraging
-- Ask clarifying questions if unsure about user's situation
+- Be specific and actionable
 - Provide step-by-step guidance when needed
-- Suggest appropriate next steps based on user's progress
-- Always maintain a positive and supportive tone
-""".format(codes=", ".join(GAME_CODES), channel_link=HELPFUL_CHANNEL_LINK)
+- Ask questions to understand user's exact situation
+- Suggest next appropriate steps
+- Always be positive and supportive
+- Use the user's preferred language (English/French)
+""".format(game_codes=", ".join(GAME_CODES), channel_link=HELPFUL_CHANNEL_LINK)
 
-# --- AI CHATBOT FUNCTIONS ---
-async def generate_chat_response(user_message: str, conversation_history: list, lang: str) -> dict:
+# --- LANGUAGE STRINGS ---
+STRINGS = {
+    'en': {
+        'disclaimer': "**Disclaimer:** This bot is an unofficial guide and is not affiliated with Epic Games or Fortnite. We will *never* ask for your password.",
+        'lang_prompt': "Please select your language:",
+        'welcome': "🤖 **AI-Powered Gaming Assistant**\n\nWelcome! I'm your intelligent assistant for Fortnite cloud gaming setup and rewards. I can help you with:\n\n• New player setup\n• Existing player optimization\n• Technical support\n• Reward system guidance\n\nJust type your question or use the menu below!",
+        'new_player_btn': "🎮 New Player Setup",
+        'existing_player_btn': "⚡ Existing Player",
+        'helpful_channel_btn': "📚 Full Guide",
+        'support_btn': "🆘 Support",
+        'lang_btn': "🌐 Language",
+        'helpful_channel_text': "Join our Telegram channel for complete guides and community:",
+        'join_channel_btn': "Join Channel",
+        'back_btn': "⬅️ Back",
+        'ai_thinking': "🤔 Analyzing your question...",
+        'ai_continue': "💬 Continue Chat",
+        'ai_menu': "📱 Menu",
+    },
+    'fr': {
+        'disclaimer': "**Avertissement :** Ce bot est un guide non officiel et n'est pas affilié à Epic Games ou Fortnite. Nous ne vous demanderons *jamais* votre mot de passe.",
+        'lang_prompt': "Veuillez sélectionner votre langue :",
+        'welcome': "🤖 **Assistant de Jeu IA**\n\nBienvenue ! Je suis votre assistant intelligent pour la configuration du jeu cloud Fortnite et les récompenses. Je peux vous aider avec :\n\n• Configuration nouveau joueur\n• Optimisation joueur existant\n• Support technique\n• Guide du système de récompenses\n\nTapez simplement votre question ou utilisez le menu ci-dessous !",
+        'new_player_btn': "🎮 Nouveau Joueur",
+        'existing_player_btn': "⚡ Joueur Existant",
+        'helpful_channel_btn': "📚 Guide Complet",
+        'support_btn': "🆘 Support",
+        'lang_btn': "🌐 Langue",
+        'helpful_channel_text': "Rejoignez notre canal Telegram pour des guides complets et la communauté :",
+        'join_channel_btn': "Rejoindre le Canal",
+        'back_btn': "⬅️ Retour",
+        'ai_thinking': "🤔 Analyse de votre question...",
+        'ai_continue': "💬 Continuer",
+        'ai_menu': "📱 Menu",
+    }
+}
+
+# --- AI BRAIN CORE FUNCTION ---
+async def ai_brain_response(user_message: str, user_context: dict, lang: str) -> dict:
     """
-    Generate AI chatbot response using the bot's knowledge base
+    AI Brain: Processes all user messages and provides intelligent responses
+    using the complete bot knowledge base.
     """
     if not openai_client:
         return {
-            "response": "I'm currently unavailable. Please use the button-based menu for assistance.",
-            "suggested_flow": None,
-            "needs_clarification": False
+            "response": "I'm currently unavailable. Please try again later.",
+            "buttons": ["Menu"],
+            "next_action": "menu"
         }
     
     try:
-        # Prepare system prompt with knowledge base
-        system_prompt = f"""You are a helpful gaming assistant for Fortnite cloud gaming setup. Use the following knowledge base to answer questions:
+        # Get conversation history
+        conversation_history = user_context.get('conversation_history', [])
+        current_flow = user_context.get('current_flow', 'general')
+        user_data = user_context.get('user_data', {})
+        
+        # Prepare system prompt with complete knowledge
+        system_prompt = f"""You are the AI brain of a Fortnite cloud gaming Telegram bot. Use this complete knowledge base:
 
 {BOT_KNOWLEDGE_BASE}
 
-USER'S LANGUAGE: {lang.upper()}
+CURRENT USER CONTEXT:
+- Language: {lang.upper()}
+- Current Flow: {current_flow}
+- Conversation History: {len(conversation_history)} messages
 
-CONVERSATION GUIDELINES:
-1. Analyze the user's message to understand their situation
-2. Determine if they are a new player, existing player, or need support
-3. Ask clarifying questions if their situation is unclear
-4. Provide specific, actionable advice based on the knowledge base
-5. Guide them through the appropriate setup process
-6. Be conversational and friendly
-7. Suggest moving to specific flows (new player, existing player, support) when appropriate
+USER'S MESSAGE: "{user_message}"
+
+RESPONSE REQUIREMENTS:
+1. Analyze the user's message and understand their intent
+2. Provide helpful, accurate information from the knowledge base
+3. Guide users to appropriate next steps
+4. Ask clarifying questions if their situation is unclear
+5. Suggest specific flows (new player, existing player, support) when relevant
+6. Be conversational, friendly, and encouraging
+7. Provide actionable steps and specific instructions
+8. Use the user's preferred language consistently
 
 RESPONSE FORMAT (JSON):
 {{
-    "response": "Your conversational response to the user",
-    "suggested_flow": "new_player/existing_player/support/continue_chat",
+    "response": "Your helpful response to the user",
+    "buttons": ["Button1", "Button2", ...],
+    "next_action": "continue/menu/specific_flow",
     "needs_clarification": true/false,
     "clarification_question": "Question to ask if clarification needed"
 }}
 
-Focus on being helpful and guiding users to the right solution."""
+Available button options: New Player, Existing Player, Support, Menu, Continue Chat, Join Channel"""
 
-        # Build messages for conversation context
+        # Build message history
         messages = [{"role": "system", "content": system_prompt}]
         
-        # Add conversation history for context (last 10 messages)
-        for msg in conversation_history[-10:]:
+        # Add recent conversation history for context
+        for msg in conversation_history[-6:]:  # Last 6 messages for context
             messages.append(msg)
         
-        # Add current user message
         messages.append({"role": "user", "content": user_message})
         
-        # Generate response
+        # Generate AI response
         response = openai_client.chat.completions.create(
             model="gpt-4",
             messages=messages,
@@ -245,63 +272,119 @@ Focus on being helpful and guiding users to the right solution."""
             logger.warning("AI response not in JSON format, using fallback")
             return {
                 "response": ai_response,
-                "suggested_flow": "continue_chat",
-                "needs_clarification": False
+                "buttons": ["Menu", "Continue Chat"],
+                "next_action": "continue"
             }
             
     except Exception as e:
-        logger.error(f"Error generating AI chat response: {e}")
+        logger.error(f"Error in AI brain: {e}")
         return {
-            "response": "I'm having trouble processing your request right now. Please try again or use the menu buttons for assistance.",
-            "suggested_flow": None,
-            "needs_clarification": False
+            "response": "I'm having trouble processing your request. Please try again.",
+            "buttons": ["Menu"],
+            "next_action": "menu"
         }
 
-async def determine_user_intent(user_message: str, lang: str) -> str:
+# --- CORE MESSAGE HANDLER (AI BRAIN) ---
+async def handle_any_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
-    Quickly determine user's main intent for initial routing
+    Main message handler - ALL text messages go through the AI brain
     """
-    if not openai_client:
-        return "general"
+    user_message = update.message.text
+    user_id = update.message.from_user.id
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
     
-    try:
-        system_prompt = f"""Analyze the user's message and determine their primary intent:
-- "new_player": User needs help with initial setup, account creation, first-time configuration
-- "existing_player": User has existing account and needs help with features, optimization, or advanced setup
-- "support": User has problems, errors, or technical issues needing troubleshooting
-- "general": General questions or unclear intent
-
-User message: "{user_message}"
-Language: {lang}
-
-Respond with ONLY the intent category name."""
-
-        response = openai_client.chat.completions.create(
-            model="gpt-3.5-turbo",  # Use faster model for intent detection
-            messages=[{"role": "system", "content": system_prompt}],
-            temperature=0.3,
-            max_tokens=50
-        )
-        
-        intent = response.choices[0].message.content.strip().lower()
-        return intent if intent in ["new_player", "existing_player", "support", "general"] else "general"
-        
-    except Exception as e:
-        logger.error(f"Error determining user intent: {e}")
-        return "general"
+    # Show thinking indicator
+    thinking_msg = await update.message.reply_text(s['ai_thinking'])
+    
+    # Prepare user context for AI
+    user_context = {
+        'conversation_history': context.user_data.get('conversation_history', []),
+        'current_flow': context.user_data.get('current_flow', 'general'),
+        'user_data': {
+            'user_id': user_id,
+            'language': lang,
+            'flow_type': context.user_data.get('flow_type', 'unknown')
+        }
+    }
+    
+    # Get AI brain response
+    ai_response = await ai_brain_response(user_message, user_context, lang)
+    
+    # Update conversation history
+    if 'conversation_history' not in context.user_data:
+        context.user_data['conversation_history'] = []
+    
+    context.user_data['conversation_history'].append({"role": "user", "content": user_message})
+    context.user_data['conversation_history'].append({"role": "assistant", "content": ai_response['response']})
+    
+    # Keep only last 20 messages to manage context size
+    context.user_data['conversation_history'] = context.user_data['conversation_history'][-20:]
+    
+    # Create keyboard from AI-suggested buttons
+    keyboard = []
+    buttons = ai_response.get('buttons', [])
+    
+    for button_text in buttons:
+        if button_text.lower() in ['new player', 'nouveau joueur']:
+            keyboard.append([InlineKeyboardButton(s['new_player_btn'], callback_data="new_player_start")])
+        elif button_text.lower() in ['existing player', 'joueur existant']:
+            keyboard.append([InlineKeyboardButton(s['existing_player_btn'], callback_data="existing_player_start")])
+        elif button_text.lower() in ['support', 'soutien']:
+            keyboard.append([InlineKeyboardButton(s['support_btn'], callback_data="support_start")])
+        elif button_text.lower() in ['menu', 'accueil']:
+            keyboard.append([InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")])
+        elif button_text.lower() in ['continue chat', 'continuer']:
+            keyboard.append([InlineKeyboardButton(s['ai_continue'], callback_data="continue_chat")])
+        elif button_text.lower() in ['join channel', 'rejoindre le canal']:
+            keyboard.append([InlineKeyboardButton(s['join_channel_btn'], url=HELPFUL_CHANNEL_LINK)])
+        else:
+            # Generic button
+            keyboard.append([InlineKeyboardButton(button_text, callback_data="continue_chat")])
+    
+    # Always include basic navigation
+    if not any(s['ai_menu'] in str(button) for row in keyboard for button in row):
+        keyboard.append([InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")])
+    
+    # Update thinking message with actual response
+    await thinking_msg.edit_text(
+        text=ai_response['response'],
+        reply_markup=InlineKeyboardMarkup(keyboard) if keyboard else None,
+        parse_mode='Markdown'
+    )
+    
+    # Handle next action suggested by AI
+    next_action = ai_response.get('next_action', 'continue')
+    if next_action == 'menu':
+        return await show_main_menu(update, context)
+    elif next_action == 'new_player':
+        context.user_data['current_flow'] = 'new_player'
+        return NEW_PLAYER_FLOW
+    elif next_action == 'existing_player':
+        context.user_data['current_flow'] = 'existing_player'
+        return EXISTING_PLAYER_FLOW
+    elif next_action == 'support':
+        context.user_data['current_flow'] = 'support'
+        return SUPPORT_FLOW
+    
+    # Default: continue in current state
+    current_state = context.user_data.get('current_state', MAIN_MENU)
+    return current_state
 
 # --- HELPER FUNCTIONS ---
 async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, message: str = None):
-    """Show the main menu"""
+    """Show main menu"""
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
+    
+    context.user_data['current_flow'] = 'general'
+    context.user_data['current_state'] = MAIN_MENU
     
     keyboard = [
         [InlineKeyboardButton(s['new_player_btn'], callback_data="new_player_start")],
         [InlineKeyboardButton(s['existing_player_btn'], callback_data="existing_player_start")],
         [InlineKeyboardButton(s['helpful_channel_btn'], callback_data="helpful_channel")],
-        [InlineKeyboardButton(s['support_btn'], callback_data="contact_support")],
-        [InlineKeyboardButton(s['ai_chat_btn'], callback_data="ai_chat_start")],
+        [InlineKeyboardButton(s['support_btn'], callback_data="support_start")],
     ]
     
     query = update.callback_query
@@ -324,93 +407,10 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, mes
             parse_mode='Markdown'
         )
     
-    context.user_data['current_state'] = 'main_menu'
     return MAIN_MENU
 
-# --- AI CHAT FLOW ---
-async def ai_chat_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Start AI chat flow"""
-    query = update.callback_query
-    if query:
-        await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    # Initialize chat context
-    context.user_data['ai_conversation'] = []
-    context.user_data['current_state'] = 'ai_chat'
-    
-    welcome_text = s['ai_chat_welcome']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['ai_switch_to_buttons'], callback_data="back_to_main")],
-        [InlineKeyboardButton(s['ai_go_to_menu'], callback_data="back_to_main")]
-    ]
-    
-    if query:
-        await query.edit_message_text(
-            text=welcome_text,
-            reply_markup=InlineKeyboardMarkup(keyboard),
-            parse_mode='Markdown'
-        )
-    else:
-        await update.message.reply_text(
-            text=welcome_text,
-            reply_markup=InlineKeyboardMarkup(keyboard),
-            parse_mode='Markdown'
-        )
-    
-    return AI_CHAT_FLOW
-
-async def handle_ai_chat_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle user messages in AI chat flow"""
-    user_message = update.message.text
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    # Show thinking indicator
-    thinking_msg = await update.message.reply_text(s['ai_thinking'])
-    
-    # Get conversation history
-    conversation_history = context.user_data.get('ai_conversation', [])
-    
-    # Generate AI response
-    ai_response = await generate_chat_response(user_message, conversation_history, lang)
-    
-    # Update conversation history
-    conversation_history.append({"role": "user", "content": user_message})
-    conversation_history.append({"role": "assistant", "content": ai_response['response']})
-    context.user_data['ai_conversation'] = conversation_history[-20:]  # Keep last 20 messages
-    
-    # Build response with appropriate buttons
-    keyboard = []
-    response_text = ai_response['response']
-    
-    # Add suggested flow buttons if relevant
-    if ai_response.get('suggested_flow'):
-        if ai_response['suggested_flow'] == 'new_player':
-            keyboard.append([InlineKeyboardButton("🚀 Start New Player Setup", callback_data="new_player_start")])
-        elif ai_response['suggested_flow'] == 'existing_player':
-            keyboard.append([InlineKeyboardButton("🎮 Existing Player Setup", callback_data="existing_player_start")])
-        elif ai_response['suggested_flow'] == 'support':
-            keyboard.append([InlineKeyboardButton("🆘 Get Support", callback_data="support_start")])
-    
-    # Always include chat continuation options
-    keyboard.append([InlineKeyboardButton(s['ai_continue_chat'], callback_data="ai_continue_chat")])
-    keyboard.append([InlineKeyboardButton(s['ai_switch_to_buttons'], callback_data="back_to_main")])
-    
-    # Update the thinking message with actual response
-    await thinking_msg.edit_text(
-        text=response_text,
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode='Markdown'
-    )
-    
-    return AI_CHAT_FLOW
-
-async def ai_continue_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Continue AI chat after button selection"""
+async def continue_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Continue chat callback"""
     query = update.callback_query
     await query.answer()
     
@@ -418,35 +418,117 @@ async def ai_continue_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     s = STRINGS[lang]
     
     await query.edit_message_text(
-        text="💬 **I'm listening! What would you like to know or what help do you need?**\n\nJust type your question and I'll help you with your gaming setup.",
+        text="💬 **I'm listening! What would you like to know or what help do you need?**\n\nType your question and I'll help you with anything related to Fortnite cloud gaming setup and rewards.",
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton(s['ai_switch_to_buttons'], callback_data="back_to_main")],
-            [InlineKeyboardButton(s['ai_go_to_menu'], callback_data="back_to_main")]
+            [InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")]
         ]),
         parse_mode='Markdown'
     )
     
-    return AI_CHAT_FLOW
+    return context.user_data.get('current_state', MAIN_MENU)
 
-# --- FREE TEXT HANDLER FOR MAIN MENU ---
-async def handle_main_menu_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle free text in main menu - route to AI chat"""
-    user_message = update.message.text
+# --- FLOW STARTERS ---
+async def new_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Start new player flow"""
+    query = update.callback_query
+    await query.answer()
+    
     lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
     
-    # Quick intent analysis
-    user_intent = await determine_user_intent(user_message, lang)
+    context.user_data['current_flow'] = 'new_player'
+    context.user_data['flow_type'] = 'new_player'
+    context.user_data['current_state'] = NEW_PLAYER_FLOW
     
-    # Store the user's first message for context
-    context.user_data['initial_message'] = user_message
-    context.user_data['detected_intent'] = user_intent
+    text = "🎮 **New Player Setup**\n\nI'll help you get started with Fortnite cloud gaming! This includes:\n\n• VPN setup for profile creation\n• Cloud gaming profile creation\n• Epic Games activation\n• Game setup and configuration\n• Reward island access\n\nWhat specific help do you need with the new player setup?"
     
-    # Start AI chat with the user's message as context
-    return await ai_chat_start(update, context)
+    keyboard = [
+        [InlineKeyboardButton(s['ai_continue'], callback_data="continue_chat")],
+        [InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")]
+    ]
+    
+    await query.edit_message_text(
+        text=text,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='Markdown'
+    )
+    return NEW_PLAYER_FLOW
 
-# --- BASIC HANDLERS (Keep your existing ones) ---
+async def existing_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Start existing player flow"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    context.user_data['current_flow'] = 'existing_player'
+    context.user_data['flow_type'] = 'existing_player'
+    context.user_data['current_state'] = EXISTING_PLAYER_FLOW
+    
+    text = "⚡ **Existing Player**\n\nI can help you with advanced setup, optimization, and reward tracking! This includes:\n\n• Reward island verification\n• Play time optimization\n• Like button usage\n• Favorites management\n• Performance tips\n\nWhat would you like assistance with?"
+    
+    keyboard = [
+        [InlineKeyboardButton(s['ai_continue'], callback_data="continue_chat")],
+        [InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")]
+    ]
+    
+    await query.edit_message_text(
+        text=text,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='Markdown'
+    )
+    return EXISTING_PLAYER_FLOW
+
+async def support_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Start support flow"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    context.user_data['current_flow'] = 'support'
+    context.user_data['flow_type'] = 'support'
+    context.user_data['current_state'] = SUPPORT_FLOW
+    
+    text = "🆘 **Support**\n\nI'm here to help with any technical issues or problems you're experiencing! This includes:\n\n• VPN troubleshooting\n• Account setup issues\n• Game launching problems\n• Reward access issues\n• Technical errors\n\nPlease describe the issue you're facing in detail."
+    
+    keyboard = [
+        [InlineKeyboardButton(s['ai_continue'], callback_data="continue_chat")],
+        [InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")]
+    ]
+    
+    await query.edit_message_text(
+        text=text,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='Markdown'
+    )
+    return SUPPORT_FLOW
+
+async def show_helpful_channel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Show channel link"""
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    query = update.callback_query
+    await query.answer()
+
+    keyboard = [
+        [InlineKeyboardButton(s['join_channel_btn'], url=HELPFUL_CHANNEL_LINK)],
+        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
+    ]
+    await query.edit_message_text(
+        text=s['helpful_channel_text'],
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        disable_web_page_preview=True
+    )
+    
+    return MAIN_MENU
+
+# --- BASIC HANDLERS ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Entry point"""
+    """Start command"""
     text = (
         f"{STRINGS['en']['disclaimer']}\n\n"
         f"{STRINGS['fr']['disclaimer']}\n\n"
@@ -482,108 +564,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return SELECT_LANG
 
 async def set_language(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Set language and show main menu"""
+    """Set language"""
     query = update.callback_query
     lang = query.data
     context.user_data['lang'] = lang
     
     return await show_main_menu(update, context)
 
-async def show_helpful_channel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Show channel link"""
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    query = update.callback_query
-    await query.answer()
-
-    keyboard = [
-        [InlineKeyboardButton(s['join_channel_btn'], url=HELPFUL_CHANNEL_LINK)],
-        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
-    ]
-    await query.edit_message_text(
-        text=s['helpful_channel_text'],
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        disable_web_page_preview=True
-    )
-    
-    return MAIN_MENU
-
-# --- SIMPLIFIED FLOW STARTERS ---
-async def new_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Start new player flow"""
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    context.user_data['flow_type'] = 'new_player'
-    
-    text = f"🎮 **New Player Setup**\n\n{s['new_player_intro']}\n\n💬 *You can ask me anything about the setup process!*"
-    
-    keyboard = [
-        [InlineKeyboardButton("🤖 Ask AI Assistant", callback_data="ai_chat_start")],
-        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
-    ]
-    
-    await query.edit_message_text(
-        text=text,
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode='Markdown'
-    )
-    return NEW_PLAYER_FLOW
-
-async def existing_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Start existing player flow"""
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    context.user_data['flow_type'] = 'existing_player'
-    
-    text = f"🎯 **Existing Player**\n\n{s['existing_player_intro']}\n\n💬 *What do you need help with?*"
-    
-    keyboard = [
-        [InlineKeyboardButton("🤖 Ask AI Assistant", callback_data="ai_chat_start")],
-        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
-    ]
-    
-    await query.edit_message_text(
-        text=text,
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode='Markdown'
-    )
-    return EXISTING_PLAYER_FLOW
-
-async def support_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Start support flow"""
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
-    
-    context.user_data['flow_type'] = 'support'
-    
-    text = f"🆘 **Support**\n\n{s['support_flow_intro']}\n\n💬 *Tell me what issues you're experiencing!*"
-    
-    keyboard = [
-        [InlineKeyboardButton("🤖 Ask AI Assistant", callback_data="ai_chat_start")],
-        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
-    ]
-    
-    await query.edit_message_text(
-        text=text,
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode='Markdown'
-    )
-    return SUPPORT_FLOW
-
 def main() -> None:
-    """Run the bot with AI chatbot"""
+    """Run the AI-powered bot"""
     if not TELEGRAM_TOKEN:
         logger.error("TELEGRAM_TOKEN environment variable not set!")
         print("❌ ERROR: TELEGRAM_TOKEN environment variable is required!")
@@ -601,31 +590,29 @@ def main() -> None:
                 CallbackQueryHandler(new_player_start, pattern="^new_player_start$"),
                 CallbackQueryHandler(existing_player_start, pattern="^existing_player_start$"),
                 CallbackQueryHandler(show_helpful_channel, pattern="^helpful_channel$"),
-                CallbackQueryHandler(support_start, pattern="^contact_support$"),
-                CallbackQueryHandler(ai_chat_start, pattern="^ai_chat_start$"),
-                CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
-                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_main_menu_text),
-            ],
-            AI_CHAT_FLOW: [
-                CallbackQueryHandler(ai_continue_chat, pattern="^ai_continue_chat$"),
-                CallbackQueryHandler(ai_chat_start, pattern="^ai_chat_start$"),
-                CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
-                CallbackQueryHandler(new_player_start, pattern="^new_player_start$"),
-                CallbackQueryHandler(existing_player_start, pattern="^existing_player_start$"),
                 CallbackQueryHandler(support_start, pattern="^support_start$"),
-                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_ai_chat_message),
+                CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
+                CallbackQueryHandler(continue_chat, pattern="^continue_chat$"),
+                # ALL text messages go to AI brain
+                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_any_message),
             ],
             NEW_PLAYER_FLOW: [
-                CallbackQueryHandler(ai_chat_start, pattern="^ai_chat_start$"),
+                CallbackQueryHandler(continue_chat, pattern="^continue_chat$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
+                # ALL text messages go to AI brain
+                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_any_message),
             ],
             EXISTING_PLAYER_FLOW: [
-                CallbackQueryHandler(ai_chat_start, pattern="^ai_chat_start$"),
+                CallbackQueryHandler(continue_chat, pattern="^continue_chat$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
+                # ALL text messages go to AI brain
+                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_any_message),
             ],
             SUPPORT_FLOW: [
-                CallbackQueryHandler(ai_chat_start, pattern="^ai_chat_start$"),
+                CallbackQueryHandler(continue_chat, pattern="^continue_chat$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
+                # ALL text messages go to AI brain
+                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_any_message),
             ],
         },
         fallbacks=[
@@ -635,12 +622,13 @@ def main() -> None:
 
     application.add_handler(conv_handler)
 
-    logger.info("Bot is running with AI Chatbot...")
-    print("🤖 Bot is starting with AI Chatbot Assistant...")
+    logger.info("AI-Powered Bot is running...")
+    print("🤖 AI-Powered Bot is starting...")
     print(f"✅ TELEGRAM_TOKEN: {'Set' if TELEGRAM_TOKEN else 'Not Set'}")
     print(f"✅ SUPPORT_CHAT_ID: {'Set' if SUPPORT_CHAT_ID else 'Not Set'}")
     print(f"✅ OPENAI_API_KEY: {'Set' if OPENAI_API_KEY else 'Not Set'}")
     print(f"✅ OPENAI_CLIENT: {'Available' if openai_client else 'Not Available'}")
+    print("🚀 ALL messages will be processed by AI Brain!")
     
     application.run_polling()
 
