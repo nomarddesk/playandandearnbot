@@ -327,9 +327,9 @@ STRINGS = {
     }
 }
 
-# --- SUPPORT MESSAGE FUNCTION ---
+# --- ENHANCED SUPPORT MESSAGE FUNCTION ---
 async def send_to_support(update: Update, context: ContextTypes.DEFAULT_TYPE, username: str):
-    """Send user information to support team with conversation summary"""
+    """Send comprehensive user information and conversation summary to support team"""
     if not SUPPORT_CHAT_ID:
         logger.error("SUPPORT_CHAT_ID not set")
         return False
@@ -342,45 +342,50 @@ async def send_to_support(update: Update, context: ContextTypes.DEFAULT_TYPE, us
         conversation_history = user_data.get('conversation_history', [])
         current_flow = user_data.get('current_flow', 'unknown')
         flow_type = user_data.get('flow_type', 'unknown')
+        current_question = user_data.get('current_question', 1)
         
-        # Create conversation summary (last 10 messages)
+        # Create conversation summary (last 8 messages for context)
         conversation_summary = ""
         if conversation_history:
-            # Get the most relevant parts of conversation
-            recent_messages = conversation_history[-10:]  # Last 10 messages
-            conversation_summary = "**Recent Conversation:**\n"
+            recent_messages = conversation_history[-8:]  # Last 8 messages for context
+            conversation_summary = "**📝 Conversation Summary:**\n"
             for i, msg in enumerate(recent_messages):
-                role = "User" if msg['role'] == 'user' else "Bot"
-                # Truncate long messages
+                role = "👤 User" if msg['role'] == 'user' else "🤖 Bot"
                 content = msg['content']
-                if len(content) > 200:
-                    content = content[:200] + "..."
+                # Truncate very long messages but keep important context
+                if len(content) > 150:
+                    content = content[:150] + "..."
                 conversation_summary += f"{i+1}. {role}: {content}\n"
         
         # Create comprehensive support message
         support_message = f"""
-🚨 **SUPPORT REQUEST** 🚨
+🚨 **SUPPORT REQUEST - USER NEEDS ASSISTANCE** 🚨
 
-👤 **User Information:**
-• Name: {user.first_name} {user.last_name or ''}
-• Telegram: @{user.username or 'No username'}
-• Provided Username: {username}
-• User ID: `{user.id}`
-• Language: {user_data.get('lang', 'en').upper()}
-• Flow Type: {flow_type}
-• Current Flow: {current_flow}
+**👤 USER INFORMATION:**
+• **Name:** {user.first_name} {user.last_name or ''}
+• **Telegram Username:** @{user.username or 'Not set'}
+• **Provided Contact:** {username}
+• **User ID:** `{user.id}`
+• **Language:** {user_data.get('lang', 'en').upper()}
 
-📊 **Progress:**
-• Current Question: {user_data.get('current_question', 1)}
-• Conversation Length: {len(conversation_history)} messages
+**📊 PROGRESS STATUS:**
+• **Flow Type:** {flow_type.title() if flow_type != 'unknown' else 'General'}
+• **Current Flow:** {current_flow.replace('_', ' ').title()}
+• **Current Question:** {current_question}
+• **Total Messages:** {len(conversation_history)}
 
 {conversation_summary}
 
-💬 **Action Required:**
-Please contact this user directly on Telegram to provide personalized support.
-They have completed the questionnaire and are ready for assistance.
+**🎯 ACTION REQUIRED:**
+Please contact this user directly on Telegram using the provided username.
+They have completed the questionnaire and are ready for personalized support.
 
-⏰ **Timestamp:** {update.message.date.strftime('%Y-%m-%d %H:%M:%S UTC')}
+**⏰ TIMESTAMP:** {update.message.date.strftime('%Y-%m-%d %H:%M:%S UTC')}
+
+**💡 QUICK ACTIONS:**
+• Click the username to message: {username}
+• User ID for reference: `{user.id}`
+• User's language: {user_data.get('lang', 'en').upper()}
         """
         
         await context.bot.send_message(
@@ -389,11 +394,11 @@ They have completed the questionnaire and are ready for assistance.
             parse_mode='Markdown'
         )
         
-        logger.info(f"Support request sent for user {user.id} - Username: {username}")
+        logger.info(f"📤 Comprehensive support request sent for user {user.id} - Username: {username}")
         return True
         
     except Exception as e:
-        logger.error(f"Error sending to support: {e}")
+        logger.error(f"❌ Error sending to support: {e}")
         return False
 
 # --- AI BRAIN CORE FUNCTION ---
@@ -508,7 +513,7 @@ async def handle_any_message(update: Update, context: ContextTypes.DEFAULT_TYPE)
     # Check if we're collecting username
     if context.user_data.get('collecting_username'):
         if user_message.startswith('@') and len(user_message) > 1:
-            # Send to support team
+            # Send comprehensive support message
             success = await send_to_support(update, context, user_message)
             if success:
                 await update.message.reply_text(s['username_saved'])
@@ -839,7 +844,7 @@ def main() -> None:
     print(f"✅ OPENAI_API_KEY: {'Set' if OPENAI_API_KEY else 'Not Set'}")
     print(f"✅ OPENAI_CLIENT: {'Available' if openai_client else 'Not Available'}")
     print("🚀 ALL messages will be processed by AI Brain!")
-    print("📞 Support messages will be sent to support group when users provide username!")
+    print("📞 Enhanced support messaging enabled!")
     
     application.run_polling()
 
