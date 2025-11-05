@@ -500,13 +500,23 @@ Available button patterns:
             "action": "ask_question"
         }
 
-# --- CORE MESSAGE HANDLER ---
+# --- FIXED CORE MESSAGE HANDLER ---
 async def handle_any_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """
     Main message handler - ALL text messages go through the AI brain
     """
-    user_message = update.message.text
-    user_id = update.message.from_user.id
+    # Handle both message updates and callback queries
+    if update.message:
+        user_message = update.message.text
+    elif update.callback_query:
+        # For callback queries, use the data as the message
+        user_message = update.callback_query.data
+        await update.callback_query.answer()
+    else:
+        logger.error("No message or callback query found in update")
+        return MAIN_MENU
+    
+    user_id = update.effective_user.id
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
     
@@ -516,18 +526,30 @@ async def handle_any_message(update: Update, context: ContextTypes.DEFAULT_TYPE)
             # Send comprehensive support message
             success = await send_to_support(update, context, user_message)
             if success:
-                await update.message.reply_text(s['username_saved'])
+                if update.message:
+                    await update.message.reply_text(s['username_saved'])
+                elif update.callback_query:
+                    await update.callback_query.message.reply_text(s['username_saved'])
             else:
-                await update.message.reply_text("Thank you! We've noted your username. Support will contact you soon.")
+                if update.message:
+                    await update.message.reply_text("Thank you! We've noted your username. Support will contact you soon.")
+                elif update.callback_query:
+                    await update.callback_query.message.reply_text("Thank you! We've noted your username. Support will contact you soon.")
             
             context.user_data['collecting_username'] = False
             return await show_main_menu(update, context)
         else:
-            await update.message.reply_text(s['invalid_username'])
+            if update.message:
+                await update.message.reply_text(s['invalid_username'])
+            elif update.callback_query:
+                await update.callback_query.message.reply_text(s['invalid_username'])
             return USERNAME_COLLECTION
     
     # Show thinking indicator
-    thinking_msg = await update.message.reply_text(s['ai_thinking'])
+    if update.message:
+        thinking_msg = await update.message.reply_text(s['ai_thinking'])
+    elif update.callback_query:
+        thinking_msg = await update.callback_query.message.reply_text(s['ai_thinking'])
     
     # Prepare user context for AI
     user_context = {
@@ -650,7 +672,7 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, mes
             )
         except Exception as e:
             logger.warning(f"Failed to edit message: {e}")
-    else:
+    elif update.message:
         await update.message.reply_text(
             text=text_to_show,
             reply_markup=InlineKeyboardMarkup(keyboard),
@@ -677,7 +699,7 @@ async def continue_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     
     return context.user_data.get('current_state', MAIN_MENU)
 
-# --- FLOW STARTERS ---
+# --- FIXED FLOW STARTERS ---
 async def new_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start new player flow"""
     query = update.callback_query
@@ -688,8 +710,30 @@ async def new_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     context.user_data['current_question'] = 1
     context.user_data['current_state'] = NEW_PLAYER_FLOW
     
-    # Use AI to handle the flow start
-    return await handle_any_message(update, context)
+    # Send initial message for new player flow
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    text = (
+        "🎮 **New Player Setup**\n\n"
+        "You're diving into an immersive gaming adventure. This bot will help you set up your account, join the game, start playing and earning.\n"
+        "Because you are playing on the cloud, your session will last for 1 hour. The game will close, and you will have to launch it again to keep playing.\n\n"
+        "**1. Did you use a VPN?**"
+    )
+    
+    keyboard = [
+        [InlineKeyboardButton("A If yes", callback_data="A If yes")],
+        [InlineKeyboardButton("B If no", callback_data="B If no")],
+        [InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")]
+    ]
+    
+    await query.edit_message_text(
+        text=text,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='Markdown'
+    )
+    
+    return NEW_PLAYER_FLOW
 
 async def existing_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start existing player flow"""
@@ -701,8 +745,30 @@ async def existing_player_start(update: Update, context: ContextTypes.DEFAULT_TY
     context.user_data['current_question'] = 1
     context.user_data['current_state'] = EXISTING_PLAYER_FLOW
     
-    # Use AI to handle the flow start
-    return await handle_any_message(update, context)
+    # Send initial message for existing player flow
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    text = (
+        "⚡ **Existing Player**\n\n"
+        "Because you are playing on the cloud, your session will last for 1 hour. The game will close, and you will have to launch it again to keep playing.\n"
+        "You probably know it cause you already follow all the instructions.\n\n"
+        "**1. Have you searched and found the reward Island?**"
+    )
+    
+    keyboard = [
+        [InlineKeyboardButton("A Yes", callback_data="A Yes")],
+        [InlineKeyboardButton("B No", callback_data="B No")],
+        [InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")]
+    ]
+    
+    await query.edit_message_text(
+        text=text,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='Markdown'
+    )
+    
+    return EXISTING_PLAYER_FLOW
 
 async def support_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start support flow"""
@@ -714,8 +780,30 @@ async def support_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     context.user_data['current_question'] = 1
     context.user_data['current_state'] = SUPPORT_FLOW
     
-    # Use AI to handle the flow start
-    return await handle_any_message(update, context)
+    # Send initial message for support flow
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    text = (
+        "🆘 **Support**\n\n"
+        "In order to get in touch with us, you need to answer these questions so we can determine which stage of the process you're at. "
+        "If everything has been done correctly, you'll be able to claim your reward 💰💰\n\n"
+        "**1. Did you use a VPN?**"
+    )
+    
+    keyboard = [
+        [InlineKeyboardButton("A If yes", callback_data="A If yes")],
+        [InlineKeyboardButton("B If no", callback_data="B If no")],
+        [InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")]
+    ]
+    
+    await query.edit_message_text(
+        text=text,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='Markdown'
+    )
+    
+    return SUPPORT_FLOW
 
 async def show_helpful_channel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Show channel link"""
@@ -782,6 +870,21 @@ async def set_language(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     
     return await show_main_menu(update, context)
 
+# --- ERROR HANDLER ---
+async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle errors in the telegram bot."""
+    logger.error(f"Exception while handling an update: {context.error}")
+    
+    # Try to send a message to the user
+    try:
+        if update and update.effective_user:
+            await context.bot.send_message(
+                chat_id=update.effective_user.id,
+                text="Sorry, I encountered an error. Please try again."
+            )
+    except Exception as e:
+        logger.error(f"Error sending error message: {e}")
+
 def main() -> None:
     """Run the AI-powered bot"""
     if not TELEGRAM_TOKEN:
@@ -789,8 +892,13 @@ def main() -> None:
         print("❌ ERROR: TELEGRAM_TOKEN environment variable is required!")
         return
 
+    # Create application with specific settings to avoid conflicts
     application = Application.builder().token(TELEGRAM_TOKEN).build()
 
+    # Add error handler
+    application.add_error_handler(error_handler)
+
+    # Create conversation handler with proper settings
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
@@ -804,25 +912,31 @@ def main() -> None:
                 CallbackQueryHandler(support_start, pattern="^support_start$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
                 CallbackQueryHandler(continue_chat, pattern="^continue_chat$"),
-                # ALL text messages go to AI brain
+                # Handle text messages
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_any_message),
             ],
             NEW_PLAYER_FLOW: [
                 CallbackQueryHandler(continue_chat, pattern="^continue_chat$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
-                # ALL text messages go to AI brain
+                # Handle all callback data as messages for AI processing
+                CallbackQueryHandler(handle_any_message),
+                # Handle text messages
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_any_message),
             ],
             EXISTING_PLAYER_FLOW: [
                 CallbackQueryHandler(continue_chat, pattern="^continue_chat$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
-                # ALL text messages go to AI brain
+                # Handle all callback data as messages for AI processing
+                CallbackQueryHandler(handle_any_message),
+                # Handle text messages
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_any_message),
             ],
             SUPPORT_FLOW: [
                 CallbackQueryHandler(continue_chat, pattern="^continue_chat$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
-                # ALL text messages go to AI brain
+                # Handle all callback data as messages for AI processing
+                CallbackQueryHandler(handle_any_message),
+                # Handle text messages
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_any_message),
             ],
             USERNAME_COLLECTION: [
@@ -833,6 +947,7 @@ def main() -> None:
         fallbacks=[
             CommandHandler("start", start),
         ],
+        per_message=False  # This is the default, but being explicit
     )
 
     application.add_handler(conv_handler)
@@ -845,8 +960,13 @@ def main() -> None:
     print(f"✅ OPENAI_CLIENT: {'Available' if openai_client else 'Not Available'}")
     print("🚀 ALL messages will be processed by AI Brain!")
     print("📞 Enhanced support messaging enabled!")
+    print("🔧 Fixed button handling and error management!")
     
-    application.run_polling()
+    # Start the bot with cleanup to avoid conflicts
+    application.run_polling(
+        drop_pending_updates=True,  # This helps avoid conflict errors
+        allowed_updates=['message', 'callback_query']
+    )
 
 if __name__ == "__main__":
     main()
