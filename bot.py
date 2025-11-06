@@ -11,7 +11,8 @@ from telegram.ext import (
     ConversationHandler,
     ContextTypes,
     MessageHandler,
-    filters,)
+    filters,
+)
 
 # Import OpenAI
 try:
@@ -23,7 +24,8 @@ except ImportError:
 
 # Enable logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
 logger = logging.getLogger(__name__)
 
 # --- CONFIGURATION ---
@@ -121,9 +123,10 @@ GAME_CODES = [
     "2753-4695-7191", 
     "9689-1352-5966",
     "4563-6624-9460",
-    "4828-9033-2281"]
+    "4828-9033-2281"
+]
 
-# --- FLOW DEFINITIONS ---
+# --- UPDATED FLOW DEFINITIONS WITH CORRECT PROGRESSION ---
 FLOW_QUESTIONS = {
     'new_player': [
         {'step': 'q1_vpn', 'question': 'Did you use a VPN?', 'type': 'yes_no'},
@@ -217,6 +220,7 @@ FLOW GUIDANCE:
 - Use button-based responses for flow questions (Yes/No/Guidance options)
 - For "guidance" type questions, provide specific help when user needs assistance
 - Track progress and remember where users left off
+- Users can navigate back to previous questions using the back button
 
 IMPORTANT LINKS:
 - Cloud Gaming Profile: https://www.xbox.com/fr-FR/play/games/fortnite/BT5P2X999VH2
@@ -243,7 +247,7 @@ AI RESPONSE GUIDELINES:
 
 BUTTON CALLBACK CODES:
 - new_player_start, existing_player_start, support_start
-- back_to_main, continue_chat
+- back_to_main, continue_chat, back_to_previous
 - Flow answers: yes, no, need_guidance, already_done
 """.format(game_codes=", ".join(GAME_CODES), channel_link=HELPFUL_CHANNEL_LINK)
 
@@ -261,6 +265,7 @@ STRINGS = {
         'helpful_channel_text': "Join our Telegram channel for complete guides and community:",
         'join_channel_btn': "Join Channel",
         'back_btn': "⬅️ Back",
+        'back_to_previous_btn': "↩️ Previous Question",
         'ai_thinking': "🤔 Analyzing your question...",
         'ai_continue': "💬 Continue Chat",
         'ai_menu': "📱 Menu",
@@ -288,6 +293,7 @@ STRINGS = {
         'helpful_channel_text': "Rejoignez notre canal Telegram pour des guides complets et la communauté :",
         'join_channel_btn': "Rejoindre le Canal",
         'back_btn': "⬅️ Retour",
+        'back_to_previous_btn': "↩️ Question Précédente",
         'ai_thinking': "🤔 Analyse de votre question...",
         'ai_continue': "💬 Continuer",
         'ai_menu': "📱 Menu",
@@ -432,6 +438,7 @@ RESPONSE REQUIREMENTS:
 3. Use callback codes for buttons, NOT display text
 4. Provide specific, actionable guidance
 5. Ask clarifying questions if needed
+6. Include back_to_previous button when user is in a flow (except first question)
 
 RESPONSE FORMAT (JSON):
 {{
@@ -442,7 +449,7 @@ RESPONSE FORMAT (JSON):
 }}
 
 Available button callback codes:
-- Navigation: menu, back_to_main, continue_chat
+- Navigation: menu, back_to_main, continue_chat, back_to_previous
 - Flow starters: new_player_start, existing_player_start, support_start  
 - Flow answers: yes, no, need_guidance, already_done, provide_influencer, skip_influencer
 - Channel: join_channel"""
@@ -458,7 +465,7 @@ Available button callback codes:
         
         # Generate AI response
         response = openai_client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o-mini",
             messages=messages,
             temperature=0.7,
             max_tokens=500
@@ -471,7 +478,7 @@ Available button callback codes:
             parsed_response = json.loads(ai_response)
             
             # Ensure buttons use valid callback codes
-            valid_codes = ['menu', 'back_to_main', 'continue_chat', 'new_player_start', 
+            valid_codes = ['menu', 'back_to_main', 'continue_chat', 'back_to_previous', 'new_player_start', 
                           'existing_player_start', 'support_start', 'yes', 'no', 
                           'need_guidance', 'already_done', 'provide_influencer', 
                           'skip_influencer', 'join_channel']
@@ -499,7 +506,7 @@ Available button callback codes:
             "next_action": "menu"
         }
 
-# --- FLOW MANAGEMENT FUNCTIONS ---
+# --- UPDATED FLOW MANAGEMENT FUNCTIONS WITH BACK BUTTON ---
 async def start_flow(update: Update, context: ContextTypes.DEFAULT_TYPE, flow_type: str):
     """Start a structured flow"""
     query = update.callback_query
@@ -513,6 +520,7 @@ async def start_flow(update: Update, context: ContextTypes.DEFAULT_TYPE, flow_ty
     context.user_data['current_flow'] = flow_type
     context.user_data['flow_type'] = flow_type
     context.user_data['current_question'] = 0
+    context.user_data['question_history'] = []  # Track question history for back navigation
     
     # Save user data
     save_user_data(user_id, lang=lang)
@@ -535,6 +543,14 @@ async def ask_flow_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
     question_data = FLOW_QUESTIONS[flow_type][current_question]
     question_text = question_data['question']
     question_type = question_data['type']
+    
+    # Add current question to history
+    if 'question_history' not in context.user_data:
+        context.user_data['question_history'] = []
+    
+    # Only add to history if it's not already the current question
+    if not context.user_data['question_history'] or context.user_data['question_history'][-1] != current_question:
+        context.user_data['question_history'].append(current_question)
     
     # Create appropriate keyboard based on question type
     keyboard = []
@@ -567,8 +583,15 @@ async def ask_flow_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton(s['no_btn'], callback_data="no")]
         ]
     
-    # Add navigation
-    keyboard.append([InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")])
+    # Add back button if not on first question
+    navigation_buttons = []
+    if current_question > 0:
+        navigation_buttons.append(InlineKeyboardButton(s['back_to_previous_btn'], callback_data="back_to_previous"))
+    
+    navigation_buttons.append(InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main"))
+    
+    if navigation_buttons:
+        keyboard.append(navigation_buttons)
     
     # Send question
     query = update.callback_query
@@ -621,12 +644,16 @@ async def handle_flow_answer(update: Update, context: ContextTypes.DEFAULT_TYPE,
         guidance_text = await get_question_guidance(question_data, lang)
         query = update.callback_query
         await query.answer()
+        
+        # Create keyboard with back to question option
+        keyboard = [
+            [InlineKeyboardButton(s['back_to_previous_btn'], callback_data="back_to_question")],
+            [InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")]
+        ]
+        
         await query.edit_message_text(
             text=guidance_text,
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton(s['yes_btn'], callback_data="yes")],
-                [InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")]
-            ]),
+            reply_markup=InlineKeyboardMarkup(keyboard),
             parse_mode='Markdown'
         )
         return context.user_data.get('current_state', MAIN_MENU)
@@ -635,12 +662,42 @@ async def handle_flow_answer(update: Update, context: ContextTypes.DEFAULT_TYPE,
         await ask_influencer_name(update, context)
         return context.user_data.get('current_state', MAIN_MENU)
     
-    # Move to next question
+    # Move to next question - FIXED PROGRESSION LOGIC
     context.user_data['current_question'] = current_question + 1
     
     # For support flow, check if we need to collect username
     if flow_type == 'support' and current_question + 1 >= len(FLOW_QUESTIONS[flow_type]):
         return await ask_username(update, context)
+    
+    return await ask_flow_question(update, context)
+
+async def handle_back_to_previous(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle back to previous question"""
+    query = update.callback_query
+    await query.answer()
+    
+    flow_type = context.user_data.get('flow_type')
+    current_question = context.user_data.get('current_question', 0)
+    question_history = context.user_data.get('question_history', [])
+    
+    # If we have history and can go back
+    if len(question_history) > 1:
+        # Remove current question from history
+        question_history.pop()
+        # Get previous question index
+        previous_question = question_history[-1]
+        context.user_data['current_question'] = previous_question
+        context.user_data['question_history'] = question_history
+    elif current_question > 0:
+        # If no history but can go back, just decrement
+        context.user_data['current_question'] = current_question - 1
+    
+    return await ask_flow_question(update, context)
+
+async def handle_back_to_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle back to current question from guidance"""
+    query = update.callback_query
+    await query.answer()
     
     return await ask_flow_question(update, context)
 
@@ -657,7 +714,42 @@ async def get_question_guidance(question_data: dict, lang: str) -> str:
             'en': "🔧 **Cloud Profile Guidance**\n\nCreate your cloud gaming profile at: https://www.xbox.com/fr-FR/play/games/fortnite/BT5P2X999VH2\n\nMake sure you're using USA VPN during this step!",
             'fr': "🔧 **Guide Profil Cloud**\n\nCréez votre profil cloud gaming sur : https://www.xbox.com/fr-FR/play/games/fortnite/BT5P2X999VH2\n\nAssurez-vous d'utiliser un VPN USA pendant cette étape !"
         },
-        # Add more guidance texts for other questions...
+        'q3_epic_code': {
+            'en': "🔧 **Epic Games Activation Guidance**\n\nGo to: http://epicgames.com/activate\n\nEnter the code you received from the cloud gaming platform to activate your account.",
+            'fr': "🔧 **Guide Activation Epic Games**\n\nAllez sur : http://epicgames.com/activate\n\nEntrez le code que vous avez reçu de la plateforme cloud gaming pour activer votre compte."
+        },
+        'q4_epic_profile': {
+            'en': "🔧 **Epic Games Profile Guidance**\n\nCreate your Epic Games profile at: epicgames.com\n\nThis is essential for saving your progress and rewards.",
+            'fr': "🔧 **Guide Profil Epic Games**\n\nCréez votre profil Epic Games sur : epicgames.com\n\nCeci est essentiel pour sauvegarder votre progression et vos récompenses."
+        },
+        'q5_shortcut': {
+            'en': "🔧 **Shortcut Guidance**\n\nCreate a shortcut on your home screen for easy access to the cloud gaming platform.",
+            'fr': "🔧 **Guide Raccourci**\n\nCréez un raccourci sur votre écran d'accès pour un accès facile à la plateforme cloud gaming."
+        },
+        'q6_launch': {
+            'en': "🔧 **Game Launch Guidance**\n\nLaunch the game through: https://www.xbox.com/fr-FR/play/games/fortnite/BT5P2X999VH2",
+            'fr': "🔧 **Guide Lancement Jeu**\n\nLancez le jeu via : https://www.xbox.com/fr-FR/play/games/fortnite/BT5P2X999VH2"
+        },
+        'q7_reward_island': {
+            'en': f"🔧 **Reward Island Guidance**\n\nUse these codes to find the reward island:\n{', '.join(GAME_CODES)}\n\nCopy one code and paste it in the game's search bar.",
+            'fr': f"🔧 **Guide Île de Récompense**\n\nUtilisez ces codes pour trouver l'île de récompense :\n{', '.join(GAME_CODES)}\n\nCopiez un code et collez-le dans la barre de recherche du jeu."
+        },
+        'q8_full_setup': {
+            'en': "🔧 **Full Setup Guidance**\n\nComplete all configuration steps including friend setup, game settings, and reward system configuration.",
+            'fr': "🔧 **Guide Configuration Complète**\n\nComplétez toutes les étapes de configuration incluant la configuration des amis, les paramètres du jeu et la configuration du système de récompenses."
+        },
+        'q9_play_time': {
+            'en': "🔧 **Play Time Guidance**\n\nYou need to play 130 hours per week to qualify for rewards. Make sure you track your playtime.",
+            'fr': "🔧 **Guide Temps de Jeu**\n\nVous devez jouer 130 heures par semaine pour être éligible aux récompenses. Assurez-vous de suivre votre temps de jeu."
+        },
+        'q10_like_button': {
+            'en': "🔧 **Like Button Guidance**\n\nClick the like button before each 1-hour session ends to track your engagement.",
+            'fr': "🔧 **Guide Bouton J'aime**\n\nCliquez sur le bouton j'aime avant la fin de chaque session d'1 heure pour suivre votre engagement."
+        },
+        'q11_favorites': {
+            'en': "🔧 **Favorites Guidance**\n\nSave the reward island to your favorites for easy access in future sessions.",
+            'fr': "🔧 **Guide Favoris**\n\nSauvegardez l'île de récompense dans vos favoris pour un accès facile lors des sessions futures."
+        }
     }
     
     default_guidance = {
@@ -676,12 +768,15 @@ async def ask_influencer_name(update: Update, context: ContextTypes.DEFAULT_TYPE
     query = update.callback_query
     await query.answer()
     
+    keyboard = [
+        [InlineKeyboardButton(s['skip_influencer_btn'], callback_data="skip_influencer")],
+        [InlineKeyboardButton(s['back_to_previous_btn'], callback_data="back_to_previous")],
+        [InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")]
+    ]
+    
     await query.edit_message_text(
         text="👤 **Influencer Information**\n\nPlease provide the name of the influencer who introduced you to this game:",
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton(s['skip_influencer_btn'], callback_data="skip_influencer")],
-            [InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")]
-        ]),
+        reply_markup=InlineKeyboardMarkup(keyboard),
         parse_mode='Markdown'
     )
 
@@ -693,11 +788,13 @@ async def ask_username(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     if query:
         await query.answer()
+        keyboard = [
+            [InlineKeyboardButton(s['back_to_previous_btn'], callback_data="back_to_previous")],
+            [InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")]
+        ]
         await query.edit_message_text(
             text=s['provide_username'],
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton(s['ai_menu'], callback_data="back_to_main")]
-            ]),
+            reply_markup=InlineKeyboardMarkup(keyboard),
             parse_mode='Markdown'
         )
     else:
@@ -724,6 +821,7 @@ async def complete_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['current_flow'] = 'general'
     context.user_data['flow_type'] = None
     context.user_data['current_question'] = None
+    context.user_data['question_history'] = []
     
     keyboard = [
         [InlineKeyboardButton(s['ai_continue'], callback_data="continue_chat")],
@@ -800,6 +898,8 @@ async def handle_any_message(update: Update, context: ContextTypes.DEFAULT_TYPE)
             keyboard.append([InlineKeyboardButton(s['support_btn'], callback_data="support_start")])
         elif callback_data == 'join_channel':
             keyboard.append([InlineKeyboardButton(s['join_channel_btn'], url=HELPFUL_CHANNEL_LINK)])
+        elif callback_data == 'back_to_previous':
+            keyboard.append([InlineKeyboardButton(s['back_to_previous_btn'], callback_data="back_to_previous")])
         elif callback_data in ['yes', 'no', 'need_guidance', 'already_done', 'provide_influencer', 'skip_influencer']:
             # Flow answer buttons - handled in flow functions
             btn_text = {
@@ -1067,6 +1167,8 @@ def main() -> None:
                 CallbackQueryHandler(lambda u, c: handle_flow_answer(u, c, 'already_done'), pattern="^already_done$"),
                 CallbackQueryHandler(lambda u, c: handle_flow_answer(u, c, 'provide_influencer'), pattern="^provide_influencer$"),
                 CallbackQueryHandler(lambda u, c: handle_flow_answer(u, c, 'skip_influencer'), pattern="^skip_influencer$"),
+                CallbackQueryHandler(handle_back_to_previous, pattern="^back_to_previous$"),
+                CallbackQueryHandler(handle_back_to_question, pattern="^back_to_question$"),
                 CallbackQueryHandler(continue_chat, pattern="^continue_chat$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
                 # ALL text messages go to AI brain
@@ -1079,6 +1181,8 @@ def main() -> None:
                 CallbackQueryHandler(lambda u, c: handle_flow_answer(u, c, 'already_done'), pattern="^already_done$"),
                 CallbackQueryHandler(lambda u, c: handle_flow_answer(u, c, 'provide_influencer'), pattern="^provide_influencer$"),
                 CallbackQueryHandler(lambda u, c: handle_flow_answer(u, c, 'skip_influencer'), pattern="^skip_influencer$"),
+                CallbackQueryHandler(handle_back_to_previous, pattern="^back_to_previous$"),
+                CallbackQueryHandler(handle_back_to_question, pattern="^back_to_question$"),
                 CallbackQueryHandler(continue_chat, pattern="^continue_chat$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
                 # ALL text messages go to AI brain
@@ -1091,6 +1195,8 @@ def main() -> None:
                 CallbackQueryHandler(lambda u, c: handle_flow_answer(u, c, 'already_done'), pattern="^already_done$"),
                 CallbackQueryHandler(lambda u, c: handle_flow_answer(u, c, 'provide_influencer'), pattern="^provide_influencer$"),
                 CallbackQueryHandler(lambda u, c: handle_flow_answer(u, c, 'skip_influencer'), pattern="^skip_influencer$"),
+                CallbackQueryHandler(handle_back_to_previous, pattern="^back_to_previous$"),
+                CallbackQueryHandler(handle_back_to_question, pattern="^back_to_question$"),
                 CallbackQueryHandler(continue_chat, pattern="^continue_chat$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
                 # ALL text messages go to AI brain
@@ -1098,6 +1204,7 @@ def main() -> None:
             ],
             USERNAME_COLLECTION: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_username),
+                CallbackQueryHandler(handle_back_to_previous, pattern="^back_to_previous$"),
                 CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
         },
@@ -1118,6 +1225,7 @@ def main() -> None:
     print("🚀 ALL messages will be processed by AI Brain!")
     print("📊 User progress tracking: ENABLED")
     print("👤 Username collection for support: ENABLED")
+    print("↩️ Back navigation: ENABLED for all flows")
     
     application.run_polling()
 
