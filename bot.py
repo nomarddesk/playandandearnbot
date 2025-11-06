@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 SUPPORT_CHAT_ID = os.environ.get("SUPPORT_CHAT_ID")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-DATABASE_URL = os.environ.get("DATABASE_URL", "bot_data.db")
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///bot_data.db")
 
 print("=" * 50)
 print("ENVIRONMENT VARIABLES CHECK:")
@@ -55,50 +55,58 @@ if OPENAI_AVAILABLE and OPENAI_API_KEY:
 else:
     print("⚠️ OpenAI features disabled - package not available or API key missing")
 
+# Database file path - Use a writable location
+DB_FILE = "/tmp/bot_data.db" if os.path.exists("/tmp") else "bot_data.db"
+
 # Initialize Database
 def init_database():
     """Initialize SQLite database for user progress tracking"""
-    conn = sqlite3.connect(DATABASE_URL)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY,
-            username TEXT,
-            lang TEXT DEFAULT 'en',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS user_progress (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            flow_type TEXT,
-            step_name TEXT,
-            step_data TEXT,
-            completed BOOLEAN DEFAULT FALSE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users (user_id)
-        )
-    ''')
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS support_tickets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            username TEXT,
-            flow_data TEXT,
-            status TEXT DEFAULT 'open',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users (user_id)
-        )
-    ''')
-    
-    conn.commit()
-    conn.close()
-    print("✅ Database initialized successfully")
+    try:
+        conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                user_id INTEGER PRIMARY KEY,
+                username TEXT,
+                lang TEXT DEFAULT 'en',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_progress (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                flow_type TEXT,
+                step_name TEXT,
+                step_data TEXT,
+                completed BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (user_id)
+            )
+        ''')
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS support_tickets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                username TEXT,
+                flow_data TEXT,
+                status TEXT DEFAULT 'open',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (user_id)
+            )
+        ''')
+        
+        conn.commit()
+        conn.close()
+        print(f"✅ Database initialized successfully at {DB_FILE}")
+    except Exception as e:
+        print(f"❌ Database initialization failed: {e}")
+        # Continue without database - use in-memory storage as fallback
+        print("⚠️ Using in-memory storage as fallback")
 
 init_database()
 
@@ -195,6 +203,15 @@ SUPPORT FLOW QUESTIONS:
 1-12. Same as New Player flow for troubleshooting
 13. Final verification before support contact
 
+USERNAME COLLECTION:
+- After completing the support flow, ask for the user's Telegram username
+- The username must start with @
+- Send a detailed summary to the support team including:
+  * User's Telegram username and ID
+  * All flow answers and progress
+  * Specific issues or needs identified
+  * Conversation context if available
+
 FLOW GUIDANCE:
 - When user is in a structured flow, prioritize asking the next question in sequence
 - Use button-based responses for flow questions (Yes/No/Guidance options)
@@ -255,8 +272,9 @@ STRINGS = {
         'skip_influencer_btn': "➡️ Skip",
         'flow_complete': "🎉 Flow completed! What would you like to do next?",
         'provide_username': "👤 **Support Contact**\n\nPlease provide your Telegram username (starting with @) so our support team can contact you:",
-        'username_saved': "✅ Username saved! Our support team will contact you soon.",
-        'invalid_username': "❌ Please provide a valid Telegram username starting with @",
+        'username_saved': "✅ Username saved! Our support team will contact you soon with the username you provided.",
+        'invalid_username': "❌ Please provide a valid Telegram username starting with @ (example: @username)",
+        'support_summary': "🆘 **New Support Request**\n\n👤 User: {username}\n🆔 User ID: {user_id}\n📋 Flow Type: {flow_type}\n\n📊 **Progress Summary:**\n{progress_summary}\n\n💬 **User Needs:** {user_needs}\n\nPlease contact the user to provide assistance.",
     },
     'fr': {
         'disclaimer': "**Avertissement :** Ce bot est un guide non officiel et n'est pas affilié à Epic Games ou Fortnite. Nous ne vous demanderons *jamais* votre mot de passe.",
@@ -281,80 +299,100 @@ STRINGS = {
         'skip_influencer_btn': "➡️ Passer",
         'flow_complete': "🎉 Parcours terminé ! Que souhaitez-vous faire ensuite ?",
         'provide_username': "👤 **Contact Support**\n\nVeuillez fournir votre nom d'utilisateur Telegram (commençant par @) pour que notre équipe puisse vous contacter :",
-        'username_saved': "✅ Nom d'utilisateur enregistré ! Notre équipe de support vous contactera bientôt.",
-        'invalid_username': "❌ Veuillez fournir un nom d'utilisateur Telegram valide commençant par @",
+        'username_saved': "✅ Nom d'utilisateur enregistré ! Notre équipe de support vous contactera bientôt avec le nom d'utilisateur que vous avez fourni.",
+        'invalid_username': "❌ Veuillez fournir un nom d'utilisateur Telegram valide commençant par @ (exemple: @utilisateur)",
+        'support_summary': "🆘 **Nouvelle Demande de Support**\n\n👤 Utilisateur: {username}\n🆔 ID Utilisateur: {user_id}\n📋 Type de Parcours: {flow_type}\n\n📊 **Résumé de la Progression:**\n{progress_summary}\n\n💬 **Besoins de l'Utilisateur:** {user_needs}\n\nVeuillez contacter l'utilisateur pour fournir une assistance.",
     }
 }
 
 # --- DATABASE FUNCTIONS ---
 def get_user_data(user_id):
     """Get user data from database"""
-    conn = sqlite3.connect(DATABASE_URL)
-    cursor = conn.cursor()
-    
-    cursor.execute('SELECT * FROM users WHERE user_id = ?', (user_id,))
-    user = cursor.fetchone()
-    
-    cursor.execute('SELECT * FROM user_progress WHERE user_id = ? ORDER BY created_at', (user_id,))
-    progress = cursor.fetchall()
-    
-    conn.close()
-    
-    user_data = {}
-    if user:
-        user_data = {
-            'user_id': user[0],
-            'username': user[1],
-            'lang': user[2]
-        }
-    
-    progress_data = {}
-    for p in progress:
-        progress_data[p[2]] = {
-            'step_data': p[3],
-            'completed': bool(p[4])
-        }
-    
-    return user_data, progress_data
+    try:
+        conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT * FROM users WHERE user_id = ?', (user_id,))
+        user = cursor.fetchone()
+        
+        cursor.execute('SELECT * FROM user_progress WHERE user_id = ? ORDER BY created_at', (user_id,))
+        progress = cursor.fetchall()
+        
+        conn.close()
+        
+        user_data = {}
+        if user:
+            user_data = {
+                'user_id': user[0],
+                'username': user[1],
+                'lang': user[2]
+            }
+        
+        progress_data = {}
+        for p in progress:
+            progress_data[p[2]] = {
+                'step_data': p[3],
+                'completed': bool(p[4])
+            }
+        
+        return user_data, progress_data
+    except Exception as e:
+        logger.error(f"Database error in get_user_data: {e}")
+        return {}, {}
 
 def save_user_data(user_id, username=None, lang=None):
     """Save or update user data"""
-    conn = sqlite3.connect(DATABASE_URL)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        INSERT OR REPLACE INTO users (user_id, username, lang, updated_at)
-        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-    ''', (user_id, username, lang))
-    
-    conn.commit()
-    conn.close()
+    try:
+        conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT OR REPLACE INTO users (user_id, username, lang, updated_at)
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        ''', (user_id, username, lang))
+        
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Database error in save_user_data: {e}")
+        return False
 
 def save_progress(user_id, flow_type, step_name, step_data, completed=True):
     """Save user progress for a flow step"""
-    conn = sqlite3.connect(DATABASE_URL)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        INSERT OR REPLACE INTO user_progress (user_id, flow_type, step_name, step_data, completed)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (user_id, flow_type, step_name, step_data, completed))
-    
-    conn.commit()
-    conn.close()
+    try:
+        conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT OR REPLACE INTO user_progress (user_id, flow_type, step_name, step_data, completed)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (user_id, flow_type, step_name, step_data, completed))
+        
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Database error in save_progress: {e}")
+        return False
 
 def create_support_ticket(user_id, username, flow_data):
     """Create a support ticket"""
-    conn = sqlite3.connect(DATABASE_URL)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        INSERT INTO support_tickets (user_id, username, flow_data)
-        VALUES (?, ?, ?)
-    ''', (user_id, username, json.dumps(flow_data)))
-    
-    conn.commit()
-    conn.close()
+    try:
+        conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            INSERT INTO support_tickets (user_id, username, flow_data)
+            VALUES (?, ?, ?)
+        ''', (user_id, username, json.dumps(flow_data)))
+        
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        logger.error(f"Database error in create_support_ticket: {e}")
+        return False
 
 # --- AI BRAIN CORE FUNCTION ---
 async def ai_brain_response(user_message: str, user_context: dict, lang: str) -> dict:
@@ -470,7 +508,6 @@ async def start_flow(update: Update, context: ContextTypes.DEFAULT_TYPE, flow_ty
     
     user_id = update.effective_user.id
     lang = context.user_data.get('lang', 'en')
-    s = STRINGS[lang]
     
     # Set flow context
     context.user_data['current_flow'] = flow_type
@@ -550,10 +587,13 @@ async def ask_flow_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     # Set appropriate state based on flow type
     if flow_type == 'new_player':
+        context.user_data['current_state'] = NEW_PLAYER_FLOW
         return NEW_PLAYER_FLOW
     elif flow_type == 'existing_player':
+        context.user_data['current_state'] = EXISTING_PLAYER_FLOW
         return EXISTING_PLAYER_FLOW
     elif flow_type == 'support':
+        context.user_data['current_state'] = SUPPORT_FLOW
         return SUPPORT_FLOW
     
     return MAIN_MENU
@@ -669,6 +709,7 @@ async def ask_username(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode='Markdown'
         )
     
+    context.user_data['current_state'] = USERNAME_COLLECTION
     return USERNAME_COLLECTION
 
 async def complete_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -704,6 +745,7 @@ async def complete_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode='Markdown'
         )
     
+    context.user_data['current_state'] = MAIN_MENU
     return MAIN_MENU
 
 # --- CORE MESSAGE HANDLER (AI BRAIN) ---
@@ -874,7 +916,7 @@ async def show_helpful_channel(update: Update, context: ContextTypes.DEFAULT_TYP
 
 async def handle_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Handle username collection for support"""
-    username = update.message.text
+    username = update.message.text.strip()
     user_id = update.message.from_user.id
     lang = context.user_data.get('lang', 'en')
     s = STRINGS[lang]
@@ -891,20 +933,49 @@ async def handle_username(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     # Save username
     save_user_data(user_id, username=username)
     
-    # Create support ticket with all flow data
+    # Get user progress and create support summary
     user_data, progress_data = get_user_data(user_id)
+    flow_type = context.user_data.get('flow_type', 'support')
+    
+    # Create progress summary
+    progress_summary = ""
+    for step, data in progress_data.items():
+        status = "✅" if data.get('completed') else "❌"
+        progress_summary += f"{status} {step}: {data.get('step_data', 'No data')}\n"
+    
+    if not progress_summary:
+        progress_summary = "No progress data available"
+    
+    # Determine user needs based on progress
+    user_needs = "Technical support and setup assistance"
+    if progress_data:
+        incomplete_steps = [step for step, data in progress_data.items() if not data.get('completed')]
+        if incomplete_steps:
+            user_needs = f"Help with steps: {', '.join(incomplete_steps)}"
+    
+    # Create support ticket
     create_support_ticket(user_id, username, progress_data)
     
-    # Send to support chat if configured
+    # Send detailed summary to support chat
     if SUPPORT_CHAT_ID:
         try:
-            support_text = f"🆘 New Support Ticket\n\nUser: {username}\nUser ID: {user_id}\nProgress: {json.dumps(progress_data, indent=2)}"
-            await context.bot.send_message(
-                chat_id=SUPPORT_CHAT_ID,
-                text=support_text
+            support_text = s['support_summary'].format(
+                username=username,
+                user_id=user_id,
+                flow_type=flow_type,
+                progress_summary=progress_summary,
+                user_needs=user_needs
             )
+            
+            await context.bot.send_message(
+                chat_id=int(SUPPORT_CHAT_ID),
+                text=support_text,
+                parse_mode='Markdown'
+            )
+            print(f"✅ Support request sent to chat {SUPPORT_CHAT_ID}")
         except Exception as e:
             logger.error(f"Failed to send to support chat: {e}")
+            print(f"❌ Failed to send support request: {e}")
     
     await update.message.reply_text(
         text=s['username_saved'],
@@ -1043,9 +1114,10 @@ def main() -> None:
     print(f"✅ SUPPORT_CHAT_ID: {'Set' if SUPPORT_CHAT_ID else 'Not Set'}")
     print(f"✅ OPENAI_API_KEY: {'Set' if OPENAI_API_KEY else 'Not Set'}")
     print(f"✅ OPENAI_CLIENT: {'Available' if openai_client else 'Not Available'}")
-    print(f"✅ DATABASE: Initialized at {DATABASE_URL}")
+    print(f"✅ DATABASE: Initialized at {DB_FILE}")
     print("🚀 ALL messages will be processed by AI Brain!")
     print("📊 User progress tracking: ENABLED")
+    print("👤 Username collection for support: ENABLED")
     
     application.run_polling()
 
