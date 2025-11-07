@@ -12,7 +12,6 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
-from telegram.error import Conflict
 
 # Import OpenAI
 try:
@@ -24,8 +23,7 @@ except ImportError:
 
 # Enable logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # --- CONFIGURATION ---
@@ -34,7 +32,7 @@ SUPPORT_CHAT_ID = os.environ.get("SUPPORT_CHAT_ID")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 print("=" * 50)
-print("ENHANCED GAMING BOT - ENVIRONMENT CHECK:")
+print("ENHANCED EXISTING PLAYER BOT - ENVIRONMENT CHECK:")
 print(f"TELEGRAM_TOKEN: {'✅ SET' if TELEGRAM_TOKEN else '❌ NOT SET'}")
 print(f"SUPPORT_CHAT_ID: {'✅ SET' if SUPPORT_CHAT_ID else '❌ NOT SET'}")
 print(f"OPENAI_API_KEY: {'✅ SET' if OPENAI_API_KEY else '❌ NOT SET'}")
@@ -56,7 +54,7 @@ else:
     print("⚠️ OpenAI features disabled - package not available or API key missing")
 
 # Database file path
-DB_FILE = "/tmp/gaming_bot.db" if os.path.exists("/tmp") else "gaming_bot.db"
+DB_FILE = "/tmp/existing_player_bot.db" if os.path.exists("/tmp") else "existing_player_bot.db"
 
 # Initialize Database
 def init_database():
@@ -68,13 +66,8 @@ def init_database():
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS player_progress (
                 user_id INTEGER PRIMARY KEY,
-                player_type TEXT DEFAULT 'new',
                 current_step INTEGER DEFAULT 1,
                 completed_steps TEXT DEFAULT '[]',
-                vpn_used BOOLEAN DEFAULT FALSE,
-                profile_created BOOLEAN DEFAULT FALSE,
-                epic_activated BOOLEAN DEFAULT FALSE,
-                game_launched BOOLEAN DEFAULT FALSE,
                 reward_island_found BOOLEAN DEFAULT FALSE,
                 full_setup_complete BOOLEAN DEFAULT FALSE,
                 playtime_hours INTEGER DEFAULT 0,
@@ -125,201 +118,171 @@ init_database()
 
 HELPFUL_CHANNEL_LINK = "https://t.me/rejoinsnousetgagne"
 
-# Define conversation states
-SELECT_LANGUAGE, MAIN_MENU, NEW_PLAYER_FLOW, EXISTING_PLAYER_FLOW, SUPPORT_FLOW, USERNAME_COLLECTION, AI_CHAT = range(7)
+# Define states
+SELECT_LANG, MAIN_MENU, EXISTING_PLAYER_FLOW, USERNAME_COLLECTION, AI_CHAT = range(5)
 
-# Game codes for reward island
-REWARD_ISLAND_CODES = [
+# Codes for the game
+GAME_CODES = [
     "6086-7221-0564",
     "2753-4695-7191", 
     "9689-1352-5966",
     "4563-6624-9460",
-    "4828-9033-2281"
-]
+    "4828-9033-2281"]
 
 # --- ENHANCED LANGUAGE STRINGS ---
-BOT_TEXTS = {
+STRINGS = {
     'en': {
-        # Welcome and Main Menu
-        'welcome_title': "🎮 **Ultimate Gaming Assistant**",
-        'welcome_subtitle': "Your gateway to immersive gaming and exclusive rewards!",
-        'disclaimer': "🔒 *Unofficial Guide: Not affiliated with Epic Games or Fortnite. We never ask for passwords.*",
-        
-        # Main Menu Options
-        'new_player_option': "🚀 New Player Setup",
-        'existing_player_option': "⚡ Player Check-In", 
-        'support_option': "🆘 Support & Rewards",
-        'ai_chat_option': "🤖 AI Assistant Chat",
-        'channel_option': "📚 Game Guides",
-        'language_option': "🌐 Language",
-        
-        # New Player Flow
-        'new_player_welcome': "🎮 **New Player Setup Guide**\n\nWelcome to your gaming adventure! I'll guide you through setup so you can start playing and earning rewards immediately.",
-        'cloud_session_note': "💡 *Cloud Gaming Note: Sessions last 1 hour. Relaunch to continue playing.*",
-        
-        # Steps with improved wording
-        'step_1_vpn': "🔒 **Step 1: VPN Setup**\nDid you use a USA VPN for profile creation?",
-        'vpn_guidance': "📱 **VPN Required**\n\nUse a USA VPN *only during profile setup* (not for playing). This ensures proper regional configuration.\n\nHave you configured your VPN?",
-        
-        'step_2_profile': "☁️ **Step 2: Gaming Profile**\nHave you created your cloud gaming profile?",
-        'profile_guidance': "🎯 **Profile Setup**\n\nLet's create your gaming profile for optimal performance and rewards tracking.",
-        
-        'step_3_activation': "⚡ **Step 3: Account Activation**\nDid you activate with Epic Games?",
-        'activation_guidance': "🔗 **Activation Required**\n\nConnect your cloud gaming to Epic Games to save progress and enable rewards.",
-        
-        'step_4_epic': "👤 **Step 4: Epic Profile**\nIs your Epic Games profile complete?",
-        'epic_guidance': "🎮 **Profile Completion**\n\nFinalize your Epic profile for full feature access and reward eligibility.",
-        
-        'step_5_shortcut': "📱 **Step 5: Quick Access**\nDid you add the game to your home screen?",
-        'shortcut_guidance': "🚀 **Instant Access**\n\nHome screen shortcuts provide fastest game launch and better experience.",
-        
-        'step_6_launch': "🎯 **Step 6: Game Launch**\nHave you successfully launched the game?",
-        'launch_guidance': "🕹️ **Game Ready**\n\nLet's ensure the game launches properly for seamless gameplay.",
-        
-        'step_7_reward_island': "🏝️ **Step 7: Reward Access**\nAre you on the Reward Island?",
-        'reward_guidance': "💰 **Earning Zone**\n\nThe Reward Island is where you accumulate points and unlock exclusive rewards.",
-        'code_display': "🔑 **Access Codes:**\n{}\n\nCopy any code → Game search bar → Start earning!",
-        
-        'step_8_full_setup': "⚙️ **Step 8: Complete Setup**\nIs your full configuration complete?",
-        'setup_guidance': "🎪 **Optimal Configuration**\n\nComplete setup ensures maximum earnings with friends and smooth gameplay.",
-        
-        'step_9_commitment': "⏰ **Step 9: Weekly Goals**\nCan you commit to 130 hours weekly?",
-        'commitment_guidance': "🏆 **Reward Requirements**\n\nConsistent playtime is key to unlocking the best rewards and bonuses.",
-        
-        'step_10_engagement': "👍 **Step 10: Engagement**\nWill you click 'Like' before each session ends?",
-        'engagement_guidance': "📊 **Activity Tracking**\n\nThe 'Like' button helps us track your engagement for reward calculations.",
-        
-        'step_11_favorites': "⭐ **Step 11: Quick Access**\nIs Reward Island saved in favorites?",
-        'favorites_guidance': "🚀 **Efficient Gaming**\n\nFavorites save time and ensure you're always in the earning zone.",
-        
-        'step_12_influencer': "📢 **Step 12: Community**\nDid an influencer bring you here?",
-        'influencer_prompt': "👥 **Community Recognition**\n\nPlease share the influencer's name for proper attribution:",
-        
-        # Existing Player Flow
-        'existing_welcome': "⚡ **Player Check-In**\n\nWelcome back! Let's verify your setup and maximize your rewards.",
-        'existing_cloud_note': "💡 *You know the routine: 1-hour sessions, relaunch to continue.*",
-        
-        # Support Flow
-        'support_welcome': "🆘 **Support & Reward Verification**\n\nLet's identify any issues and verify your reward eligibility! 💰",
-        'support_success': "✅ **Verification Complete!**\n\nOur team will review your case and contact you within 24 hours.",
+        'disclaimer': "**Disclaimer:** This bot is an unofficial guide and is not affiliated with Epic Games or Fortnite. We will *never* ask for your password.",
+        'lang_prompt': "Please select your language:",
+        'welcome': "🏆 Welcome Back Existing Player! Let's continue your gaming journey and maximize your rewards.",
+        'helpful_channel_btn': "📚 Full Guide Channel",
+        'support_btn': "🆘 Support",
+        'ai_chat_btn': "🤖 AI Assistant",
+        'lang_btn': "🌐 Change Language",
+        'helpful_channel_text': "Join our helpful Telegram channel for the full guide, news, and community chat!",
+        'join_channel_btn': "Join Channel Now",
+        'back_btn': "⬅️ Back to Main Menu",
+        'support_q2': "Okay. By providing your @username, you consent to our support team contacting you directly on Telegram. We will *only* use this to help with your question.\n\nPlease type your @username (like @myusername) to proceed.\n\nType /cancel to go back.",
+        'support_thanks': "Thank you! Your @username has been noted. We will get in touch with you as soon as possible.\n\nReturning you to the main menu.",
+        'support_cancel': "Support request cancelled. Returning to main menu.",
+        'invalid_username': "That doesn't look like a valid @username. Please start with '@' and try again, or type /cancel.",
         
         # AI Chat
         'ai_welcome': "🤖 **AI Gaming Assistant**\n\nHello! I'm your AI gaming assistant. Ask me anything about:\n\n• Game setup & configuration\n• Reward system & earning tips\n• Troubleshooting issues\n• Best practices for maximum rewards\n\n*Type your question below or use the menu to return:*",
         'ai_thinking': "💭 Thinking...",
         'ai_support_suggestion': "\n\n🔔 *If you need personalized support, consider using the Support option in the main menu.*",
-        
-        # Common Responses
-        'yes_option': "✅ Yes",
-        'no_option': "❌ No", 
-        'need_help': "🆘 I need help",
-        'already_done': "✅ Already done",
-        'skip_step': "⏭️ Skip",
-        'continue_next': "➡️ Continue",
-        'back_previous': "⬅️ Back",
-        'main_menu': "🏠 Main Menu",
-        'join_channel': "📚 Join Channel",
         'back_to_chat': "💬 Back to Chat",
         
-        # Channel and Links
-        'channel_invite': "Join our community for guides, tips, and support:",
-        'channel_instructions': "Check our channel for detailed instructions:",
+        # Button texts
+        'a_yes': "✅ Yes",
+        'b_no': "❌ No",
+        'yes_im_ready': "✅ Yes, I'm ready for the next step",
+        'want_codes': "✅ Yes I want the best codes to play",
+        'already_chose': "❌ No, I already chose one code",
+        'finally_fixed': "✅ No I finally fix everything, I want to move to the next step",
+        'will_play': "❌ No, I will play and let you know in the support session later on",
+        'have_proof': "✅ No, I have proof I saved the reward Island to my favorites and I actually play on it",
+        'next_question': "➡️ Next Question",
+        'join_channel_only': "📚 Join Channel",
         
-        # Support Specific
-        'provide_username': "👤 **Contact Setup**\n\nPlease provide your Telegram username (starting with @) for support:",
-        'username_saved': "✅ **Info Received!**\n\nSupport team will contact you soon. Keep playing!",
-        'invalid_username': "❌ Please provide a valid @username",
+        # Specific custom buttons
+        'b_1_yes': "✅ Yes",
+        'b_2_no': "❌ No",
+        'b_1_want_codes': "✅ Yes I want the best codes to play",
+        'b_2_already_chose': "❌ No, I already chose one code",
+        'b_1_guidance': "✅ Yes",
+        'b_2_finally_fixed': "✅ No I finally fix everything, I want to move to the next step",
+        'b_2_will_play': "❌ No, I will play and let you know in the support session later on",
+        'b_2_have_proof': "✅ No, I have proof I saved the reward Island to my favorites and I actually play on it",
+        
+        # Code messages
+        'codes_title': "🎮 **Best Game Codes:**\n\nJust copy one of them and enter it on the search bar:\n\n",
+        
+        # Navigation
+        'back_to_previous': "⬅️ Back",
+        'main_menu': "🏠 Main Menu",
+        
+        # Influencer question
+        'provide_name': "Provide the name please:",
+        
+        # Existing player flow - UPDATED
+        'existing_player_intro': "🎮 **Existing Player Check-In**\n\nBecause you are playing on the cloud, your session will last for 1 hour. The game will close, and you will have to launch it again to keep playing.\n\nYou probably know it cause you already follow all the instructions\n\n**1. Have you searched and found the reward Island?**",
+        'existing_q2_text': "**2. Did you follow the full setup to be able to play with friends and earn a lot together without any worries?**",
+        'existing_q3_text': "**3. Did you start the game and play 130 hours for free this week?**",
+        'existing_q4_text': "**4. With your existing account, will you click on the like button every single time before your 1 hour play session ended during your 130 hours of play this week?**",
+        'existing_q5_text': "**5. Did you save the reward Island to your favorites?**",
+        'existing_q6_text': "**6. Were you introduced to this game by an influencer?**",
+        
+        # Common responses - UPDATED
+        'reward_island_reminder': "🔍 **Reward Island Reminder**\n\nNo, you have to search the reward Island in the search bar and just choose it. Do you want our guidance for that?",
+        'full_setup_reminder': "⚙️ **Full Setup Reminder**\n\nNo, you have to follow the exact setup. Do you need our guidance?",
+        'play_hours_reminder': "⏰ **Play Hours Reminder**\n\nNo, you have to start the game and play every single day for free before aiming for the reward. Are you able to play at least 130 hours a week?",
+        'like_button_reminder': "👍 **Like Button Reminder**\n\nNo, You have to click on the like button every single time before your 1 hour play session ended during your 130 hours a week. Do you want our guidance on that?",
+        'favorites_reminder': "⭐ **Favorites Reminder**\n\nNo, you have to save the reward Island to your favorites and play. Do you want our guidance on that?",
+        
+        # Links and guidance
+        'channel_instruction_9': "📖 **Instruction 9**\n\nPlease check our channel and look for instruction 9:",
+        'channel_instruction_10': "📖 **Instruction 10**\n\nPlease check our channel and look for instruction 10:",
+        'channel_instruction_11': "📖 **Instruction 11**\n\nPlease check our channel and look for instruction 11:",
+        'channel_instruction_12': "📖 **Instruction 12**\n\nPlease check our channel and look for instruction 12:",
+        'channel_instruction_13': "📖 **Instruction 13**\n\nPlease check our channel and look for instruction 13:",
     },
     'fr': {
-        # Welcome and Main Menu
-        'welcome_title': "🎮 **Assistant de Jeu Ultime**",
-        'welcome_subtitle': "Votre passerelle vers le gaming immersif et les récompenses exclusives!",
-        'disclaimer': "🔒 *Guide Non Officiel: Non affilié à Epic Games ou Fortnite. Nous ne demandons jamais de mots de passe.*",
+        'disclaimer': "**Avertissement :** Ce bot est un guide non officiel et n'est pas affilié à Epic Games ou Fortnite. Nous ne vous demanderons *jamais* votre mot de passe.",
+        'lang_prompt': "Veuillez sélectionner votre langue :",
+        'welcome': "🏆 Bienvenue Joueur Existant ! Continuons votre aventure de jeu et maximisons vos récompenses.",
+        'helpful_channel_btn': "📚 Guide Complet Chaîne",
+        'support_btn': "🆘 Support",
+        'ai_chat_btn': "🤖 Assistant IA",
+        'lang_btn': "🌐 Changer de Langue",
+        'helpful_channel_text': "Rejoignez notre canal Telegram pour le guide complet, les actualités et pour discuter avec la communauté !",
+        'join_channel_btn': "Rejoindre le Canal",
+        'back_btn': "⬅️ Retour au Menu Principal",
+        'support_q2': "D'accord. En fournissant votre @nomdutilisateur, vous acceptez que notre équipe d'assistance vous contacte directement sur Telegram. Nous l'utiliserons *uniquement* pour répondre à votre question.\n\nVeuillez taper votre @nomdutilisateur (comme @monpseudo) pour continuer.\n\nTapez /cancel pour revenir.",
+        'support_thanks': "Merci ! Votre @nomdutilisateur a été noté. Nous vous contacterons dès que possible.\n\nRetour au menu principal.",
+        'support_cancel': "Demande d'aide annulée. Retour au menu principal.",
+        'invalid_username': "Cela ne ressemble pas à un @nomdutilisateur valide. Veuillez commencer par '@' et réessayer, ou tapez /cancel.",
         
-        # Main Menu Options
-        'new_player_option': "🚀 Configuration Nouveau Joueur",
-        'existing_player_option': "⚡ Vérification Joueur", 
-        'support_option': "🆘 Support & Récompenses",
-        'ai_chat_option': "🤖 Assistant IA Chat",
-        'channel_option': "📚 Guides de Jeu",
-        'language_option': "🌐 Langue",
-        
-        # New Player Flow
-        'new_player_welcome': "🎮 **Guide de Configuration Nouveau Joueur**\n\nBienvenue dans votre aventure de jeu! Je vais vous guider à travers la configuration pour que vous puissiez commencer à jouer et gagner des récompenses immédiatement.",
-        'cloud_session_note': "💡 *Note Cloud Gaming: Les sessions durent 1 heure. Relancez pour continuer à jouer.*",
-        
-        # Steps with improved wording
-        'step_1_vpn': "🔒 **Étape 1: Configuration VPN**\nAvez-vous utilisé un VPN USA pour la création de profil?",
-        'vpn_guidance': "📱 **VPN Requis**\n\nUtilisez un VPN USA *uniquement pendant la configuration du profil* (pas pour jouer). Cela assure une configuration régionale correcte.\n\nAvez-vous configuré votre VPN?",
-        
-        'step_2_profile': "☁️ **Étape 2: Profil de Jeu**\nAvez-vous créé votre profil cloud gaming?",
-        'profile_guidance': "🎯 **Configuration Profil**\n\nCréons votre profil de jeu pour des performances optimales et le suivi des récompenses.",
-        
-        'step_3_activation': "⚡ **Étape 3: Activation Compte**\nAvez-vous activé avec Epic Games?",
-        'activation_guidance': "🔗 **Activation Requise**\n\nConnectez votre cloud gaming à Epic Games pour sauvegarder la progression et activer les récompenses.",
-        
-        'step_4_epic': "👤 **Étape 4: Profil Epic**\nVotre profil Epic Games est-il complet?",
-        'epic_guidance': "🎮 **Finalisation Profil**\n\nFinalisez votre profil Epic pour un accès complet aux fonctionnalités et l'éligibilité aux récompenses.",
-        
-        'step_5_shortcut': "📱 **Étape 5: Accès Rapide**\nAvez-vous ajouté le jeu à votre écran d'accueil?",
-        'shortcut_guidance': "🚀 **Accès Instantané**\n\nLes raccourcis écran d'accueil offrent le lancement le plus rapide et une meilleure expérience.",
-        
-        'step_6_launch': "🎯 **Étape 6: Lancement Jeu**\nAvez-vous lancé le jeu avec succès?",
-        'launch_guidance': "🕹️ **Jeu Prêt**\n\nAssurons-nous que le jeu se lance correctement pour un gameplay fluide.",
-        
-        'step_7_reward_island': "🏝️ **Étape 7: Accès Récompenses**\nÊtes-vous sur l'Île des Récompenses?",
-        'reward_guidance': "💰 **Zone de Gains**\n\nL'Île des Récompenses est l'endroit où vous accumulez des points et débloquez des récompenses exclusives.",
-        'code_display': "🔑 **Codes d'Accès:**\n{}\n\nCopiez n'importe quel code → Barre de recherche jeu → Commencez à gagner!",
-        
-        'step_8_full_setup': "⚙️ **Étape 8: Configuration Complète**\nVotre configuration complète est-elle terminée?",
-        'setup_guidance': "🎪 **Configuration Optimale**\n\nLa configuration complète assure des gains maximum avec des amis et un gameplay fluide.",
-        
-        'step_9_commitment': "⏰ **Étape 9: Objectifs Hebdomadaires**\nPouvez-vous vous engager à 130 heures par semaine?",
-        'commitment_guidance': "🏆 **Exigences Récompenses**\n\nUn temps de jeu constant est essentiel pour débloquer les meilleures récompenses et bonus.",
-        
-        'step_10_engagement': "👍 **Étape 10: Engagement**\nCliquerez-vous sur 'J'aime' avant la fin de chaque session?",
-        'engagement_guidance': "📊 **Suivi Activité**\n\nLe bouton 'J'aime' nous aide à suivre votre engagement pour le calcul des récompenses.",
-        
-        'step_11_favorites': "⭐ **Étape 11: Accès Rapide**\nL'Île des Récompenses est-elle sauvegardée dans les favoris?",
-        'favorites_guidance': "🚀 **Gaming Efficace**\n\nLes favoris économisent du temps et assurent que vous êtes toujours dans la zone de gains.",
-        
-        'step_12_influencer': "📢 **Étape 12: Communauté**\nUn influenceur vous a-t-il amené ici?",
-        'influencer_prompt': "👥 **Reconnaissance Communauté**\n\nVeuillez partager le nom de l'influenceur pour attribution correcte:",
-        
-        # Existing Player Flow
-        'existing_welcome': "⚡ **Vérification Joueur**\n\nBon retour! Vérifions votre configuration et maximisons vos récompenses.",
-        'existing_cloud_note': "💡 *Vous connaissez la routine: sessions de 1 heure, relancez pour continuer.*",
-        
-        # Support Flow
-        'support_welcome': "🆘 **Support & Vérification Récompenses**\n\nIdentifions les problèmes et vérifions votre éligibilité aux récompenses! 💰",
-        'support_success': "✅ **Vérification Terminée!**\n\nNotre équipe examinera votre cas et vous contactera dans les 24 heures.",
-        
-        # AI Chat
+        # AI Chat - French
         'ai_welcome': "🤖 **Assistant IA Gaming**\n\nBonjour! Je suis votre assistant IA gaming. Demandez-moi n'importe quoi sur:\n\n• Configuration jeu & paramètres\n• Système de récompenses & conseils de gains\n• Résolution de problèmes\n• Meilleures pratiques pour des récompenses maximum\n\n*Tapez votre question ci-dessous ou utilisez le menu pour revenir:*",
         'ai_thinking': "💭 Réflexion...",
         'ai_support_suggestion': "\n\n🔔 *Si vous avez besoin d'un support personnalisé, envisagez d'utiliser l'option Support dans le menu principal.*",
-        
-        # Common Responses
-        'yes_option': "✅ Oui",
-        'no_option': "❌ Non", 
-        'need_help': "🆘 J'ai besoin d'aide",
-        'already_done': "✅ Déjà fait",
-        'skip_step': "⏭️ Passer",
-        'continue_next': "➡️ Continuer",
-        'back_previous': "⬅️ Retour",
-        'main_menu': "🏠 Menu Principal",
-        'join_channel': "📚 Rejoindre Chaîne",
         'back_to_chat': "💬 Retour au Chat",
         
-        # Channel and Links
-        'channel_invite': "Rejoignez notre communauté pour des guides, astuces et support:",
-        'channel_instructions': "Consultez notre chaîne pour des instructions détaillées:",
+        # Button texts - French - UPDATED
+        'a_yes': "✅ Oui",
+        'b_no': "❌ Non",
+        'yes_im_ready': "✅ Oui, je suis prêt pour l'étape suivante",
+        'want_codes': "✅ Oui je veux les meilleurs codes pour jouer",
+        'already_chose': "❌ Non, j'ai déjà choisi un code",
+        'finally_fixed': "✅ Non j'ai finalement tout réparé, je veux passer à l'étape suivante",
+        'will_play': "❌ Non, je vais jouer et vous tiens au courant lors de la session de support",
+        'have_proof': "✅ Non, j'ai la preuve que je l'ai sauvegardé et que j'y joue réellement",
+        'next_question': "➡️ Question Suivante",
+        'join_channel_only': "📚 Rejoindre le Canal",
         
-        # Support Specific
-        'provide_username': "👤 **Configuration Contact**\n\nVeuillez fournir votre nom d'utilisateur Telegram (commençant par @) pour le support:",
-        'username_saved': "✅ **Informations Reçues!**\n\nL'équipe de support vous contactera bientôt. Continuez à jouer!",
-        'invalid_username': "❌ Veuillez fournir un @username valide",
-    }
-}
+        # Specific custom buttons - French - UPDATED
+        'b_1_yes': "✅ Oui",
+        'b_2_no': "❌ Non",
+        'b_1_want_codes': "✅ Oui je veux les meilleurs codes pour jouer",
+        'b_2_already_chose': "❌ Non, j'ai déjà choisi un code",
+        'b_1_guidance': "✅ Oui",
+        'b_2_finally_fixed': "✅ Non j'ai finalement tout réparé, je veux passer à l'étape suivante",
+        'b_2_will_play': "❌ Non, je vais jouer et vous tiens au courant lors de la session de support",
+        'b_2_have_proof': "✅ Non, j'ai la preuve que je l'ai sauvegardé et que j'y joue réellement",
+        
+        # Code messages - French
+        'codes_title': "🎮 **Meilleurs Codes de Jeu:**\n\nCopiez simplement l'un d'entre eux et entrez-le dans la barre de recherche :\n\n",
+        
+        # Navigation - French
+        'back_to_previous': "⬅️ Retour",
+        'main_menu': "🏠 Menu Principal",
+        
+        # Influencer question - French
+        'provide_name': "Fournissez le nom s'il vous plaît :",
+        
+        # Existing player flow - French - UPDATED
+        'existing_player_intro': "🎮 **Vérification Joueur Existant**\n\nParce que vous jouez sur le cloud, votre session durera 1 heure. Le jeu se fermera et vous devrez le relancer pour continuer à jouer.\n\nVous le savez probablement car vous suivez déjà toutes les instructions\n\n**1. Avez-vous recherché et trouvé l'île de récompense ?**",
+        'existing_q2_text': "**2. Avez-vous suivi la configuration complète pour pouvoir jouer avec des amis et gagner beaucoup ensemble sans aucun souci ?**",
+        'existing_q3_text': "**3. Avez-vous commencé le jeu et joué 130 heures gratuitement cette semaine ?**",
+        'existing_q4_text': "**4. Avec votre compte existant, cliquerez-vous sur le bouton like à chaque fois avant que votre session de jeu d'1 heure ne se termine pendant vos 130 heures de jeu cette semaine ?**",
+        'existing_q5_text': "**5. Avez-vous enregistré l'île de récompense dans vos favoris ?**",
+        'existing_q6_text': "**6. Avez-vous été présenté à ce jeu par un influenceur ?**",
+        
+        # Common responses - French - UPDATED
+        'reward_island_reminder': "🔍 **Rappel Île de Récompense**\n\nNon, vous devez rechercher l'île de récompense dans la barre de recherche et la choisir, voulez-vous notre aide pour cela ?",
+        'full_setup_reminder': "⚙️ **Rappel Configuration Complète**\n\nNon, vous devez suivre la configuration exacte, avez-vous besoin de notre aide ?",
+        'play_hours_reminder': "⏰ **Rappel Heures de Jeu**\n\nNon, vous devez commencer le jeu et jouer chaque jour gratuitement avant de viser la récompense, êtes-vous capable de jouer au moins 130 heures par semaine ?",
+        'like_button_reminder': "👍 **Rappel Bouton Like**\n\nNon, vous devez cliquer sur le bouton like à chaque fois avant que votre session de jeu d'1 heure ne se termine pendant vos 130 heures par semaine, voulez-vous notre aide pour cela ?",
+        'favorites_reminder': "⭐ **Rappel Favoris**\n\nNon, vous devez enregistrer l'île de récompense dans vos favoris et jouer, voulez-vous notre aide pour cela ?",
+        
+        # Links and guidance - French
+        'channel_instruction_9': "📖 **Instruction 9**\n\nVeuillez consulter notre canal et chercher l'instruction 9 :",
+        'channel_instruction_10': "📖 **Instruction 10**\n\nVeuillez consulter notre canal et chercher l'instruction 10 :",
+        'channel_instruction_11': "📖 **Instruction 11**\n\nVeuillez consulter notre canal et chercher l'instruction 11 :",
+        'channel_instruction_12': "📖 **Instruction 12**\n\nVeuillez consulter notre canal et chercher l'instruction 12 :",
+        'channel_instruction_13': "📖 **Instruction 13**\n\nVeuillez consulter notre canal et chercher l'instruction 13 :",
+    }}
 
 # --- DATABASE FUNCTIONS ---
 def get_player_progress(user_id):
@@ -335,20 +298,15 @@ def get_player_progress(user_id):
         if result:
             return {
                 'user_id': result[0],
-                'player_type': result[1],
-                'current_step': result[2],
-                'completed_steps': json.loads(result[3]),
-                'vpn_used': bool(result[4]),
-                'profile_created': bool(result[5]),
-                'epic_activated': bool(result[6]),
-                'game_launched': bool(result[7]),
-                'reward_island_found': bool(result[8]),
-                'full_setup_complete': bool(result[9]),
-                'playtime_hours': result[10],
-                'like_clicks': result[11],
-                'favorites_saved': bool(result[12]),
-                'influencer_name': result[13],
-                'language': result[14]
+                'current_step': result[1],
+                'completed_steps': json.loads(result[2]),
+                'reward_island_found': bool(result[3]),
+                'full_setup_complete': bool(result[4]),
+                'playtime_hours': result[5],
+                'like_clicks': result[6],
+                'favorites_saved': bool(result[7]),
+                'influencer_name': result[8],
+                'language': result[9]
             }
         return None
     except Exception as e:
@@ -425,7 +383,7 @@ def save_chat_conversation(user_id, user_message, ai_response):
         logger.error(f"Database error in save_chat_conversation: {e}")
         return False
 
-# --- ENHANCED AI ASSISTANT FUNCTION ---
+# --- AI ASSISTANT FUNCTION ---
 async def gaming_assistant_response(user_message, user_context, lang):
     """AI assistant for gaming-related queries with enhanced support suggestion"""
     if not openai_client:
@@ -433,14 +391,13 @@ async def gaming_assistant_response(user_message, user_context, lang):
     
     try:
         # Enhanced system prompt for gaming focus with support suggestion
-        system_prompt = f"""You are a gaming assistant specialist helping users with Fortnite cloud gaming setup and rewards.
+        system_prompt = f"""You are a gaming assistant specialist helping existing players with Fortnite cloud gaming and rewards.
 
-Key Knowledge:
-- Cloud gaming sessions: 1-hour duration
-- VPN requirement: USA VPN for profile creation only
+Key Knowledge for Existing Players:
+- Cloud gaming sessions: 1-hour duration, relaunch required
 - Reward system: Based on playtime and engagement
 - Weekly target: 130 hours for optimal rewards
-- Key steps: Profile setup, activation, reward island access
+- Important: Reward Island access, like button clicks, favorites setup
 - Support process: Users can contact support via menu
 
 User Context: {user_context}
@@ -462,174 +419,15 @@ Keep responses conversational and engaging."""
         ai_response = response.choices[0].message.content.strip()
         
         # Add support suggestion for complex issues
-        support_keywords = ['problem', 'issue', 'error', 'not working', 'help', 'support', 'trouble', 'fix', 'broken']
+        support_keywords = ['problem', 'issue', 'error', 'not working', 'help', 'support', 'trouble', 'fix', 'broken', 'stuck']
         if any(keyword in user_message.lower() for keyword in support_keywords):
-            texts = BOT_TEXTS[lang]
+            texts = STRINGS[lang]
             ai_response += texts['ai_support_suggestion']
         
         return ai_response
     except Exception as e:
         logger.error(f"AI assistant error: {e}")
         return "I'm having trouble processing your request. Please try the menu options for specific help."
-
-# --- ENHANCED FLOW MANAGEMENT ---
-class FlowManager:
-    """Manages different user flows with improved state handling"""
-    
-    def __init__(self):
-        self.flows = {
-            'new_player': self.new_player_flow,
-            'existing_player': self.existing_player_flow,
-            'support': self.support_flow
-        }
-    
-    async def new_player_flow(self, update, context, step_number):
-        """Enhanced new player flow with better step management"""
-        user_id = update.effective_user.id
-        lang = context.user_data.get('lang', 'en')
-        texts = BOT_TEXTS[lang]
-        
-        flow_steps = {
-            1: {
-                'text': texts['step_1_vpn'],
-                'keyboard': [
-                    [InlineKeyboardButton(texts['yes_option'], callback_data='new_q1_yes')],
-                    [InlineKeyboardButton(texts['no_option'], callback_data='new_q1_no')],
-                    [InlineKeyboardButton(texts['back_previous'], callback_data='back_to_main')]
-                ]
-            },
-            2: {
-                'text': texts['step_2_profile'],
-                'keyboard': [
-                    [InlineKeyboardButton(texts['yes_option'], callback_data='new_q2_yes')],
-                    [InlineKeyboardButton(texts['no_option'], callback_data='new_q2_no')],
-                    [InlineKeyboardButton(texts['back_previous'], callback_data='new_back_1')]
-                ]
-            },
-            # Add more steps as needed
-        }
-        
-        current_step = flow_steps.get(step_number)
-        if not current_step:
-            return await self.complete_flow(update, context, 'new_player')
-        
-        query = update.callback_query
-        if query:
-            await query.edit_message_text(
-                text=current_step['text'],
-                reply_markup=InlineKeyboardMarkup(current_step['keyboard']),
-                parse_mode='Markdown'
-            )
-        else:
-            await update.message.reply_text(
-                text=current_step['text'],
-                reply_markup=InlineKeyboardMarkup(current_step['keyboard']),
-                parse_mode='Markdown'
-            )
-        
-        return NEW_PLAYER_FLOW
-    
-    async def existing_player_flow(self, update, context, step_number):
-        """Enhanced existing player verification flow"""
-        user_id = update.effective_user.id
-        lang = context.user_data.get('lang', 'en')
-        texts = BOT_TEXTS[lang]
-        
-        welcome_text = f"{texts['existing_welcome']}\n\n{texts['existing_cloud_note']}"
-        
-        keyboard = [
-            [InlineKeyboardButton(texts['continue_next'], callback_data='existing_continue')],
-            [InlineKeyboardButton(texts['back_previous'], callback_data='back_to_main')]
-        ]
-        
-        query = update.callback_query
-        if query:
-            await query.edit_message_text(
-                text=welcome_text,
-                reply_markup=InlineKeyboardMarkup(keyboard),
-                parse_mode='Markdown'
-            )
-        else:
-            await update.message.reply_text(
-                text=welcome_text,
-                reply_markup=InlineKeyboardMarkup(keyboard),
-                parse_mode='Markdown'
-            )
-        
-        return EXISTING_PLAYER_FLOW
-    
-    async def support_flow(self, update, context, step_number):
-        """Enhanced support and verification flow"""
-        user_id = update.effective_user.id
-        lang = context.user_data.get('lang', 'en')
-        texts = BOT_TEXTS[lang]
-        
-        if step_number == 1:
-            welcome_text = texts['support_welcome']
-            keyboard = [
-                [InlineKeyboardButton(texts['continue_next'], callback_data='support_continue')],
-                [InlineKeyboardButton(texts['back_previous'], callback_data='back_to_main')]
-            ]
-            
-            query = update.callback_query
-            if query:
-                await query.edit_message_text(
-                    text=welcome_text,
-                    reply_markup=InlineKeyboardMarkup(keyboard),
-                    parse_mode='Markdown'
-                )
-            return SUPPORT_FLOW
-        
-        elif step_number == 2:
-            username_text = texts['provide_username']
-            keyboard = [
-                [InlineKeyboardButton(texts['back_previous'], callback_data='support_back_1')]
-            ]
-            
-            query = update.callback_query
-            if query:
-                await query.edit_message_text(
-                    text=username_text,
-                    reply_markup=InlineKeyboardMarkup(keyboard),
-                    parse_mode='Markdown'
-                )
-            return USERNAME_COLLECTION
-    
-    async def complete_flow(self, update, context, flow_type):
-        """Handle flow completion with reward tracking"""
-        user_id = update.effective_user.id
-        lang = context.user_data.get('lang', 'en')
-        texts = BOT_TEXTS[lang]
-        
-        completion_message = {
-            'new_player': "🎉 **Setup Complete!** You're ready to start earning rewards!",
-            'existing_player': "✅ **Check-In Complete!** Your setup is optimized for maximum rewards!",
-            'support': "🆗 **Case Logged!** Our team will contact you within 24 hours."
-        }
-        
-        keyboard = [
-            [InlineKeyboardButton(texts['main_menu'], callback_data="back_to_main")],
-            [InlineKeyboardButton(texts['join_channel'], url=HELPFUL_CHANNEL_LINK)]
-        ]
-        
-        query = update.callback_query
-        if query:
-            await query.edit_message_text(
-                text=completion_message[flow_type],
-                reply_markup=InlineKeyboardMarkup(keyboard),
-                parse_mode='Markdown'
-            )
-        else:
-            await update.message.reply_text(
-                text=completion_message[flow_type],
-                reply_markup=InlineKeyboardMarkup(keyboard),
-                parse_mode='Markdown'
-            )
-        
-        return MAIN_MENU
-
-# Initialize flow manager
-flow_manager = FlowManager()
 
 # --- ENHANCED MESSAGE HANDLER ---
 async def handle_intelligent_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -656,11 +454,11 @@ async def handle_intelligent_message(update: Update, context: ContextTypes.DEFAU
     save_chat_conversation(user_id, user_message, ai_response)
     
     # Create response with menu options
-    texts = BOT_TEXTS[lang]
+    s = STRINGS[lang]
     keyboard = [
-        [InlineKeyboardButton(texts['back_to_chat'], callback_data="continue_ai_chat")],
-        [InlineKeyboardButton(texts['support_option'], callback_data="start_support")],
-        [InlineKeyboardButton(texts['main_menu'], callback_data="back_to_main")]
+        [InlineKeyboardButton(s['back_to_chat'], callback_data="continue_ai_chat")],
+        [InlineKeyboardButton(s['support_btn'], callback_data="contact_support")],
+        [InlineKeyboardButton(s['main_menu'], callback_data="back_to_main")]
     ]
     
     await update.message.reply_text(
@@ -678,18 +476,17 @@ async def start_ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
-    texts = BOT_TEXTS[lang]
+    s = STRINGS[lang]
     
     context.user_data['current_flow'] = 'ai_chat'
-    context.user_data['current_state'] = AI_CHAT
     
     keyboard = [
-        [InlineKeyboardButton(texts['main_menu'], callback_data="back_to_main")],
-        [InlineKeyboardButton(texts['support_option'], callback_data="start_support")]
+        [InlineKeyboardButton(s['main_menu'], callback_data="back_to_main")],
+        [InlineKeyboardButton(s['support_btn'], callback_data="contact_support")]
     ]
     
     await query.edit_message_text(
-        text=texts['ai_welcome'],
+        text=s['ai_welcome'],
         reply_markup=InlineKeyboardMarkup(keyboard),
         parse_mode='Markdown'
     )
@@ -702,384 +499,697 @@ async def continue_ai_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     await query.answer()
     
     lang = context.user_data.get('lang', 'en')
-    texts = BOT_TEXTS[lang]
+    s = STRINGS[lang]
     
     keyboard = [
-        [InlineKeyboardButton(texts['main_menu'], callback_data="back_to_main")],
-        [InlineKeyboardButton(texts['support_option'], callback_data="start_support")]
+        [InlineKeyboardButton(s['main_menu'], callback_data="back_to_main")],
+        [InlineKeyboardButton(s['support_btn'], callback_data="contact_support")]
     ]
     
     await query.edit_message_text(
-        text=texts['ai_welcome'],
+        text=s['ai_welcome'],
         reply_markup=InlineKeyboardMarkup(keyboard),
         parse_mode='Markdown'
     )
     
     return AI_CHAT
 
-# --- ENHANCED MAIN MENU ---
-async def show_enhanced_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, message: str = None):
-    """Show enhanced main menu with better organization"""
+# --- Helper Functions ---
+async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, message: str = None):
+    """Helper function to show the main menu in the user's language."""
     lang = context.user_data.get('lang', 'en')
-    texts = BOT_TEXTS[lang]
-    
-    context.user_data['current_flow'] = 'general'
-    context.user_data['current_state'] = MAIN_MENU
-    
-    welcome_text = message or f"{texts['welcome_title']}\n\n{texts['welcome_subtitle']}\n\n{texts['disclaimer']}"
+    s = STRINGS[lang]
     
     keyboard = [
-        [InlineKeyboardButton(texts['new_player_option'], callback_data="start_new_player")],
-        [InlineKeyboardButton(texts['existing_player_option'], callback_data="start_existing_player")],
-        [InlineKeyboardButton(texts['support_option'], callback_data="start_support")],
-        [InlineKeyboardButton(texts['ai_chat_option'], callback_data="start_ai_chat")],
+        [InlineKeyboardButton("🏆 Start Existing Player Check", callback_data="existing_player_start")],
+        [InlineKeyboardButton(s['ai_chat_btn'], callback_data="start_ai_chat")],
+        [InlineKeyboardButton(s['helpful_channel_btn'], callback_data="helpful_channel")],
+        [InlineKeyboardButton(s['support_btn'], callback_data="contact_support")],
+    ]
+    
+    query = update.callback_query
+    text_to_show = message or s['welcome']
+    
+    if query:
+        await query.answer()
+        try:
+            await query.edit_message_text(
+                text=text_to_show,
+                reply_markup=InlineKeyboardMarkup(keyboard),
+                parse_mode='Markdown'
+            )
+        except Exception as e:
+            logger.warning(f"Failed to edit message, might be same as old: {e}")
+    else:
+        await update.message.reply_text(
+            text=text_to_show,
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode='Markdown'
+        )
+    return MAIN_MENU
+
+# --- EXISTING PLAYER FLOW - FIXED BUTTONS ---
+async def existing_player_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Flow - Start"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    context.user_data['existing_player_qa'] = []  # Initialize Q&A storage
+    
+    context.user_data['existing_q1_text'] = s['existing_player_intro'].split('\n')[-1]
+    text = s['existing_player_intro']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['a_yes'], callback_data="existing_q1_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="existing_q1_no")],
+        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_q1_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Q1 - Yes -> Q2"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((context.user_data.get('existing_q1_text'), "Yes"))
+
+    context.user_data['existing_q2_text_key'] = 'existing_q2_text'
+    text = s['existing_q2_text']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['yes_im_ready'], callback_data="existing_q2_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="existing_q2_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_player_start")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_q1_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Q1 - No -> Show codes guidance"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((context.user_data.get('existing_q1_text'), "No"))
+    
+    text = s['reward_island_reminder']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['b_1_want_codes'], callback_data="existing_show_codes")],
+        [InlineKeyboardButton(s['b_2_already_chose'], callback_data="existing_q2_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_player_start")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_show_codes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player - Show codes -> Q2"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    codes_text = s['codes_title'] + "\n".join(GAME_CODES)
+    
+    keyboard = [
+        [InlineKeyboardButton(s['next_question'], callback_data="existing_q2_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q1_no")]
+    ]
+    
+    await query.edit_message_text(text=codes_text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_q2_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Q2 - Yes -> Q3"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((s[context.user_data.get('existing_q2_text_key', 'existing_q2_text')], "Yes"))
+
+    context.user_data['existing_q3_text_key'] = 'existing_q3_text'
+    text = s['existing_q3_text']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['a_yes'], callback_data="existing_q3_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="existing_q3_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q1_yes")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_q2_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Q2 - No -> Ask if they need guidance"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((s['existing_q2_text'], "No"))
+    
+    text = s['full_setup_reminder']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['b_1_guidance'], callback_data="existing_channel_instruction_9")],
+        [InlineKeyboardButton(s['b_2_finally_fixed'], callback_data="existing_q3_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q1_yes")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_channel_instruction_9(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player - Forward to channel instruction 9"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    text = f"{s['channel_instruction_9']} {HELPFUL_CHANNEL_LINK}"
+    
+    keyboard = [
+        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_q3_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Q3 - Yes -> Q4"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((s[context.user_data.get('existing_q3_text_key', 'existing_q3_text')], "Yes"))
+        
+    context.user_data['existing_q4_text_key'] = 'existing_q4_text'
+    text = s['existing_q4_text']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['a_yes'], callback_data="existing_q4_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="existing_q4_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q2_yes")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_q3_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Q3 - No -> Ask if they can play 130 hours"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((s['existing_q3_text'], "No"))
+    
+    text = s['play_hours_reminder']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['b_1_yes'], callback_data="existing_q4_yes")],
+        [InlineKeyboardButton(s['b_2_no'], callback_data="existing_channel_instruction_10")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q2_yes")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_channel_instruction_10(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player - Forward to channel instruction 10"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    text = f"{s['channel_instruction_10']} {HELPFUL_CHANNEL_LINK}"
+    
+    keyboard = [
+        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_q4_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Q4 - Yes -> Q5"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((s[context.user_data.get('existing_q4_text_key', 'existing_q4_text')], "Yes"))
+        
+    context.user_data['existing_q5_text_key'] = 'existing_q5_text'
+    text = s['existing_q5_text']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['a_yes'], callback_data="existing_q5_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="existing_q5_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q3_yes")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_q4_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Q4 - No -> Ask if they want guidance"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((s['existing_q4_text'], "No"))
+    
+    text = s['like_button_reminder']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['b_1_guidance'], callback_data="existing_channel_instruction_11")],
+        [InlineKeyboardButton(s['b_2_will_play'], callback_data="existing_q5_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q3_yes")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_channel_instruction_11(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player - Forward to channel instruction 11"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    text = f"{s['channel_instruction_11']} {HELPFUL_CHANNEL_LINK}"
+    
+    keyboard = [
+        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_q5_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Q5 - Yes -> Q6 (INFLUENCER QUESTION)"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((s[context.user_data.get('existing_q5_text_key', 'existing_q5_text')], "Yes"))
+
+    context.user_data['existing_q6_text_key'] = 'existing_q6_text'
+    text = s['existing_q6_text']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['a_yes'], callback_data="existing_influencer_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="existing_influencer_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q4_yes")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_q5_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Q5 - No -> Ask if they want guidance"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((s['existing_q5_text'], "No"))
+    
+    text = s['favorites_reminder']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['b_1_guidance'], callback_data="existing_channel_instruction_12")],
+        [InlineKeyboardButton(s['b_2_have_proof'], callback_data="existing_q6_yes")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q4_yes")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_channel_instruction_12(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player - Forward to channel instruction 12"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    text = f"{s['channel_instruction_12']} {HELPFUL_CHANNEL_LINK}"
+    
+    keyboard = [
+        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_q6_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player Q6 - Yes (from Q5) -> Influencer question"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((s['existing_q5_text'], "No, but have proof"))
+
+    context.user_data['existing_q6_text_key'] = 'existing_q6_text'
+    text = s['existing_q6_text']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['a_yes'], callback_data="existing_influencer_yes")],
+        [InlineKeyboardButton(s['b_no'], callback_data="existing_influencer_no")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q5_yes")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_influencer_yes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player - Influencer Yes -> Ask for name"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((s['existing_q6_text'], "Yes"))
+    
+    text = s['provide_name']
+    
+    keyboard = [
+        [InlineKeyboardButton(s['next_question'], callback_data="existing_ask_username")],
+        [InlineKeyboardButton(s['back_to_previous'], callback_data="existing_q6_yes")]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_influencer_no(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player - Influencer No -> Forward to channel"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    # Store Q&A
+    context.user_data['existing_player_qa'].append((s['existing_q6_text'], "No"))
+    
+    text = f"{s['channel_instruction_13']} {HELPFUL_CHANNEL_LINK}"
+    
+    keyboard = [
+        [InlineKeyboardButton(s['join_channel_only'], url=HELPFUL_CHANNEL_LINK)]
+    ]
+    
+    await query.edit_message_text(text=text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+    return EXISTING_PLAYER_FLOW
+
+async def existing_ask_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Existing Player - Ask for username"""
+    query = update.callback_query
+    await query.answer()
+    
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
+    context.user_data['flow_type'] = 'existing_player'
+    
+    await query.edit_message_text(text=s['support_q2'], parse_mode='Markdown')
+    return USERNAME_COLLECTION
+
+# --- Conversation Handlers ---
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Entry point: Shows disclaimer and asks for language."""
+    text = (
+        f"{STRINGS['en']['disclaimer']}\n\n"
+        f"{STRINGS['fr']['disclaimer']}\n\n"
+        "------\n\n"
+        f"{STRINGS['en']['lang_prompt']}\n\n"
+        f"{STRINGS['fr']['lang_prompt']}"
+    )
+
+    keyboard = [
         [
-            InlineKeyboardButton(texts['channel_option'], callback_data="show_channel"),
-            InlineKeyboardButton(texts['language_option'], callback_data="change_language")
+            InlineKeyboardButton("English 🇬🇧", callback_data="en"),
+            InlineKeyboardButton("Français 🇫🇷", callback_data="fr"),
         ]
     ]
     
     query = update.callback_query
     if query:
         await query.answer()
-        try:
-            await query.edit_message_text(
-                text=welcome_text,
-                reply_markup=InlineKeyboardMarkup(keyboard),
-                parse_mode='Markdown'
-            )
-        except Exception as e:
-            logger.warning(f"Menu edit failed: {e}")
-    else:
-        await update.message.reply_text(
-            text=welcome_text,
-            reply_markup=InlineKeyboardMarkup(keyboard),
+        await query.edit_message_text(
+            text=text, 
+            reply_markup=InlineKeyboardMarkup(keyboard), 
+            disable_web_page_preview=True,
             parse_mode='Markdown'
         )
-    
-    return MAIN_MENU
+    else:
+        await update.message.reply_text(
+            text=text, 
+            reply_markup=InlineKeyboardMarkup(keyboard), 
+            disable_web_page_preview=True,
+            parse_mode='Markdown'
+        )
+        
+    return SELECT_LANG
 
-# --- FLOW START HANDLERS ---
-async def start_new_player_flow(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Start enhanced new player flow"""
+async def set_language(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Stores the chosen language and shows the main menu."""
+    query = update.callback_query
+    lang = query.data
+    context.user_data['lang'] = lang
+    
+    # Update user progress in database
+    user_id = update.effective_user.id
+    update_player_progress(user_id, {'language': lang})
+    
+    return await show_main_menu(update, context)
+
+async def show_helpful_channel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Shows the helpful channel link."""
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
+    
     query = update.callback_query
     await query.answer()
-    
-    user_id = update.effective_user.id
-    lang = context.user_data.get('lang', 'en')
-    
-    # Initialize player progress
-    update_player_progress(user_id, {
-        'player_type': 'new',
-        'current_step': 1,
-        'completed_steps': [],
-        'language': lang
-    })
-    
-    context.user_data['current_flow'] = 'new_player'
-    context.user_data['current_state'] = NEW_PLAYER_FLOW
-    context.user_data['current_step'] = 1
-    
-    return await flow_manager.new_player_flow(update, context, 1)
 
-async def start_existing_player_flow(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Start enhanced existing player flow"""
-    query = update.callback_query
-    await query.answer()
-    
-    user_id = update.effective_user.id
-    lang = context.user_data.get('lang', 'en')
-    
-    # Update player progress
-    update_player_progress(user_id, {
-        'player_type': 'existing',
-        'current_step': 1,
-        'language': lang
-    })
-    
-    context.user_data['current_flow'] = 'existing_player'
-    context.user_data['current_state'] = EXISTING_PLAYER_FLOW
-    context.user_data['current_step'] = 1
-    
-    return await flow_manager.existing_player_flow(update, context, 1)
-
-async def start_support_flow(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Start enhanced support flow"""
-    query = update.callback_query
-    await query.answer()
-    
-    user_id = update.effective_user.id
-    lang = context.user_data.get('lang', 'en')
-    
-    context.user_data['current_flow'] = 'support'
-    context.user_data['current_state'] = SUPPORT_FLOW
-    context.user_data['current_step'] = 1
-    context.user_data['support_answers'] = []
-    
-    return await flow_manager.support_flow(update, context, 1)
-
-# --- SUPPORT USERNAME HANDLER ---
-async def handle_support_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle support username collection"""
-    user_message = update.message.text
-    user_id = update.message.from_user.id
-    lang = context.user_data.get('lang', 'en')
-    texts = BOT_TEXTS[lang]
-    
-    # Validate username format
-    if not user_message.startswith('@') or len(user_message) < 2:
-        await update.message.reply_text(texts['invalid_username'])
-        return USERNAME_COLLECTION
-    
-    # Create support case
-    user_progress = get_player_progress(user_id)
-    steps_completed = user_progress['completed_steps'] if user_progress else []
-    
-    create_support_case(
-        user_id=user_id,
-        username=user_message,
-        case_type='general_support',
-        issue_description='User requested support via AI chat suggestion',
-        steps_completed=steps_completed
-    )
-    
-    # Send confirmation
     keyboard = [
-        [InlineKeyboardButton(texts['main_menu'], callback_data="back_to_main")]
+        [InlineKeyboardButton(s['join_channel_btn'], url=HELPFUL_CHANNEL_LINK)],
+        [InlineKeyboardButton(s['back_btn'], callback_data="back_to_main")]
     ]
-    
-    await update.message.reply_text(
-        text=texts['username_saved'],
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode='Markdown'
-    )
-    
-    return MAIN_MENU
-
-# --- CHANNEL AND LANGUAGE HANDLERS ---
-async def show_channel_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Show channel information"""
-    query = update.callback_query
-    await query.answer()
-    
-    lang = context.user_data.get('lang', 'en')
-    texts = BOT_TEXTS[lang]
-    
-    keyboard = [
-        [InlineKeyboardButton(texts['join_channel'], url=HELPFUL_CHANNEL_LINK)],
-        [InlineKeyboardButton(texts['main_menu'], callback_data="back_to_main")]
-    ]
-    
     await query.edit_message_text(
-        text=texts['channel_invite'],
+        text=s['helpful_channel_text'],
         reply_markup=InlineKeyboardMarkup(keyboard),
         disable_web_page_preview=True
     )
     
     return MAIN_MENU
 
-async def change_language(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Change language preference"""
+async def contact_support(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Start support flow"""
     query = update.callback_query
     await query.answer()
     
-    keyboard = [
-        [
-            InlineKeyboardButton("English 🇬🇧", callback_data="set_lang_en"),
-            InlineKeyboardButton("Français 🇫🇷", callback_data="set_lang_fr")
-        ],
-        [InlineKeyboardButton("⬅️ Back", callback_data="back_to_main")]
-    ]
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
     
-    await query.edit_message_text(
-        text="🌐 **Select your language / Choisissez votre langue:**",
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
+    context.user_data['flow_type'] = 'support'
     
-    return MAIN_MENU
+    await query.edit_message_text(text=s['support_q2'], parse_mode='Markdown')
+    return USERNAME_COLLECTION
 
-async def set_language(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Set user language preference"""
-    query = update.callback_query
-    lang = query.data.replace('set_lang_', '')
-    context.user_data['lang'] = lang
+# --- USERNAME COLLECTION ---
+async def collect_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Collect username and send Q&A to support team"""
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
     
-    # Update in database if user exists
-    user_id = update.effective_user.id
-    update_player_progress(user_id, {'language': lang})
+    username = update.message.text
     
-    await query.answer(f"Language set to {lang.upper()}")
-    return await show_enhanced_menu(update, context)
-
-# --- BUTTON HANDLERS ---
-async def handle_new_player_answers(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle new player flow answers"""
-    query = update.callback_query
-    await query.answer()
-    
-    data = query.data
-    
-    if data == 'new_q1_yes':
-        # Handle VPN yes answer
-        user_id = update.effective_user.id
-        update_player_progress(user_id, {'vpn_used': True})
-        return await flow_manager.new_player_flow(update, context, 2)
-    
-    elif data == 'new_q1_no':
-        # Handle VPN no answer
-        return await flow_manager.new_player_flow(update, context, 1)
-    
-    elif data == 'new_back_1':
-        return await flow_manager.new_player_flow(update, context, 1)
-    
-    return NEW_PLAYER_FLOW
-
-async def handle_existing_player_answers(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle existing player flow answers"""
-    query = update.callback_query
-    await query.answer()
-    
-    data = query.data
-    
-    if data == 'existing_continue':
-        return await flow_manager.complete_flow(update, context, 'existing_player')
-    
-    return EXISTING_PLAYER_FLOW
-
-async def handle_support_answers(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Handle support flow answers"""
-    query = update.callback_query
-    await query.answer()
-    
-    data = query.data
-    
-    if data == 'support_continue':
-        return await flow_manager.support_flow(update, context, 2)
-    
-    elif data == 'support_back_1':
-        return await flow_manager.support_flow(update, context, 1)
-    
-    return SUPPORT_FLOW
-
-# --- ERROR HANDLER ---
-async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Handle errors gracefully"""
-    logger.error(f"Exception while handling an update: {context.error}")
-    
-    if isinstance(context.error, Conflict):
-        logger.warning("Bot conflict detected - another instance might be running")
-        return
-    
-    try:
-        if update and update.effective_message:
-            lang = context.user_data.get('lang', 'en')
-            texts = BOT_TEXTS[lang]
-            await update.effective_message.reply_text(
-                "⚠️ Sorry, I encountered an error. Please try again or use the menu options."
+    if username.startswith('@') and len(username) > 2:
+        logger.info(f"*** EXISTING PLAYER - USERNAME COLLECTION from user {update.message.from_user.id}: {username} ***")
+        
+        if not SUPPORT_CHAT_ID:
+            logger.error("SUPPORT_CHAT_ID is not set in environment variables")
+            await update.message.reply_text("❌ Support feature is currently unavailable. Please try again later.")
+            return await show_main_menu(update, context)
+        
+        try:
+            user = update.effective_user
+            user_username = user.username if user.username else "No username"
+            first_name = user.first_name if user.first_name else "No first name"
+            last_name = user.last_name if user.last_name else "No last name"
+            
+            flow_type = context.user_data.get('flow_type', 'existing_player')
+            qa_data = context.user_data.get('existing_player_qa', [])
+            flow_title = "🏆 EXISTING PLAYER QUESTIONNAIRE" if flow_type == 'existing_player' else "🆘 SUPPORT REQUEST"
+            
+            support_message = (
+                f"🚨 **{flow_title}** 🚨\n"
+                f"👤 User: {first_name} {last_name}\n"
+                f"📛 User's Telegram: @{user_username}\n"
+                f"💬 Provided Username: {username}\n"
+                f"🆔 User ID: `{user.id}`\n"
+                f"⏰ Time: {update.message.date.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                f"🌐 Language: {lang.upper()}\n\n"
             )
-    except Exception as e:
-        logger.error(f"Error while sending error message: {e}")
+            
+            if qa_data:
+                support_message += "**Questions & Answers:**\n"
+                for i, (question, answer) in enumerate(qa_data, 1):
+                    # Check if question is a full string or a key, display gracefully
+                    q_text = STRINGS.get(lang, STRINGS['en']).get(question, question)
+                    support_message += f"{i}. {q_text.split('\n')[-1].strip()}\n   ➤ **{answer}**\n\n"
+            else:
+                support_message += "**No Q&A data collected.**\n\n"
+            
+            support_message += f"**Flow Type:** {flow_type.replace('_', ' ').title()}"
+            
+            await context.bot.send_message(
+                chat_id=SUPPORT_CHAT_ID,
+                text=support_message,
+                parse_mode='Markdown'
+            )
+            
+            # Create support case in database
+            create_support_case(
+                user_id=user.id,
+                username=username,
+                case_type=flow_type,
+                issue_description='User requested support',
+                steps_completed=qa_data
+            )
+            
+            # Clear QA data after submission
+            context.user_data.pop('existing_player_qa', None)
+            
+            await update.message.reply_text(text=s['support_thanks'], reply_markup=ReplyKeyboardRemove())
+            return await show_main_menu(update, context)
+            
+        except Exception as e:
+            logger.error(f"Error sending support message to group: {e}")
+            await update.message.reply_text("❌ There was an error sending your information. Please try again later.")
+            return await show_main_menu(update, context)
+    else:
+        await update.message.reply_text(text=s['invalid_username'])
+        return USERNAME_COLLECTION
 
-# --- START COMMAND ---
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Enhanced start command with better presentation"""
-    user = update.effective_user
-    welcome_text = (
-        "🎮 **Welcome to the Ultimate Gaming Assistant!**\n\n"
-        "I'm here to help you:\n"
-        "• Set up your gaming account 🚀\n"
-        "• Maximize your rewards 💰\n"
-        "• Resolve any issues 🛠️\n"
-        "• Connect with our community 👥\n\n"
-        "🔒 *Unofficial Guide - Not affiliated with Epic Games/Fortnite*\n\n"
-        "Choose your language below:"
-    )
+async def cancel_support(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """User types /cancel during the support flow."""
+    lang = context.user_data.get('lang', 'en')
+    s = STRINGS[lang]
     
-    keyboard = [
-        [
-            InlineKeyboardButton("English 🇬🇧", callback_data="set_lang_en"),
-            InlineKeyboardButton("Français 🇫🇷", callback_data="set_lang_fr")
-        ]
-    ]
-    
-    await update.message.reply_text(
-        text=welcome_text,
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode='Markdown'
-    )
-    
-    return SELECT_LANGUAGE
+    await update.message.reply_text(text=s['support_cancel'], reply_markup=ReplyKeyboardRemove())
+    return await show_main_menu(update, context)
 
-# --- MAIN APPLICATION SETUP ---
 def main() -> None:
-    """Run the enhanced gaming bot"""
+    """Run the bot."""
     if not TELEGRAM_TOKEN:
         logger.error("TELEGRAM_TOKEN environment variable not set!")
-        print("❌ ERROR: TELEGRAM_TOKEN is required!")
+        print("❌ ERROR: TELEGRAM_TOKEN environment variable is required!")
         return
 
-    # Create application with enhanced settings
-    application = (
-        Application.builder()
-        .token(TELEGRAM_TOKEN)
-        .read_timeout(30)
-        .write_timeout(30)
-        .connect_timeout(30)
-        .pool_timeout(30)
-        .build()
-    )
+    application = Application.builder().token(TELEGRAM_TOKEN).build()
 
-    # Add error handler
-    application.add_error_handler(error_handler)
-
-    # Enhanced conversation handler
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
-            SELECT_LANGUAGE: [
-                CallbackQueryHandler(set_language, pattern="^set_lang_(en|fr)$")
+            SELECT_LANG: [
+                CallbackQueryHandler(set_language, pattern="^(en|fr)$")
             ],
             MAIN_MENU: [
-                CallbackQueryHandler(start_new_player_flow, pattern="^start_new_player$"),
-                CallbackQueryHandler(start_existing_player_flow, pattern="^start_existing_player$"),
-                CallbackQueryHandler(start_support_flow, pattern="^start_support$"),
+                CallbackQueryHandler(existing_player_start, pattern="^existing_player_start$"),
                 CallbackQueryHandler(start_ai_chat, pattern="^start_ai_chat$"),
-                CallbackQueryHandler(show_channel_info, pattern="^show_channel$"),
-                CallbackQueryHandler(change_language, pattern="^change_language$"),
-                CallbackQueryHandler(show_enhanced_menu, pattern="^back_to_main$"),
-            ],
-            NEW_PLAYER_FLOW: [
-                CallbackQueryHandler(handle_new_player_answers, pattern="^new_"),
-                CallbackQueryHandler(show_enhanced_menu, pattern="^back_to_main$"),
+                CallbackQueryHandler(show_helpful_channel, pattern="^helpful_channel$"),
+                CallbackQueryHandler(contact_support, pattern="^contact_support$"),
+                CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
             EXISTING_PLAYER_FLOW: [
-                CallbackQueryHandler(handle_existing_player_answers, pattern="^existing_"),
-                CallbackQueryHandler(show_enhanced_menu, pattern="^back_to_main$"),
-            ],
-            SUPPORT_FLOW: [
-                CallbackQueryHandler(handle_support_answers, pattern="^support_"),
-                CallbackQueryHandler(show_enhanced_menu, pattern="^back_to_main$"),
+                CallbackQueryHandler(existing_q1_yes, pattern="^existing_q1_yes$"),
+                CallbackQueryHandler(existing_q1_no, pattern="^existing_q1_no$"),
+                CallbackQueryHandler(existing_show_codes, pattern="^existing_show_codes$"),
+                CallbackQueryHandler(existing_q2_yes, pattern="^existing_q2_yes$"),
+                CallbackQueryHandler(existing_q2_no, pattern="^existing_q2_no$"),
+                CallbackQueryHandler(existing_channel_instruction_9, pattern="^existing_channel_instruction_9$"),
+                CallbackQueryHandler(existing_q3_yes, pattern="^existing_q3_yes$"),
+                CallbackQueryHandler(existing_q3_no, pattern="^existing_q3_no$"),
+                CallbackQueryHandler(existing_channel_instruction_10, pattern="^existing_channel_instruction_10$"),
+                CallbackQueryHandler(existing_q4_yes, pattern="^existing_q4_yes$"),
+                CallbackQueryHandler(existing_q4_no, pattern="^existing_q4_no$"),
+                CallbackQueryHandler(existing_channel_instruction_11, pattern="^existing_channel_instruction_11$"),
+                CallbackQueryHandler(existing_q5_yes, pattern="^existing_q5_yes$"),
+                CallbackQueryHandler(existing_q5_no, pattern="^existing_q5_no$"),
+                CallbackQueryHandler(existing_channel_instruction_12, pattern="^existing_channel_instruction_12$"),
+                CallbackQueryHandler(existing_q6_yes, pattern="^existing_q6_yes$"),
+                CallbackQueryHandler(existing_influencer_yes, pattern="^existing_influencer_yes$"),
+                CallbackQueryHandler(existing_influencer_no, pattern="^existing_influencer_no$"),
+                CallbackQueryHandler(existing_ask_username, pattern="^existing_ask_username$"),
+                CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
             USERNAME_COLLECTION: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_support_username),
-                CallbackQueryHandler(show_enhanced_menu, pattern="^back_to_main$"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND, collect_username),
+                CommandHandler("cancel", cancel_support), 
             ],
             AI_CHAT: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_intelligent_message),
                 CallbackQueryHandler(continue_ai_chat, pattern="^continue_ai_chat$"),
-                CallbackQueryHandler(start_support_flow, pattern="^start_support$"),
-                CallbackQueryHandler(show_enhanced_menu, pattern="^back_to_main$"),
+                CallbackQueryHandler(contact_support, pattern="^contact_support$"),
+                CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
             ],
         },
-        fallbacks=[CommandHandler("start", start)],
-        per_message=False,
+        fallbacks=[
+            CommandHandler("start", start),
+            CommandHandler("cancel", cancel_support) 
+        ],
     )
 
     application.add_handler(conv_handler)
 
-    # Enhanced startup message
-    logger.info("Enhanced Gaming Bot starting...")
-    print("🎮 ENHANCED GAMING BOT STARTING...")
+    logger.info("Enhanced Existing Player Bot is running...")
+    print("🤖 ENHANCED EXISTING PLAYER BOT is starting...")
     print("=" * 50)
     print(f"✅ TELEGRAM_TOKEN: {'Set' if TELEGRAM_TOKEN else 'Not Set'}")
     print(f"✅ SUPPORT_CHAT_ID: {'Set' if SUPPORT_CHAT_ID else 'Not Set'}")
@@ -1087,24 +1197,10 @@ def main() -> None:
     print(f"✅ OPENAI_CLIENT: {'Available' if openai_client else 'Not Available'}")
     print(f"✅ DATABASE: Enhanced schema at {DB_FILE}")
     print("🚀 FEATURES: AI Assistant, Progress Tracking, Multi-Language")
-    print("🎯 FLOWS: New Player, Existing Player, Support, AI Chat")
-    print("🛡️ ERROR HANDLING: Enhanced with conflict resolution")
+    print("🎯 FLOWS: Existing Player Check, AI Chat, Support")
     print("=" * 50)
     
-    # Start the bot with enhanced configuration
-    try:
-        application.run_polling(
-            poll_interval=1.0,
-            timeout=30,
-            drop_pending_updates=True,
-            allowed_updates=Update.ALL_TYPES
-        )
-    except Conflict as e:
-        logger.warning(f"Bot conflict on startup: {e}")
-        print("⚠️ Another instance detected - normal in deployment")
-    except Exception as e:
-        logger.error(f"Failed to start enhanced bot: {e}")
-        print(f"❌ Enhanced bot failed: {e}")
+    application.run_polling()
 
 if __name__ == "__main__":
     main()
