@@ -13,6 +13,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
+from telegram.error import Conflict
 
 # Import OpenAI
 try:
@@ -1135,6 +1136,25 @@ async def set_language(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     
     return await show_main_menu(update, context)
 
+# --- ERROR HANDLER ---
+async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle errors"""
+    logger.error(f"Exception while handling an update: {context.error}")
+    
+    if isinstance(context.error, Conflict):
+        logger.warning("Bot conflict detected - another instance might be running")
+        # This is normal in deployment environments, just log it
+        return
+    
+    # For other errors, you might want to notify the user
+    try:
+        if update and update.effective_message:
+            await update.effective_message.reply_text(
+                "Sorry, I encountered an error. Please try again."
+            )
+    except Exception as e:
+        logger.error(f"Error while sending error message: {e}")
+
 def main() -> None:
     """Run the AI-powered bot"""
     if not TELEGRAM_TOKEN:
@@ -1142,7 +1162,19 @@ def main() -> None:
         print("❌ ERROR: TELEGRAM_TOKEN environment variable is required!")
         return
 
-    application = Application.builder().token(TELEGRAM_TOKEN).build()
+    # Create application with specific settings to avoid conflicts
+    application = (
+        Application.builder()
+        .token(TELEGRAM_TOKEN)
+        .read_timeout(30)
+        .write_timeout(30)
+        .connect_timeout(30)
+        .pool_timeout(30)
+        .build()
+    )
+
+    # Add error handler
+    application.add_error_handler(error_handler)
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
@@ -1211,6 +1243,7 @@ def main() -> None:
         fallbacks=[
             CommandHandler("start", start),
         ],
+        per_message=False,  # Set to False to avoid the warning
     )
 
     application.add_handler(conv_handler)
@@ -1226,8 +1259,21 @@ def main() -> None:
     print("📊 User progress tracking: ENABLED")
     print("👤 Username collection for support: ENABLED")
     print("↩️ Back navigation: ENABLED for all flows")
+    print("🛡️ Error handling: ENABLED")
     
-    application.run_polling()
+    # Start the bot with proper error handling
+    try:
+        application.run_polling(
+            poll_interval=1.0,
+            timeout=30,
+            drop_pending_updates=True  # This helps avoid conflicts
+        )
+    except Conflict as e:
+        logger.warning(f"Bot conflict detected on startup: {e}")
+        print("⚠️ Another bot instance might be running. This is normal in some deployment environments.")
+    except Exception as e:
+        logger.error(f"Failed to start bot: {e}")
+        print(f"❌ Bot failed to start: {e}")
 
 if __name__ == "__main__":
     main()
