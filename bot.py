@@ -21,7 +21,11 @@ logger = logging.getLogger(__name__)
 
 # Configuration
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
-SUPPORT_CHAT_ID = os.environ.get("SUPPORT_CHAT_ID")
+if not TELEGRAM_TOKEN:
+    logger.error("❌ TELEGRAM_TOKEN environment variable is not set!")
+    exit(1)
+
+print(f"✅ Bot token found: {TELEGRAM_TOKEN[:10]}...")
 
 # Database setup
 DB_FILE = "bot_data.db"
@@ -44,9 +48,9 @@ def init_database():
         
         conn.commit()
         conn.close()
-        logger.info("Database initialized successfully")
+        logger.info("✅ Database initialized successfully")
     except Exception as e:
-        logger.error(f"Database initialization failed: {e}")
+        logger.error(f"❌ Database initialization failed: {e}")
 
 init_database()
 
@@ -82,7 +86,7 @@ STRINGS = {
         'skip_btn': "⏭️ Skip",
         'show_codes_btn': "🎮 Get Codes",
         
-        # New Player Flow - Completely Different Structure
+        # New Player Flow
         'onboarding_welcome': """🎯 **Your Gaming Journey Begins Now!**
 
 I'll help you get set up step-by-step. Each session is 1 hour - perfect for quick gaming breaks!
@@ -105,7 +109,6 @@ Ready to continue?""",
 
 Let's get your gaming profile ready!
 Need step-by-step guidance?""",
-        'step_2_link': "Create Profile",
         
         'step_3_title': "⚡ **Step 3: Account Activation**",
         'step_3_question': "Did you activate with Epic Games using the code?",
@@ -113,7 +116,6 @@ Need step-by-step guidance?""",
 
 Activation saves your progress and unlocks rewards!
 Need the activation process?""",
-        'step_3_link': "Activate Now",
         
         'step_4_title': "👤 **Step 4: Profile Setup**",
         'step_4_question': "Is your Epic Games profile fully set up?",
@@ -121,7 +123,6 @@ Need the activation process?""",
 
 Your profile stores progress and achievements!
 Want setup assistance?""",
-        'step_4_link': "Setup Profile",
         
         'step_5_title': "📱 **Step 5: Quick Access**",
         'step_5_question': "Did you add the game to your home screen?",
@@ -136,7 +137,6 @@ Need the quick guide?""",
 
 Ready to start your gaming adventure?
 Need launching help?""",
-        'step_6_link': "Launch Game",
         
         'step_7_title': "🏝️ **Step 7: Treasure Island**",
         'step_7_question': "Have you discovered the Reward Island?",
@@ -239,6 +239,10 @@ def get_user_progress(user_id):
         return 1, {}
 
 # Helper functions
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Start command handler"""
+    return await show_main_menu(update, context)
+
 async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show main menu"""
     s = STRINGS['en']
@@ -250,8 +254,9 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton(s['channel_btn'], callback_data="channel_link")],
     ]
     
-    query = update.callback_query
-    if query:
+    # Check if it's a callback query or direct message
+    if update.callback_query:
+        query = update.callback_query
         await query.answer()
         await query.edit_message_text(
             text=s['welcome'],
@@ -283,82 +288,24 @@ async def start_new_player_flow(update: Update, context: ContextTypes.DEFAULT_TY
     save_user_progress(user_id, 1, {})
     
     # Show first step
-    return await show_onboarding_step(update, context)
-
-async def show_onboarding_step(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show current onboarding step"""
-    step = context.user_data.get('onboarding_step', 1)
-    s = STRINGS['en']
+    title = s['step_1_title']
+    question = s['step_1_question']
+    text = f"{s['onboarding_welcome']}\n\n{title}\n{question}"
     
-    step_titles = {
-        1: (s['step_1_title'], s['step_1_question']),
-        2: (s['step_2_title'], s['step_2_question']),
-        3: (s['step_3_title'], s['step_3_question']),
-        4: (s['step_4_title'], s['step_4_question']),
-        5: (s['step_5_title'], s['step_5_question']),
-        6: (s['step_6_title'], s['step_6_question']),
-        7: (s['step_7_title'], s['step_7_question']),
-        8: (s['step_8_title'], s['step_8_question']),
-        9: (s['step_9_title'], s['step_9_question']),
-        10: (s['step_10_title'], s['step_10_question']),
-        11: (s['step_11_title'], s['step_11_question']),
-        12: (s['step_12_title'], s['step_12_question'])
-    }
+    keyboard = [
+        [InlineKeyboardButton(s['yes_btn'], callback_data="step_1_yes")],
+        [InlineKeyboardButton(s['no_btn'], callback_data="step_1_no")],
+        [InlineKeyboardButton(s['main_menu_btn'], callback_data="back_to_main")]
+    ]
     
-    if step == 1:
-        # First step - show welcome
-        title, question = step_titles[step]
-        text = f"{s['onboarding_welcome']}\n\n{title}\n{question}"
-    else:
-        title, question = step_titles[step]
-        text = f"{title}\n{question}"
-    
-    # Create appropriate keyboard
-    if step == 1:
-        keyboard = [
-            [InlineKeyboardButton(s['yes_btn'], callback_data=f"step_{step}_yes")],
-            [InlineKeyboardButton(s['no_btn'], callback_data=f"step_{step}_no")],
-            [InlineKeyboardButton(s['main_menu_btn'], callback_data="back_to_main")]
-        ]
-    elif step == 7:
-        # Reward Island step - special buttons
-        keyboard = [
-            [InlineKeyboardButton(s['yes_btn'], callback_data=f"step_{step}_yes")],
-            [InlineKeyboardButton(s['show_codes_btn'], callback_data=f"step_{step}_codes")],
-            [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step-1}_yes")]
-        ]
-    elif step == 12:
-        # Final step - influencer question
-        keyboard = [
-            [InlineKeyboardButton(s['yes_btn'], callback_data=f"step_{step}_yes")],
-            [InlineKeyboardButton(s['no_btn'], callback_data=f"step_{step}_no")],
-            [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step-1}_yes")]
-        ]
-    else:
-        # Regular step buttons
-        keyboard = [
-            [InlineKeyboardButton(s['yes_btn'], callback_data=f"step_{step}_yes")],
-            [InlineKeyboardButton(s['no_btn'], callback_data=f"step_{step}_no")],
-            [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step-1}_yes")]
-        ]
-    
-    query = update.callback_query
-    if query:
-        await query.edit_message_text(
-            text=text,
-            reply_markup=InlineKeyboardMarkup(keyboard),
-            parse_mode='Markdown'
-        )
-    else:
-        await update.message.reply_text(
-            text=text,
-            reply_markup=InlineKeyboardMarkup(keyboard),
-            parse_mode='Markdown'
-        )
+    await query.edit_message_text(
+        text=text,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode='Markdown'
+    )
     
     return NEW_PLAYER_ONBOARDING
 
-# Step handlers - Completely different implementation
 async def handle_step_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle yes answer for any step"""
     query = update.callback_query
@@ -366,6 +313,7 @@ async def handle_step_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     user_id = update.effective_user.id
     step = context.user_data.get('onboarding_step', 1)
+    s = STRINGS['en']
     
     # Store answer
     context.user_data['onboarding_data'][f'step_{step}'] = 'yes'
@@ -374,7 +322,47 @@ async def handle_step_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if step < 12:
         context.user_data['onboarding_step'] = step + 1
         save_user_progress(user_id, step + 1, context.user_data['onboarding_data'])
-        return await show_onboarding_step(update, context)
+        
+        # Show next step
+        step_titles = {
+            1: (s['step_1_title'], s['step_1_question']),
+            2: (s['step_2_title'], s['step_2_question']),
+            3: (s['step_3_title'], s['step_3_question']),
+            4: (s['step_4_title'], s['step_4_question']),
+            5: (s['step_5_title'], s['step_5_question']),
+            6: (s['step_6_title'], s['step_6_question']),
+            7: (s['step_7_title'], s['step_7_question']),
+            8: (s['step_8_title'], s['step_8_question']),
+            9: (s['step_9_title'], s['step_9_question']),
+            10: (s['step_10_title'], s['step_10_question']),
+            11: (s['step_11_title'], s['step_11_question']),
+            12: (s['step_12_title'], s['step_12_question'])
+        }
+        
+        title, question = step_titles[step + 1]
+        text = f"{title}\n{question}"
+        
+        # Create appropriate keyboard
+        if step + 1 == 7:
+            keyboard = [
+                [InlineKeyboardButton(s['yes_btn'], callback_data=f"step_{step + 1}_yes")],
+                [InlineKeyboardButton(s['show_codes_btn'], callback_data=f"step_{step + 1}_codes")],
+                [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step}_yes")]
+            ]
+        else:
+            keyboard = [
+                [InlineKeyboardButton(s['yes_btn'], callback_data=f"step_{step + 1}_yes")],
+                [InlineKeyboardButton(s['no_btn'], callback_data=f"step_{step + 1}_no")],
+                [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step}_yes")]
+            ]
+        
+        await query.edit_message_text(
+            text=text,
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode='Markdown'
+        )
+        
+        return NEW_PLAYER_ONBOARDING
     else:
         # All steps completed
         return await complete_onboarding(update, context)
@@ -406,43 +394,10 @@ async def handle_step_no(update: Update, context: ContextTypes.DEFAULT_TYPE):
     help_text = help_texts.get(step, "Need help with this step?")
     
     # Create help keyboard
-    if step == 2:
-        keyboard = [
-            [InlineKeyboardButton(s['step_2_link'], url="https://www.xbox.com/play")],
-            [InlineKeyboardButton(s['next_btn'], callback_data=f"step_{step}_yes")],
-            [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step-1}_yes")]
-        ]
-    elif step == 3:
-        keyboard = [
-            [InlineKeyboardButton(s['step_3_link'], url="http://epicgames.com/activate")],
-            [InlineKeyboardButton(s['next_btn'], callback_data=f"step_{step}_yes")],
-            [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step-1}_yes")]
-        ]
-    elif step == 4:
-        keyboard = [
-            [InlineKeyboardButton(s['step_4_link'], url="http://epicgames.com")],
-            [InlineKeyboardButton(s['next_btn'], callback_data=f"step_{step}_yes")],
-            [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step-1}_yes")]
-        ]
-    elif step == 6:
-        keyboard = [
-            [InlineKeyboardButton(s['step_6_link'], url="https://www.xbox.com/play/games/fortnite/BT5P2X999VH2")],
-            [InlineKeyboardButton(s['next_btn'], callback_data=f"step_{step}_yes")],
-            [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step-1}_yes")]
-        ]
-    elif step == 7:
-        # Special case for reward codes
-        codes_text = s['step_7_codes'].format("\n".join(REWARD_CODES))
-        help_text = codes_text
-        keyboard = [
-            [InlineKeyboardButton(s['next_btn'], callback_data=f"step_{step}_yes")],
-            [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step-1}_yes")]
-        ]
-    else:
-        keyboard = [
-            [InlineKeyboardButton(s['next_btn'], callback_data=f"step_{step}_yes")],
-            [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step-1}_yes")]
-        ]
+    keyboard = [
+        [InlineKeyboardButton(s['next_btn'], callback_data=f"step_{step}_yes")],
+        [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step-1}_yes" if step > 1 else "new_player_start")]
+    ]
     
     await query.edit_message_text(
         text=help_text,
@@ -462,7 +417,7 @@ async def handle_step_codes(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     keyboard = [
         [InlineKeyboardButton(s['next_btn'], callback_data="step_7_yes")],
-        [InlineKeyboardButton(s['back_btn'], callback_data="show_step_7")]
+        [InlineKeyboardButton(s['back_btn'], callback_data="step_6_yes")]
     ]
     
     await query.edit_message_text(
@@ -472,11 +427,6 @@ async def handle_step_codes(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     
     return NEW_PLAYER_ONBOARDING
-
-async def show_step_7(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show step 7 question"""
-    context.user_data['onboarding_step'] = 7
-    return await show_onboarding_step(update, context)
 
 async def complete_onboarding(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Complete the onboarding process"""
@@ -495,7 +445,8 @@ async def complete_onboarding(update: Update, context: ContextTypes.DEFAULT_TYPE
     )
     
     # Ask for username
-    await query.message.reply_text(
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
         text=s['username_prompt'],
         parse_mode='Markdown'
     )
@@ -518,12 +469,10 @@ async def collect_username(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'user_id': user_id,
             'username': username,
             'flow_type': 'new_player',
-            'onboarding_data': user_data,
-            'completed_at': update.message.date.isoformat()
+            'onboarding_data': user_data
         }
         
-        # In a real implementation, you'd save this to database
-        logger.info(f"New player onboarding completed: {ticket_data}")
+        logger.info(f"🎉 New player onboarding completed: {ticket_data}")
         
         await update.message.reply_text(
             text=s['username_saved'],
@@ -547,10 +496,10 @@ async def handle_existing_player(update: Update, context: ContextTypes.DEFAULT_T
     
     s = STRINGS['en']
     await query.edit_message_text(
-        text="⚡ **Existing Player Check**\n\nThis feature is coming soon!",
+        text="⚡ **Existing Player Check**\n\nThis feature is coming soon! Use /start to return to main menu.",
         parse_mode='Markdown'
     )
-    return await show_main_menu(update, context)
+    return ConversationHandler.END
 
 async def handle_support(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle support flow"""
@@ -559,10 +508,10 @@ async def handle_support(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     s = STRINGS['en']
     await query.edit_message_text(
-        text="🆘 **Support & Rewards**\n\nThis feature is coming soon!",
+        text="🆘 **Support & Rewards**\n\nThis feature is coming soon! Use /start to return to main menu.",
         parse_mode='Markdown'
     )
-    return await show_main_menu(update, context)
+    return ConversationHandler.END
 
 async def show_channel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show channel link"""
@@ -587,81 +536,65 @@ async def show_channel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Cancel conversation"""
     await update.message.reply_text(
-        "Operation cancelled. Use /start to begin again.",
-        reply_markup=ReplyKeyboardRemove()
+        "Operation cancelled. Use /start to begin again."
     )
     return ConversationHandler.END
 
 def main():
     """Start the bot"""
-    if not TELEGRAM_TOKEN:
-        logger.error("TELEGRAM_TOKEN environment variable is required")
-        return
+    print("🤖 Starting Fortnite Gaming Assistant Bot...")
     
     # Create application
     application = Application.builder().token(TELEGRAM_TOKEN).build()
     
-    # Conversation handler for new player flow
-    conv_handler = ConversationHandler(
-        entry_points=[
-            CommandHandler("start", show_main_menu),
-            CallbackQueryHandler(show_main_menu, pattern="^back_to_main$")
-        ],
-        states={
-            MAIN_MENU: [
-                CallbackQueryHandler(start_new_player_flow, pattern="^new_player_start$"),
-                CallbackQueryHandler(handle_existing_player, pattern="^existing_player_start$"),
-                CallbackQueryHandler(handle_support, pattern="^support_start$"),
-                CallbackQueryHandler(show_channel, pattern="^channel_link$"),
-            ],
-            NEW_PLAYER_ONBOARDING: [
-                # Step yes handlers
-                CallbackQueryHandler(handle_step_yes, pattern="^step_1_yes$"),
-                CallbackQueryHandler(handle_step_yes, pattern="^step_2_yes$"),
-                CallbackQueryHandler(handle_step_yes, pattern="^step_3_yes$"),
-                CallbackQueryHandler(handle_step_yes, pattern="^step_4_yes$"),
-                CallbackQueryHandler(handle_step_yes, pattern="^step_5_yes$"),
-                CallbackQueryHandler(handle_step_yes, pattern="^step_6_yes$"),
-                CallbackQueryHandler(handle_step_yes, pattern="^step_7_yes$"),
-                CallbackQueryHandler(handle_step_yes, pattern="^step_8_yes$"),
-                CallbackQueryHandler(handle_step_yes, pattern="^step_9_yes$"),
-                CallbackQueryHandler(handle_step_yes, pattern="^step_10_yes$"),
-                CallbackQueryHandler(handle_step_yes, pattern="^step_11_yes$"),
-                CallbackQueryHandler(handle_step_yes, pattern="^step_12_yes$"),
-                
-                # Step no handlers
-                CallbackQueryHandler(handle_step_no, pattern="^step_1_no$"),
-                CallbackQueryHandler(handle_step_no, pattern="^step_2_no$"),
-                CallbackQueryHandler(handle_step_no, pattern="^step_3_no$"),
-                CallbackQueryHandler(handle_step_no, pattern="^step_4_no$"),
-                CallbackQueryHandler(handle_step_no, pattern="^step_5_no$"),
-                CallbackQueryHandler(handle_step_no, pattern="^step_6_no$"),
-                CallbackQueryHandler(handle_step_no, pattern="^step_7_no$"),
-                CallbackQueryHandler(handle_step_no, pattern="^step_8_no$"),
-                CallbackQueryHandler(handle_step_no, pattern="^step_9_no$"),
-                CallbackQueryHandler(handle_step_no, pattern="^step_10_no$"),
-                CallbackQueryHandler(handle_step_no, pattern="^step_11_no$"),
-                CallbackQueryHandler(handle_step_no, pattern="^step_12_no$"),
-                
-                # Special handlers
-                CallbackQueryHandler(handle_step_codes, pattern="^step_7_codes$"),
-                CallbackQueryHandler(show_step_7, pattern="^show_step_7$"),
-                
-                # Navigation
-                CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"),
-            ],
-            USERNAME_COLLECTION: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, collect_username)
-            ]
-        },
-        fallbacks=[CommandHandler("cancel", cancel)]
-    )
+    # Add basic command handlers
+    application.add_handler(CommandHandler("start", start))
     
-    # Add handlers
-    application.add_handler(conv_handler)
+    # Add callback query handlers for main menu
+    application.add_handler(CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"))
+    application.add_handler(CallbackQueryHandler(start_new_player_flow, pattern="^new_player_start$"))
+    application.add_handler(CallbackQueryHandler(handle_existing_player, pattern="^existing_player_start$"))
+    application.add_handler(CallbackQueryHandler(handle_support, pattern="^support_start$"))
+    application.add_handler(CallbackQueryHandler(show_channel, pattern="^channel_link$"))
+    
+    # Add new player flow handlers
+    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_1_yes$"))
+    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_2_yes$"))
+    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_3_yes$"))
+    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_4_yes$"))
+    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_5_yes$"))
+    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_6_yes$"))
+    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_7_yes$"))
+    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_8_yes$"))
+    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_9_yes$"))
+    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_10_yes$"))
+    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_11_yes$"))
+    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_12_yes$"))
+    
+    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_1_no$"))
+    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_2_no$"))
+    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_3_no$"))
+    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_4_no$"))
+    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_5_no$"))
+    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_6_no$"))
+    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_7_no$"))
+    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_8_no$"))
+    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_9_no$"))
+    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_10_no$"))
+    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_11_no$"))
+    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_12_no$"))
+    
+    application.add_handler(CallbackQueryHandler(handle_step_codes, pattern="^step_7_codes$"))
+    
+    # Add message handler for username collection
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, collect_username))
+    
+    # Add cancel handler
+    application.add_handler(CommandHandler("cancel", cancel))
     
     # Start bot
-    logger.info("Bot starting...")
+    print("✅ Bot is starting...")
+    print("📍 Use /start to begin")
     application.run_polling()
 
 if __name__ == "__main__":
