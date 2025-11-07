@@ -1,601 +1,332 @@
 import logging
 import os
-import json
-import sqlite3
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    CallbackQueryHandler,
-    ConversationHandler,
-    ContextTypes,
-    MessageHandler,
-    filters,
-)
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 
 # Enable logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
-# Configuration
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
-if not TELEGRAM_TOKEN:
+# Get bot token from environment
+TOKEN = os.getenv('TELEGRAM_TOKEN')
+if not TOKEN:
     logger.error("❌ TELEGRAM_TOKEN environment variable is not set!")
     exit(1)
 
-print(f"✅ Bot token found: {TELEGRAM_TOKEN[:10]}...")
-
-# Database setup
-DB_FILE = "bot_data.db"
-
-def init_database():
-    """Initialize SQLite database"""
-    try:
-        conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS user_progress (
-                user_id INTEGER PRIMARY KEY,
-                current_step INTEGER DEFAULT 1,
-                flow_data TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        conn.commit()
-        conn.close()
-        logger.info("✅ Database initialized successfully")
-    except Exception as e:
-        logger.error(f"❌ Database initialization failed: {e}")
-
-init_database()
-
-# Conversation states
-MAIN_MENU, NEW_PLAYER_ONBOARDING, USERNAME_COLLECTION = range(3)
+print(f"✅ Bot token found: {TOKEN[:10]}...")
 
 # Game codes
 REWARD_CODES = [
     "6086-7221-0564",
-    "2753-4695-7191",
-    "9689-1352-5966", 
+    "2753-4695-7191", 
+    "9689-1352-5966",
     "4563-6624-9460",
     "4828-9033-2281"
 ]
 
-# Language strings
-STRINGS = {
-    'en': {
-        # Main menu
-        'welcome': "🌟 **Fortnite Gaming Adventure** 🌟\n\nWelcome to your ultimate gaming journey! I'll guide you through setting up your account and unlocking amazing rewards!",
-        'new_player_btn': "🚀 Start Gaming Journey",
-        'existing_player_btn': "⚡ Quick Status Check",
-        'support_btn': "🆘 Get Help & Rewards",
-        'channel_btn': "📚 Learn & Connect",
-        
-        # Common buttons
-        'yes_btn': "✅ Yes, I did",
-        'no_btn': "❌ Not yet", 
-        'help_btn': "🆘 Need Help",
-        'back_btn': "⬅️ Back",
-        'main_menu_btn': "🏠 Main Menu",
-        'next_btn': "➡️ Continue",
-        'skip_btn': "⏭️ Skip",
-        'show_codes_btn': "🎮 Get Codes",
-        
-        # New Player Flow
-        'onboarding_welcome': """🎯 **Your Gaming Journey Begins Now!**
+# Store user progress in memory (for simplicity)
+user_progress = {}
 
-I'll help you get set up step-by-step. Each session is 1 hour - perfect for quick gaming breaks!
-
-Let's start with the basics:""",
-        
-        'step_1_title': "🔐 **Step 1: Secure Setup**",
-        'step_1_question': "Did you use a USA VPN when creating your gaming profiles?",
-        'step_1_help': """🌐 **VPN Setup Guide**
-
-• VPN is ONLY needed for profile creation (not playing)
-• Use any USA VPN service
-• This ensures proper account setup
-
-Ready to continue?""",
-        
-        'step_2_title': "☁️ **Step 2: Gaming Profile**", 
-        'step_2_question': "Have you created your cloud gaming profile?",
-        'step_2_help': """🎮 **Profile Creation**
-
-Let's get your gaming profile ready!
-Need step-by-step guidance?""",
-        
-        'step_3_title': "⚡ **Step 3: Account Activation**",
-        'step_3_question': "Did you activate with Epic Games using the code?",
-        'step_3_help': """🔗 **Activation Required**
-
-Activation saves your progress and unlocks rewards!
-Need the activation process?""",
-        
-        'step_4_title': "👤 **Step 4: Profile Setup**",
-        'step_4_question': "Is your Epic Games profile fully set up?",
-        'step_4_help': """🎨 **Complete Your Profile**
-
-Your profile stores progress and achievements!
-Want setup assistance?""",
-        
-        'step_5_title': "📱 **Step 5: Quick Access**",
-        'step_5_question': "Did you add the game to your home screen?",
-        'step_5_help': """🚀 **Instant Access**
-
-Home screen shortcut = Faster gaming!
-Need the quick guide?""",
-        
-        'step_6_title': "🎮 **Step 6: Launch Game**",
-        'step_6_question': "Have you successfully launched the game?",
-        'step_6_help': """💫 **Let's Play!**
-
-Ready to start your gaming adventure?
-Need launching help?""",
-        
-        'step_7_title': "🏝️ **Step 7: Treasure Island**",
-        'step_7_question': "Have you discovered the Reward Island?",
-        'step_7_help': """💰 **Unlock Rewards!**
-
-The Reward Island is where you earn amazing prizes!
-Want the access codes?""",
-        'step_7_codes': "🔑 **Your Treasure Codes:**\n{}\n\nCopy any code → Game search bar → Start earning! 🎉",
-        
-        'step_8_title': "⚙️ **Step 8: Complete Setup**",
-        'step_8_question': "Is your full gaming setup complete?",
-        'step_8_help': """🎯 **Optimize Your Setup**
-
-Complete setup = Better gaming with friends + Maximum rewards!
-Need the complete guide?""",
-        
-        'step_9_title': "⏰ **Step 9: Gaming Schedule**",
-        'step_9_question': "Can you commit to 130 hours of gaming this week?",
-        'step_9_help': """📅 **Weekly Gaming Plan**
-
-130 hours weekly = Optimal rewards!
-This includes background play time.
-
-Can you achieve this?""",
-        
-        'step_10_title': "👍 **Step 10: Engagement**",
-        'step_10_question': "Will you click 'Like' before each session ends?",
-        'step_10_help': """📊 **Track Your Progress**
-
-The 'Like' button helps us track your gaming sessions for rewards.
-
-Need timing tips?""",
-        
-        'step_11_title': "⭐ **Step 11: Favorites**",
-        'step_11_question': "Did you save Reward Island to favorites?",
-        'step_11_help': """💫 **Quick Return**
-
-Favorites = Instant access to earning opportunities!
-Want the setup guide?""",
-        
-        'step_12_title': "🤝 **Step 12: Community**", 
-        'step_12_question': "Did someone refer you to our gaming community?",
-        'step_12_prompt': "Awesome! Please share their name so we can thank them:",
-        'step_12_skip': "No problem! Welcome to our amazing gaming community! 🎉",
-        
-        'onboarding_complete': """🎊 **Congratulations! Setup Complete!**
-
-You're now ready to:
-• Play and earn amazing rewards 🎁
-• Join our gaming community 👥  
-• Maximize your gaming experience ⚡
-
-**Next Step:** Provide your username for reward tracking!""",
-        
-        'username_prompt': "👤 **Final Step: Username**\n\nPlease share your Telegram username (starting with @):",
-        'username_saved': "✅ Perfect! Our team will contact you soon with next steps and reward information!",
-        'invalid_username': "❌ Please provide a valid username starting with @ (example: @YourUsername)",
-        
-        # Channel
-        'channel_text': "Join our community for exclusive guides, tips, and support!",
-        'join_channel_btn': "Join Community"
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send welcome message with main menu"""
+    user_id = update.effective_user.id
+    
+    # Initialize user progress
+    user_progress[user_id] = {
+        'current_step': 0,
+        'answers': {},
+        'flow_type': None
     }
-}
+    
+    welcome_text = """🌟 **Fortnite Gaming Assistant** 🌟
 
-# Database functions
-def save_user_progress(user_id, step, flow_data):
-    """Save user progress"""
-    try:
-        conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            INSERT OR REPLACE INTO user_progress 
-            (user_id, current_step, flow_data, updated_at)
-            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-        ''', (user_id, step, json.dumps(flow_data)))
-        
-        conn.commit()
-        conn.close()
-        return True
-    except Exception as e:
-        logger.error(f"Error saving progress: {e}")
-        return False
+Welcome to your ultimate gaming journey! I'll help you:
+• Set up your gaming account 🎮
+• Find reward islands 🏝️  
+• Maximize your earnings 💰
 
-def get_user_progress(user_id):
-    """Get user progress"""
-    try:
-        conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-        cursor = conn.cursor()
-        
-        cursor.execute('SELECT current_step, flow_data FROM user_progress WHERE user_id = ?', (user_id,))
-        result = cursor.fetchone()
-        conn.close()
-        
-        if result:
-            return result[0], json.loads(result[1]) if result[1] else {}
-        return 1, {}
-    except Exception as e:
-        logger.error(f"Error getting progress: {e}")
-        return 1, {}
-
-# Helper functions
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Start command handler"""
-    return await show_main_menu(update, context)
-
-async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show main menu"""
-    s = STRINGS['en']
+Choose your path:"""
     
     keyboard = [
-        [InlineKeyboardButton(s['new_player_btn'], callback_data="new_player_start")],
-        [InlineKeyboardButton(s['existing_player_btn'], callback_data="existing_player_start")],
-        [InlineKeyboardButton(s['support_btn'], callback_data="support_start")],
-        [InlineKeyboardButton(s['channel_btn'], callback_data="channel_link")],
+        [InlineKeyboardButton("🚀 New Player Setup", callback_data="new_player")],
+        [InlineKeyboardButton("⚡ Existing Player Check", callback_data="existing_player")],
+        [InlineKeyboardButton("🆘 Support & Rewards", callback_data="support")],
+        [InlineKeyboardButton("📚 Guides & Community", callback_data="channel")]
     ]
     
-    # Check if it's a callback query or direct message
-    if update.callback_query:
-        query = update.callback_query
-        await query.answer()
-        await query.edit_message_text(
-            text=s['welcome'],
+    if update.message:
+        await update.message.reply_text(
+            welcome_text,
             reply_markup=InlineKeyboardMarkup(keyboard),
             parse_mode='Markdown'
         )
     else:
-        await update.message.reply_text(
-            text=s['welcome'],
+        await update.callback_query.edit_message_text(
+            welcome_text,
             reply_markup=InlineKeyboardMarkup(keyboard),
             parse_mode='Markdown'
         )
-    
-    return MAIN_MENU
 
-async def start_new_player_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Start the new player onboarding flow"""
+async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle all callback queries"""
     query = update.callback_query
     await query.answer()
     
     user_id = update.effective_user.id
-    s = STRINGS['en']
+    data = query.data
     
-    # Initialize flow data
-    context.user_data['onboarding_step'] = 1
-    context.user_data['onboarding_data'] = {}
+    # Initialize user progress if not exists
+    if user_id not in user_progress:
+        user_progress[user_id] = {'current_step': 0, 'answers': {}, 'flow_type': None}
     
-    # Save initial progress
-    save_user_progress(user_id, 1, {})
+    if data == "new_player":
+        await start_new_player_flow(update, context)
+    elif data == "existing_player":
+        await query.edit_message_text(
+            "⚡ **Existing Player Check**\n\nComing soon! Use /start to return to main menu.",
+            parse_mode='Markdown'
+        )
+    elif data == "support":
+        await query.edit_message_text(
+            "🆘 **Support & Rewards**\n\nComing soon! Use /start to return to main menu.",
+            parse_mode='Markdown'
+        )
+    elif data == "channel":
+        keyboard = [[InlineKeyboardButton("Join Community", url="https://t.me/example")]]
+        await query.edit_message_text(
+            "📚 **Guides & Community**\n\nJoin our community for exclusive content!",
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode='Markdown'
+        )
+    elif data.startswith("step_"):
+        await handle_step_response(update, context)
+    elif data == "back_to_main":
+        await start(update, context)
+
+async def start_new_player_flow(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Start the new player onboarding flow"""
+    user_id = update.effective_user.id
+    user_progress[user_id]['current_step'] = 1
+    user_progress[user_id]['flow_type'] = 'new_player'
     
-    # Show first step
-    title = s['step_1_title']
-    question = s['step_1_question']
-    text = f"{s['onboarding_welcome']}\n\n{title}\n{question}"
+    welcome_text = """🎯 **New Player Setup Guide**
+
+Welcome to your gaming adventure! I'll guide you through every step to set up your account and start earning rewards.
+
+💡 **Note:** Each cloud gaming session lasts 1 hour. You'll need to relaunch after each session.
+
+**Step 1/12: VPN Setup** 🔒
+Did you use a USA VPN when creating your profiles?"""
     
     keyboard = [
-        [InlineKeyboardButton(s['yes_btn'], callback_data="step_1_yes")],
-        [InlineKeyboardButton(s['no_btn'], callback_data="step_1_no")],
-        [InlineKeyboardButton(s['main_menu_btn'], callback_data="back_to_main")]
+        [InlineKeyboardButton("✅ Yes", callback_data="step_1_yes")],
+        [InlineKeyboardButton("❌ No", callback_data="step_1_no")],
+        [InlineKeyboardButton("🏠 Main Menu", callback_data="back_to_main")]
     ]
     
-    await query.edit_message_text(
-        text=text,
+    await update.callback_query.edit_message_text(
+        welcome_text,
         reply_markup=InlineKeyboardMarkup(keyboard),
         parse_mode='Markdown'
     )
-    
-    return NEW_PLAYER_ONBOARDING
 
-async def handle_step_yes(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle yes answer for any step"""
+async def handle_step_response(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle step responses in the new player flow"""
     query = update.callback_query
-    await query.answer()
-    
     user_id = update.effective_user.id
-    step = context.user_data.get('onboarding_step', 1)
-    s = STRINGS['en']
     
-    # Store answer
-    context.user_data['onboarding_data'][f'step_{step}'] = 'yes'
+    # Extract step number and response
+    data_parts = query.data.split('_')
+    step = int(data_parts[1])
+    response = data_parts[2]
     
-    # Move to next step
-    if step < 12:
-        context.user_data['onboarding_step'] = step + 1
-        save_user_progress(user_id, step + 1, context.user_data['onboarding_data'])
-        
-        # Show next step
-        step_titles = {
-            1: (s['step_1_title'], s['step_1_question']),
-            2: (s['step_2_title'], s['step_2_question']),
-            3: (s['step_3_title'], s['step_3_question']),
-            4: (s['step_4_title'], s['step_4_question']),
-            5: (s['step_5_title'], s['step_5_question']),
-            6: (s['step_6_title'], s['step_6_question']),
-            7: (s['step_7_title'], s['step_7_question']),
-            8: (s['step_8_title'], s['step_8_question']),
-            9: (s['step_9_title'], s['step_9_question']),
-            10: (s['step_10_title'], s['step_10_question']),
-            11: (s['step_11_title'], s['step_11_question']),
-            12: (s['step_12_title'], s['step_12_question'])
+    # Store the answer
+    user_progress[user_id]['answers'][f'step_{step}'] = response
+    
+    # Define all steps with their questions and help texts
+    steps = {
+        1: {
+            'question': "**Step 1/12: VPN Setup** 🔒\nDid you use a USA VPN when creating your profiles?",
+            'help': "⚠️ **VPN Required**\n\nYou need a USA VPN only for profile creation (not playing). This ensures your profiles are created correctly.\n\nReady to continue?"
+        },
+        2: {
+            'question': "**Step 2/12: Cloud Gaming Profile** ☁️\nHave you created your cloud gaming profile?",
+            'help': "Let's create your cloud gaming profile!\nNeed step-by-step assistance?"
+        },
+        3: {
+            'question': "**Step 3/12: Epic Games Activation** 🎯\nDid you receive and enter the Epic Games activation code?",
+            'help': "You need to activate your account with Epic Games to save your progress and rewards.\nNeed guidance?"
+        },
+        4: {
+            'question': "**Step 4/12: Epic Games Profile** 👤\nDid you create your Epic Games profile?",
+            'help': "Your Epic Games profile is essential for saving progress and receiving rewards.\nNeed help setting it up?"
+        },
+        5: {
+            'question': "**Step 5/12: Home Screen Shortcut** 📱\nDid you add the game to your home screen for easy access?",
+            'help': "Adding a shortcut lets you launch the game instantly!\nWant to see how it's done?"
+        },
+        6: {
+            'question': "**Step 6/12: Game Launch** 🚀\nHave you successfully launched the game?",
+            'help': "Let's get the game started!\nNeed launching assistance?"
+        },
+        7: {
+            'question': "**Step 7/12: Reward Island Discovery** 🏝️\nHave you found the Reward Island using our special codes?",
+            'help': "The Reward Island is where you'll earn amazing rewards!\nWant the latest access codes?"
+        },
+        8: {
+            'question': "**Step 8/12: Complete Setup** ⚙️\nDid you finish the full setup to play with friends and maximize earnings?",
+            'help': "Complete setup ensures you can play with friends and earn without issues.\nNeed the setup guide?"
+        },
+        9: {
+            'question': "**Step 9/12: Weekly Commitment** ⏰\nCan you commit to playing 130 hours this week?",
+            'help': "Regular playtime is key to earning rewards! We recommend 130 hours weekly.\nCan you meet this goal?"
+        },
+        10: {
+            'question': "**Step 10/12: Engagement Promise** 👍\nWill you click the 'Like' button before each 1-hour session ends?",
+            'help': "The 'Like' button helps track your engagement and is required for rewards.\nNeed reminders on when to click?"
+        },
+        11: {
+            'question': "**Step 11/12: Favorites Setup** ⭐\nDid you save the Reward Island to your favorites?",
+            'help': "Saving to favorites lets you quickly return to the Reward Island.\nWant to learn how?"
+        },
+        12: {
+            'question': "**Step 12/12: Community Credit** 🤝\nDid an influencer introduce you to this game?",
+            'help': "No problem! Let's complete your setup."
         }
+    }
+    
+    if response == "no":
+        # Show help for current step
+        current_step = steps[step]
         
-        title, question = step_titles[step + 1]
-        text = f"{title}\n{question}"
-        
-        # Create appropriate keyboard
-        if step + 1 == 7:
+        if step == 7:  # Special case for reward codes
+            codes_text = "🎮 **Reward Island Access Codes:**\n" + "\n".join(REWARD_CODES) + "\n\nCopy any code and paste it in the game's search bar!"
+            help_text = codes_text
             keyboard = [
-                [InlineKeyboardButton(s['yes_btn'], callback_data=f"step_{step + 1}_yes")],
-                [InlineKeyboardButton(s['show_codes_btn'], callback_data=f"step_{step + 1}_codes")],
-                [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step}_yes")]
+                [InlineKeyboardButton("➡️ Continue", callback_data=f"step_{step}_yes")],
+                [InlineKeyboardButton("⬅️ Back", callback_data=f"step_{step-1}_yes")]
+            ]
+        else:
+            help_text = current_step['help']
+            keyboard = [
+                [InlineKeyboardButton("✅ I'm Ready", callback_data=f"step_{step}_yes")],
+                [InlineKeyboardButton("⬅️ Back", callback_data=f"step_{step-1}_yes" if step > 1 else "new_player")]
+            ]
+        
+        await query.edit_message_text(
+            help_text,
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode='Markdown'
+        )
+        return
+    
+    # Move to next step or complete
+    if step < 12:
+        next_step = step + 1
+        user_progress[user_id]['current_step'] = next_step
+        
+        next_question = steps[next_step]['question']
+        
+        if next_step == 12:  # Special keyboard for last step
+            keyboard = [
+                [InlineKeyboardButton("✅ Yes", callback_data=f"step_{next_step}_yes")],
+                [InlineKeyboardButton("❌ No", callback_data=f"step_{next_step}_no")],
+                [InlineKeyboardButton("⬅️ Back", callback_data=f"step_{step}_yes")]
             ]
         else:
             keyboard = [
-                [InlineKeyboardButton(s['yes_btn'], callback_data=f"step_{step + 1}_yes")],
-                [InlineKeyboardButton(s['no_btn'], callback_data=f"step_{step + 1}_no")],
-                [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step}_yes")]
+                [InlineKeyboardButton("✅ Yes", callback_data=f"step_{next_step}_yes")],
+                [InlineKeyboardButton("❌ No", callback_data=f"step_{next_step}_no")],
+                [InlineKeyboardButton("⬅️ Back", callback_data=f"step_{step}_yes")]
             ]
         
         await query.edit_message_text(
-            text=text,
+            next_question,
             reply_markup=InlineKeyboardMarkup(keyboard),
             parse_mode='Markdown'
         )
-        
-        return NEW_PLAYER_ONBOARDING
     else:
         # All steps completed
-        return await complete_onboarding(update, context)
+        await complete_onboarding(update, context)
 
-async def handle_step_no(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle no answer for any step"""
-    query = update.callback_query
-    await query.answer()
-    
-    step = context.user_data.get('onboarding_step', 1)
-    s = STRINGS['en']
-    
-    # Get help text for current step
-    help_texts = {
-        1: s['step_1_help'],
-        2: s['step_2_help'],
-        3: s['step_3_help'],
-        4: s['step_4_help'],
-        5: s['step_5_help'],
-        6: s['step_6_help'],
-        7: s['step_7_help'],
-        8: s['step_8_help'],
-        9: s['step_9_help'],
-        10: s['step_10_help'],
-        11: s['step_11_help'],
-        12: s['step_12_help']
-    }
-    
-    help_text = help_texts.get(step, "Need help with this step?")
-    
-    # Create help keyboard
-    keyboard = [
-        [InlineKeyboardButton(s['next_btn'], callback_data=f"step_{step}_yes")],
-        [InlineKeyboardButton(s['back_btn'], callback_data=f"step_{step-1}_yes" if step > 1 else "new_player_start")]
-    ]
-    
-    await query.edit_message_text(
-        text=help_text,
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode='Markdown'
-    )
-    
-    return NEW_PLAYER_ONBOARDING
-
-async def handle_step_codes(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show reward codes"""
-    query = update.callback_query
-    await query.answer()
-    
-    s = STRINGS['en']
-    codes_text = s['step_7_codes'].format("\n".join(REWARD_CODES))
-    
-    keyboard = [
-        [InlineKeyboardButton(s['next_btn'], callback_data="step_7_yes")],
-        [InlineKeyboardButton(s['back_btn'], callback_data="step_6_yes")]
-    ]
-    
-    await query.edit_message_text(
-        text=codes_text,
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode='Markdown'
-    )
-    
-    return NEW_PLAYER_ONBOARDING
-
-async def complete_onboarding(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def complete_onboarding(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Complete the onboarding process"""
-    query = update.callback_query
-    await query.answer()
-    
-    s = STRINGS['en']
-    
-    # Save completion
     user_id = update.effective_user.id
-    save_user_progress(user_id, 99, context.user_data['onboarding_data'])  # 99 = completed
     
-    await query.edit_message_text(
-        text=s['onboarding_complete'],
-        parse_mode='Markdown'
-    )
-    
-    # Ask for username
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text=s['username_prompt'],
-        parse_mode='Markdown'
-    )
-    
-    return USERNAME_COLLECTION
+    completion_text = """🎉 **Setup Complete!**
 
-async def collect_username(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Collect user's Telegram username"""
-    s = STRINGS['en']
+Congratulations! You've successfully completed all setup steps.
+
+You're now ready to:
+• Play and earn amazing rewards 🎁
+• Join our gaming community 👥
+• Maximize your gaming experience ⚡
+
+**Final Step:** Please share your Telegram username (starting with @) so we can contact you:"""
+    
+    await update.callback_query.edit_message_text(
+        completion_text,
+        parse_mode='Markdown'
+    )
+    
+    # Set state to wait for username
+    user_progress[user_id]['waiting_for_username'] = True
+
+async def handle_username(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle username input"""
+    user_id = update.effective_user.id
+    
+    if user_id not in user_progress or not user_progress[user_id].get('waiting_for_username'):
+        await update.message.reply_text("Please use /start to begin.")
+        return
     
     username = update.message.text.strip()
     
     if username.startswith('@') and len(username) > 1:
         # Valid username
-        user_id = update.effective_user.id
-        user_data = context.user_data.get('onboarding_data', {})
+        user_progress[user_id]['telegram_username'] = username
         
-        # Create support ticket (simplified)
-        ticket_data = {
-            'user_id': user_id,
-            'username': username,
-            'flow_type': 'new_player',
-            'onboarding_data': user_data
-        }
-        
-        logger.info(f"🎉 New player onboarding completed: {ticket_data}")
+        # Save user data (in a real app, you'd save to database)
+        logger.info(f"User {user_id} completed onboarding with username {username}")
         
         await update.message.reply_text(
-            text=s['username_saved'],
+            "✅ Perfect! Our team will contact you soon with next steps and reward information!\n\nUse /start to explore more features.",
             parse_mode='Markdown'
         )
         
-        # Return to main menu
-        return await show_main_menu(update, context)
+        # Reset waiting state
+        user_progress[user_id]['waiting_for_username'] = False
+        
     else:
         await update.message.reply_text(
-            text=s['invalid_username'],
-            parse_mode='Markdown'
+            "❌ Please provide a valid Telegram username starting with @ (example: @username)\n\nPlease try again:"
         )
-        return USERNAME_COLLECTION
 
-# Other menu handlers
-async def handle_existing_player(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle existing player flow"""
-    query = update.callback_query
-    await query.answer()
-    
-    s = STRINGS['en']
-    await query.edit_message_text(
-        text="⚡ **Existing Player Check**\n\nThis feature is coming soon! Use /start to return to main menu.",
-        parse_mode='Markdown'
-    )
-    return ConversationHandler.END
-
-async def handle_support(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle support flow"""
-    query = update.callback_query
-    await query.answer()
-    
-    s = STRINGS['en']
-    await query.edit_message_text(
-        text="🆘 **Support & Rewards**\n\nThis feature is coming soon! Use /start to return to main menu.",
-        parse_mode='Markdown'
-    )
-    return ConversationHandler.END
-
-async def show_channel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Show channel link"""
-    query = update.callback_query
-    await query.answer()
-    
-    s = STRINGS['en']
-    
-    keyboard = [
-        [InlineKeyboardButton(s['join_channel_btn'], url="https://t.me/yourchannel")],
-        [InlineKeyboardButton(s['main_menu_btn'], callback_data="back_to_main")]
-    ]
-    
-    await query.edit_message_text(
-        text=s['channel_text'],
-        reply_markup=InlineKeyboardMarkup(keyboard),
-        parse_mode='Markdown'
-    )
-    
-    return MAIN_MENU
-
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Cancel conversation"""
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send help message"""
     await update.message.reply_text(
-        "Operation cancelled. Use /start to begin again."
+        "Need help? Use /start to begin the setup process or contact support through our community channel."
     )
-    return ConversationHandler.END
 
-def main():
+def main() -> None:
     """Start the bot"""
     print("🤖 Starting Fortnite Gaming Assistant Bot...")
     
     # Create application
-    application = Application.builder().token(TELEGRAM_TOKEN).build()
+    application = Application.builder().token(TOKEN).build()
     
-    # Add basic command handlers
+    # Add handlers
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CallbackQueryHandler(handle_callback))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_username))
     
-    # Add callback query handlers for main menu
-    application.add_handler(CallbackQueryHandler(show_main_menu, pattern="^back_to_main$"))
-    application.add_handler(CallbackQueryHandler(start_new_player_flow, pattern="^new_player_start$"))
-    application.add_handler(CallbackQueryHandler(handle_existing_player, pattern="^existing_player_start$"))
-    application.add_handler(CallbackQueryHandler(handle_support, pattern="^support_start$"))
-    application.add_handler(CallbackQueryHandler(show_channel, pattern="^channel_link$"))
-    
-    # Add new player flow handlers
-    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_1_yes$"))
-    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_2_yes$"))
-    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_3_yes$"))
-    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_4_yes$"))
-    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_5_yes$"))
-    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_6_yes$"))
-    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_7_yes$"))
-    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_8_yes$"))
-    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_9_yes$"))
-    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_10_yes$"))
-    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_11_yes$"))
-    application.add_handler(CallbackQueryHandler(handle_step_yes, pattern="^step_12_yes$"))
-    
-    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_1_no$"))
-    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_2_no$"))
-    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_3_no$"))
-    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_4_no$"))
-    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_5_no$"))
-    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_6_no$"))
-    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_7_no$"))
-    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_8_no$"))
-    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_9_no$"))
-    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_10_no$"))
-    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_11_no$"))
-    application.add_handler(CallbackQueryHandler(handle_step_no, pattern="^step_12_no$"))
-    
-    application.add_handler(CallbackQueryHandler(handle_step_codes, pattern="^step_7_codes$"))
-    
-    # Add message handler for username collection
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, collect_username))
-    
-    # Add cancel handler
-    application.add_handler(CommandHandler("cancel", cancel))
-    
-    # Start bot
-    print("✅ Bot is starting...")
-    print("📍 Use /start to begin")
+    # Start the bot
+    print("✅ Bot is running! Press Ctrl+C to stop.")
     application.run_polling()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
